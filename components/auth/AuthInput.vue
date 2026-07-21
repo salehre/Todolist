@@ -28,7 +28,7 @@
         :class="[
           'w-full rounded-xl border px-4 py-3 text-sm text-slate-800 bg-white',
           'placeholder:text-slate-400 outline-none transition-all duration-200',
-          'focus:ring-2 focus:ring-violet-300 focus:border-violet-500',
+          'focus:ring-2 focus:ring-primary-300 focus:border-primary-500',
           $slots.iconRight ? 'pr-10' : '',
           $slots.iconLeft ? 'pl-10' : '',
           error
