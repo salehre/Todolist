@@ -1,0 +1,189 @@
+<template>
+  <div class="flex h-full gap-3 overflow-hidden p-3 font-sans">
+
+    <!-- لیست تسک‌ها -->
+    <TodoList
+        :todos="todos"
+        :selected-todo="selectedTodo"
+        :mobile-open="!selectedTodo"
+        @select-todo="selectedTodo = $event"
+        @toggle-complete="toggleComplete"
+        @edit-todo="openEditDialog"
+        @delete-todo="handleDeleteFromList"
+        @add-todo="openAddDialog"
+        :hideChatButton="hideChatButton"
+    />
+
+    <!-- جزئیات تسک -->
+    <TodoDetail
+        v-model="selectedTodo"
+        @toggle-complete="toggleComplete"
+        @edit-todo="openEditDialog"
+        @delete-todo="openDeleteConfirm"
+        @back="selectedTodo = null"
+        @update-steps="updateSteps"
+        @complete-step="completeStep"
+        @undo-step="undoStep"
+    />
+
+    <!-- Delete Confirmation Dialog -->
+    <div
+        v-if="showDeleteDialog"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click.self="closeDeleteDialog"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
+        <div class="flex flex-col items-center p-6 text-center">
+          <div class="text-6xl mb-2">
+            <Icon class="text-red-900" icon="quill:folder-trash" />
+          </div>
+          <h3 class="text-xl font-bold text-rose-900 mb-2">Confirm Delete</h3>
+          <p class="text-rose-600 text-sm mb-2">{{ deleteDialogMessage }}</p>
+          <p class="text-pink-400 text-xs">This action cannot be undone!</p>
+        </div>
+        <div
+            class="flex gap-3 p-6 border-t border-pink-100 bg-pink-50/50 rounded-b-2xl"
+        >
+          <button
+              @click="closeDeleteDialog"
+              class="flex-1 px-4 py-2 bg-white border border-pink-200 text-rose-700 rounded-xl font-medium hover:bg-pink-50 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+              @click="confirmDelete"
+              class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-all"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add / Edit Task Dialog -->
+    <div
+        v-if="isDialogOpen"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click.self="closeDialog"
+    >
+      <div
+          class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+      >
+        <div
+            class="flex justify-between items-center p-6 border-b border-pink-100 sticky top-0 bg-white z-10"
+        >
+          <h3 class="text-xl flex font-bold text-rose-900">
+            <Icon
+                :icon="dialogMode === 'add' ? '' : 'mage:edit'"
+                class="mt-0.5 me-1 text-lg"
+            />
+            {{ dialogMode === "add" ? "Add New Task" : "Edit Task" }}
+          </h3>
+          <button
+              @click="closeDialog"
+              class="text-pink-400 hover:text-pink-600 text-2xl"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-rose-700 mb-2">
+              Title
+            </label>
+            <input
+                v-model="dialogForm.title"
+                type="text"
+                placeholder="Enter task title..."
+                class="w-full px-4 py-2 rounded-xl border border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all"
+                @keyup.enter="submitDialog"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-rose-700 mb-2"
+            >Description</label
+            >
+            <textarea
+                v-model="dialogForm.description"
+                rows="4"
+                placeholder="Enter task description (optional)..."
+                class="w-full px-4 py-2 rounded-xl border border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all resize-none"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-rose-700 mb-2"
+            >Priority</label
+            >
+            <select
+                v-model="dialogForm.priority"
+                class="w-full px-4 py-2 rounded-xl border border-pink-200 bg-white text-rose-800 font-medium focus:outline-none focus:ring-2 focus:ring-pink-200"
+            >
+              <option value="low">Low Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="high">High Priority</option>
+            </select>
+          </div>
+        </div>
+        <div
+            class="flex gap-3 p-6 border-t border-pink-100 rounded-b-2xl sticky bottom-0 bg-white"
+        >
+          <button
+              @click="closeDialog"
+              class="flex-1 px-4 py-2 bg-white border border-pink-200 text-rose-700 rounded-xl font-medium hover:bg-pink-50 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+              @click="submitDialog"
+              :disabled="!dialogForm.title.trim()"
+              class="flex-1 px-4 py-2 bg-linear-to-r from-pink-500 to-rose-500 text-white rounded-xl font-medium hover:from-pink-600 hover:to-rose-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ dialogMode === "add" ? "Add Task" : "Save Changes" }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+definePageMeta({ layout: 'dashboard' })
+
+import { onMounted } from "vue";
+import TodoList from "~/components/TodoList.vue";
+import TodoDetail from "~/components/TodoDetail.vue";
+import { Icon } from "@iconify/vue";
+import { useTodos } from "~/composables/useTodos";
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+const props = defineProps({
+  hideChatButton: { type: Boolean, required: false, default: false },
+});
+
+// ─── منطق مشترک CRUD تسک‌ها از composable ─────────────────────────────────────
+const {
+  todos,
+  selectedTodo,
+  showDeleteDialog,
+  deleteDialogMessage,
+  isDialogOpen,
+  dialogMode,
+  dialogForm,
+  fetchTodos,
+  toggleComplete,
+  completeStep,
+  undoStep,
+  updateSteps,
+  openDeleteConfirm,
+  closeDeleteDialog,
+  handleDeleteFromList,
+  confirmDelete,
+  openAddDialog,
+  openEditDialog,
+  closeDialog,
+  submitDialog,
+} = useTodos();
+
+// ─── Lifecycle ────────────────────────────────────────────────────────────────
+onMounted(fetchTodos);
+</script>
