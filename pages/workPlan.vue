@@ -47,39 +47,39 @@
     <!-- Add / Edit Task Dialog -->
     <div v-if="isDialogOpen" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeDialog">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center p-6 border-b border-pink-100 sticky top-0 bg-white z-10">
-          <h3 class="text-xl font-bold text-rose-900">
+        <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
+          <h3 class="text-xl font-bold text-primary-900">
             {{ dialogMode === 'add' ? '➕ Add New Task' : '✏️ Edit Task' }}
           </h3>
-          <button @click="closeDialog" class="text-pink-400 hover:text-pink-600 text-2xl">✕</button>
+          <button @click="closeDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-rose-700 mb-2">
-              Title <span class="text-red-500">*</span>
+            <label class="block text-sm font-medium text-primary-700 mb-2">
+              Title <span class="text-primary-600">*</span>
             </label>
             <input
                 v-model="dialogForm.title"
                 type="text"
                 placeholder="Enter task title..."
-                class="w-full px-4 py-2 rounded-xl border border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all"
+                class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
                 @keyup.enter="submitDialog"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-rose-700 mb-2">Description</label>
+            <label class="block text-sm font-medium text-primary-700 mb-2">Description</label>
             <textarea
                 v-model="dialogForm.description"
                 rows="4"
                 placeholder="Enter task description (optional)..."
-                class="w-full px-4 py-2 rounded-xl border border-pink-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 focus:outline-none transition-all resize-none"
+                class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"
             ></textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium text-rose-700 mb-2">Priority</label>
+            <label class="block text-sm font-medium text-primary-700 mb-2">Priority</label>
             <select
                 v-model="dialogForm.priority"
-                class="w-full px-4 py-2 rounded-xl border border-pink-200 bg-white text-rose-800 font-medium focus:outline-none focus:ring-2 focus:ring-pink-200"
+                class="w-full px-4 py-2 rounded-xl border border-primary-200 bg-white text-primary-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-200"
             >
               <option value="low">🟢 Low Priority</option>
               <option value="medium">🟡 Medium Priority</option>
@@ -87,12 +87,12 @@
             </select>
           </div>
         </div>
-        <div class="flex gap-3 p-6 border-t border-pink-100 rounded-b-2xl sticky bottom-0 bg-white">
-          <button @click="closeDialog" class="flex-1 px-4 py-2 bg-white border border-pink-200 text-rose-700 rounded-xl font-medium hover:bg-pink-50 transition-all">Cancel</button>
+        <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
+          <button @click="closeDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
           <button
               @click="submitDialog"
               :disabled="!dialogForm.title.trim()"
-              class="flex-1 px-4 py-2 bg-linear-to-r from-pink-500 to-rose-500 text-white rounded-xl font-medium hover:from-pink-600 hover:to-rose-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {{ dialogMode === 'add' ? 'Add Task' : 'Save Changes' }}
           </button>
@@ -105,13 +105,13 @@
       <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
         <div class="p-6 text-center">
           <div class="text-5xl mb-4">⚠️</div>
-          <h3 class="text-xl font-bold text-rose-900 mb-2">Confirm Delete</h3>
-          <p class="text-rose-600 text-sm mb-2">Are you sure you want to delete this task?</p>
-          <p class="text-pink-400 text-xs">This action cannot be undone!</p>
+          <h3 class="text-xl font-bold text-primary-900 mb-2">Confirm Delete</h3>
+          <p class="text-primary-600 text-sm mb-2">Are you sure you want to delete this task?</p>
+          <p class="text-primary-400 text-xs">This action cannot be undone!</p>
         </div>
-        <div class="flex gap-3 p-6 border-t border-pink-100 bg-pink-50/50 rounded-b-2xl">
-          <button @click="closeDeleteDialog" class="flex-1 px-4 py-2 bg-white border border-pink-200 text-rose-700 rounded-xl font-medium hover:bg-pink-50 transition-all">Cancel</button>
-          <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-medium transition-all">Delete</button>
+        <div class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl">
+          <button @click="closeDeleteDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
+          <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all">Delete</button>
         </div>
       </div>
     </div>

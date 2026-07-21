@@ -48,15 +48,14 @@
         >
           <Icon icon="mdi:bell-outline" class="text-lg" />
           <span
-              class="absolute inset-e-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-white bg-rose-500"
+              class="absolute inset-e-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"
           />
         </button>
 
         <!-- تغییر تم روشن/تاریک -->
-        <!-- TODO: به سیستم theme/LightTheme.ts و theme/DarkTheme.ts وصلش کن -->
         <button
             v-tooltip="'تغییر تم'"
-            @click="isDark = !isDark"
+            @click="toggleDark"
             class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
         >
           <Icon :icon="isDark ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-lg" />
@@ -77,7 +76,7 @@
       <!-- اطلاعات کاربر: به useAuth واقعی وصله -->
       <div class="flex items-center gap-2.5 rounded-xl py-1.5 ps-1.5 pe-2.5 hover:bg-slate-100">
         <div
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-indigo-500 text-xs font-bold text-white"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-xs font-bold text-white"
         >
           {{ userInitial }}
         </div>
@@ -92,7 +91,7 @@
         <button
             v-tooltip="'خروج از حساب'"
             @click="handleLogout"
-            class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-500"
+            class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
         >
           <Icon icon="mdi:logout" class="text-base" />
         </button>
@@ -132,7 +131,7 @@
           اعلان‌ها
         </button>
         <button
-            @click="isDark = !isDark; mobileMenuOpen = false"
+            @click="toggleDark(); mobileMenuOpen = false"
             class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
         >
           <Icon :icon="isDark ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-lg text-slate-400" />
@@ -147,13 +146,13 @@
 import { computed, nextTick, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useAuth } from '@/composables/useAuth'
+import { useTheme } from '@/composables/useTheme'
 
 const { authState, logout } = useAuth()
 const router = useRouter()
 const route = useRoute()
 
-// TODO: صرفاً placeholder برای دکمه‌ی تم؛ منطق واقعی رو وصل کن
-const isDark = ref(false)
+const { isDark, toggleDark } = useTheme()
 
 // همون کلید useState که توی DashboardSidebar.vue استفاده شده، پس با هم sync‌ان
 const mobileSidebarOpen = useState<boolean>('dashboard-sidebar-mobile-open', () => false)
@@ -172,6 +171,7 @@ const pageTitle = computed(() => {
     '/mainTodo': 'تودولیست من',
     '/workPlan': 'کار تیمی',
     '/customTodo': 'تودولیست شخصی',
+    '/settings': 'تنظیمات',
   }
   return (route.meta.title as string) || titles[route.path] || 'داشبورد'
 })
@@ -201,8 +201,8 @@ function positionDropdown(): void {
   const spaceRight = window.innerWidth - rect.left - margin
   const spaceLeft = rect.right - margin
 
+  // سمت پیش‌فرض بر اساس جهت واقعی صفحه (rtl/ltr)، نه چپ ثابت
   const isRtl = getComputedStyle(moreButtonRef.value).direction === 'rtl'
-  // ltr: پیش‌فرض سمت چپ دکمه (منو به چپ باز می‌شه) — rtl: برعکس
   const preferLeft = !isRtl
 
   const trySide = (side: 'left' | 'right') =>

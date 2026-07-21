@@ -25,7 +25,7 @@
     >
       <div class="flex items-center gap-2.5 overflow-hidden">
         <div
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-600 to-indigo-600 shadow-lg shadow-indigo-200/60"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary-600 to-primary-700 shadow-lg shadow-primary-200/60"
         >
           <Icon icon="mdi:view-dashboard-outline" class="text-lg text-white" />
         </div>
@@ -50,13 +50,13 @@
            مشترک بین top/height آیتم قبلی و جدید سُر می‌خوره (transition روی موقعیت) -->
       <div
           v-show="activeIndex !== -1"
-          class="pointer-events-none absolute inset-x-3 z-0 rounded-e-3xl bg-indigo-50 transition-[top,height] duration-300 ease-in-out"
+          class="pointer-events-none absolute inset-x-3 z-0 rounded-e-3xl bg-primary-50 transition-[top,height] duration-300 ease-in-out"
           :style="{ top: `${indicatorTop}px`, height: `${indicatorHeight}px` }"
       />
       <div
           v-show="activeIndex !== -1"
-          class="pointer-events-none absolute inset-s-3 z-10 w-0.75  bg-indigo-600 transition-[top,height] duration-300 ease-in-out"
-          :style="{ top: `${indicatorTop + 1 }px`, height: `${indicatorHeight - 2 }px` }"
+          class="pointer-events-none absolute inset-s-3 z-10 w-0.75 bg-primary-600 transition-[top,height] duration-300 ease-in-out"
+          :style="{ top: `${indicatorTop + 1}px`, height: `${indicatorHeight - 2}px` }"
       />
 
       <NuxtLink
@@ -69,9 +69,11 @@
           class="group relative z-10 flex rounded-xl px-4.5 py-2.5 text-sm font-medium transition-colors duration-200"
           :class="[
           iconOnly ? 'md:justify-center' : 'gap-3',
-          isActive(item.to) ? 'text-indigo-700' : 'text-slate-500 hover:text-slate-800',
+          isActive(item.to) ? 'text-primary-700' : 'text-slate-500 hover:text-slate-800',
         ]"
       >
+        <!-- هاور: جنسِ حرکتش عمداً با هایلایتِ فعال (که موقعیتش سُر می‌خوره) فرق داره —
+             اینجا از مرکز بزرگ می‌شه و محو می‌شه (transform-origin: center + scale/opacity) -->
         <span
             v-if="!isActive(item.to)"
             class="pointer-events-none absolute inset-0 -z-10 scale-75 rounded-e-3xl bg-slate-100 opacity-0 transition-[transform,opacity] duration-200 ease-out group-hover:scale-100 group-hover:opacity-100"
@@ -108,7 +110,7 @@ const navItems: NavItem[] = [
   { label: 'کار تیمی', icon: 'mdi:account-group-outline', to: '/workPlan' },
   { label: 'تودولیست شخصی', icon: 'mdi:notebook-outline', to: '/customTodo' },
   { label: 'تقویم', icon: 'mdi:calendar-month-outline', to: '#' },
-  { label: 'تنظیمات', icon: 'mdi:cog-outline', to: '#' },
+  { label: 'تنظیمات', icon: 'mdi:cog-outline', to: '/settings' },
 ]
 
 const route = useRoute()
