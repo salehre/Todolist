@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@layer base {
+    html{
+        direction: ltr;
+    }
+}
+
+button{
+    cursor: pointer;
+}
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-Thin.woff2') format('woff2');
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-ExtraLight.woff2') format('woff2');
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-Light.woff2') format('woff2');
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-Regular.woff2') format('woff2');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-Medium.woff2') format('woff2');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-Bold.woff2') format('woff2');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Peyda';
+    src: url('~/public/fonts/peyda/PeydaWeb-ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+}
+
+* {
+    font-family: 'Peyda', sans-serif !important;
+}
+
+
+
+/* @font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-Thin.woff2') format('woff2');
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-ExtraLight.woff2') format('woff2');
+    font-weight: 200;
+}
+
+@font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-Light.woff2') format('woff2');
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-Regular.woff2') format('woff2');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-Medium.woff2') format('woff2');
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-Bold.woff2') format('woff2');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: 'Vazir';
+    src: url('/fonts/Vazir/Vazirmatn-FD-ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+}
+
+* {
+    font-family: 'Vazir', sans-serif !important;
+} */
