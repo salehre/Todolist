@@ -5,7 +5,7 @@
   ]">
 
     <!-- Header -->
-    <div class="shrink-0 bg-white/90 backdrop-blur-md rounded-t-2xl not-md:rounded-ss-none border-b border-primary-200/60 shadow-sm relative z-50">
+    <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50">
       <div class="px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <!-- Group Avatar -->

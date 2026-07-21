@@ -2,11 +2,12 @@
   <!-- Collapsed Bar (desktop only) -->
   <div
       v-if="isCollapsed"
-      class="hidden sm:flex flex-col rounded-2xl items-center w-14 h-full border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm shrink-0 pt-5 gap-3'"
-  >
+      :class="['hidden sm:flex flex-col rounded-2xl items-center w-14 h-full border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm shrink-0 pt-5 gap-3',
+       isWorkplan ? 'rounded-tr-2xl' : 'md:rounded-tr-none'
+      ]">
     <button
         @click="isCollapsed = false"
-        title="Show Tasks"
+        v-tooltip:end="'Show Tasks'"
         class="w-9 h-9 flex items-center justify-center rounded-xl text-primary-600 hover:bg-primary-100/70 transition-all cursor-e-resize!"
     >
       <Icon icon="mingcute:layout-left-fill" class="text-lg" />
@@ -28,8 +29,9 @@
   </div>
 
   <div v-else ref="listPanelRef" :class="[
-    'relative border border-primary-200/50 bg-linear-to-br from-white via-primary-50/40 to-primary-100/40 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-visible rounded-tl-2xl rounded-bl-2xl rounded-br-2xl',
-    isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
+    'relative border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-visible',
+    'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl rounded-tr-2xl',
+    isWorkplan ? 'rounded-tr-2xl' : 'md:rounded-tr-none',
     'w-full md:w-1/3',
     isMobile && !showOnMobile ? 'hidden' : 'flex'
   ]">
