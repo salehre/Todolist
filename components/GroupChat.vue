@@ -5,23 +5,23 @@
   ]">
 
     <!-- Header -->
-    <div class="shrink-0 bg-white/90 backdrop-blur-md rounded-t-2xl md:rounded-ss-none border-b border-pink-200/60 shadow-sm relative z-50">
+    <div class="shrink-0 bg-white/90 backdrop-blur-md rounded-t-2xl not-md:rounded-ss-none border-b border-primary-200/60 shadow-sm relative z-50">
       <div class="px-5 py-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <!-- Group Avatar -->
-          <div class="w-10 h-10 rounded-full bg-linear-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-md shadow-pink-200 z-50">
+          <div class="w-10 h-10 rounded-full bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-md shadow-primary-200 z-50">
             <Icon icon="solar:users-group-rounded-bold" class="text-white text-xl" />
           </div>
           <div>
-            <h2 class="text-sm font-bold text-rose-900">Project Team</h2>
-            <p class="text-xs text-pink-400">{{ onlineMembers.length }} online · {{ members.length }} members</p>
+            <h2 class="text-sm font-bold text-primary-900">Project Team</h2>
+            <p class="text-xs text-primary-400">{{ onlineMembers.length }} online · {{ members.length }} members</p>
           </div>
         </div>
 
         <div class="flex items-center gap-2 relative">
           <button
               @click="emit('open-tasks')"
-              class="md:hidden flex items-center gap-2 px-2 py-2 text-sm text-rose-700 transition-colors"
+              class="md:hidden flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors"
               v-tooltip="'Show Tasks'"
           >
             <Icon icon="solar:checklist-minimalistic-linear" class="text-lg" />
@@ -29,14 +29,14 @@
 
           <button
               @click="showSearch = !showSearch; showHeaderMenu = false"
-              :class="['flex items-center gap-2 px-2 py-2 text-sm transition-colors', showSearch ? 'text-pink-600' : 'text-rose-700']"
+              :class="['flex items-center gap-2 px-2 py-2 text-sm transition-colors', showSearch ? 'text-primary-600' : 'text-primary-700']"
           >
             <Icon icon="boxicons:search" class="text-lg" />
           </button>
 
           <button
               @click.stop="showHeaderMenu = !showHeaderMenu"
-              class="p-2 rounded-full text-pink-400 hover:bg-pink-50 hover:text-pink-600 transition-all"
+              class="p-2 rounded-full text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all"
               v-tooltip="'More options'"
           >
             <Icon icon="mage:dots" class="text-xl" />
@@ -49,14 +49,14 @@
           >
             <button
                 @click="emit('toggle-filter'); showHeaderMenu = false"
-                class="flex items-center gap-2 w-full px-4 py-2 text-sm text-rose-700 hover:bg-pink-50 transition-colors"
+                class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors"
             >
               Filter messages
             </button>
 
             <button
                 @click="emit('toggle-group-info'); showHeaderMenu = false"
-                class="flex items-center gap-2 w-full px-4 py-2 text-sm text-rose-700 hover:bg-pink-50 transition-colors border-t border-pink-100 mt-1"
+                class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors border-t border-primary-100 mt-1"
             >
               Group info
             </button>
@@ -67,16 +67,16 @@
 
     <!-- Search Bar -->
     <div v-if="showSearch" class="shrink-0 px-3 py-2 bg-white relative z-9999 animate-in fade-in slide-in-from-top-2 duration-200">
-      <div class="flex items-center gap-2 bg-pink-50 rounded-xl px-3 py-2.5">
-        <Icon icon="solar:magnifer-linear" class="text-pink-400 shrink-0" />
+      <div class="flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2.5">
+        <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0" />
         <input
             v-model="searchQuery"
             type="text"
             placeholder="Search messages..."
-            class="flex-1 bg-transparent text-sm text-rose-800 placeholder-pink-300 focus:outline-none"
+            class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none"
             autofocus
         />
-        <button v-if="searchQuery" @click="searchQuery = ''" class="text-pink-300 hover:text-pink-500 shrink-0">
+        <button v-if="searchQuery" @click="searchQuery = ''" class="text-primary-300 hover:text-primary-500 shrink-0">
           <Icon icon="mingcute:close-line" />
         </button>
       </div>
@@ -88,13 +88,13 @@
     ]" >
       <button
           @click="showPinnedDialog = true"
-          class="w-full mx-auto flex items-center gap-2 px-4 py-2.5 bg-white/90 backdrop-blur-md rounded-2xl border border-pink-200/60 shadow-lg shadow-pink-200/20 hover:shadow-pink-200/40 transition-all group"
+          class="w-full mx-auto flex items-center gap-2 px-4 py-2.5 bg-white/90 backdrop-blur-md rounded-2xl border border-primary-200/60 shadow-lg shadow-primary-200/20 hover:shadow-primary-200/40 transition-all group"
       >
-        <Icon icon="iconoir:pin" class="text-pink-500 -rotate-45 text-sm shrink-0" />
-        <span class="text-sm text-rose-700 flex-1 text-left truncate">
+        <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-sm shrink-0" />
+        <span class="text-sm text-primary-700 flex-1 text-left truncate">
       {{ pinnedMessages[0].text }}
     </span>
-        <span class="text-xs text-pink-400 bg-pink-200/50 px-2 py-0.5 rounded-full font-medium shrink-0">
+        <span class="text-xs text-primary-400 bg-primary-200/50 px-2 py-0.5 rounded-full font-medium shrink-0">
       {{ pinnedMessages.length }} pinned
     </span>
       </button>
@@ -110,13 +110,13 @@
         <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[70vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
           <!-- Dialog Header -->
-          <div class="flex items-center justify-between px-5 py-4 border-b border-pink-100">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-primary-100">
             <div class="flex items-center gap-2">
-              <Icon icon="iconoir:pin" class="text-pink-500 -rotate-45 text-lg" />
-              <h3 class="text-base font-bold text-rose-900">Pinned Messages</h3>
-              <span class="text-xs text-pink-400 bg-pink-50 px-2 py-0.5 rounded-full">{{ pinnedMessages.length }}</span>
+              <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-lg" />
+              <h3 class="text-base font-bold text-primary-900">Pinned Messages</h3>
+              <span class="text-xs text-primary-400 bg-primary-50 px-2 py-0.5 rounded-full">{{ pinnedMessages.length }}</span>
             </div>
-            <button @click="showPinnedDialog = false" class="p-1.5 rounded-full hover:bg-pink-50 text-pink-400 hover:text-pink-600 transition">
+            <button @click="showPinnedDialog = false" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
               <Icon icon="mingcute:close-line" class="text-lg" />
             </button>
           </div>
@@ -127,21 +127,21 @@
                 v-for="msg in pinnedMessages"
                 :key="msg.id"
                 @click="scrollToMessage(msg.id); showPinnedDialog = false"
-                class="flex items-start gap-3 p-3 rounded-xl hover:bg-pink-50 transition-all cursor-pointer group/item"
+                class="flex items-start gap-3 p-3 rounded-xl hover:bg-primary-50 transition-all cursor-pointer group/item"
             >
-              <div class="shrink-0 w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">
-                <Icon icon="iconoir:pin" class="text-pink-500 -rotate-45 text-sm" />
+              <div class="shrink-0 w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-sm" />
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-0.5">
-                  <span class="text-xs font-medium text-rose-800">{{ getMemberName(msg.senderId) }}</span>
-                  <span class="text-[10px] text-pink-300">{{ formatTime(msg.timestamp) }}</span>
+                  <span class="text-xs font-medium text-primary-800">{{ getMemberName(msg.senderId) }}</span>
+                  <span class="text-[10px] text-primary-300">{{ formatTime(msg.timestamp) }}</span>
                 </div>
-                <p class="text-sm text-rose-600 line-clamp-2">{{ msg.text }}</p>
+                <p class="text-sm text-primary-600 line-clamp-2">{{ msg.text }}</p>
               </div>
               <button
                   @click.stop="unpinMessage(msg.id)"
-                  class="shrink-0 p-1.5 rounded-lg bg-pink-100 text-pink-500 opacity-0 transition-all"
+                  class="shrink-0 p-1.5 rounded-lg bg-primary-100 text-primary-500 opacity-0 transition-all"
                   v-tooltip="'Unpin'"
               >
                 <Icon icon="ri:unpin-fill" class="text-sm -rotate-45" />
@@ -159,17 +159,17 @@
     >
       <template v-for="(group, date) in groupedMessages" :key="date">
         <div class="flex items-center gap-3 my-4">
-          <div class="flex-1 h-px bg-pink-100"></div>
-          <span class="text-xs text-pink-300 px-2 py-1 bg-white/60 rounded-full">{{ date }}</span>
-          <div class="flex-1 h-px bg-pink-100"></div>
+          <div class="flex-1 h-px bg-primary-100"></div>
+          <span class="text-xs text-primary-300 px-2 py-1 bg-white/60 rounded-full">{{ date }}</span>
+          <div class="flex-1 h-px bg-primary-100"></div>
         </div>
 
         <template v-for="(msg, index) in group" :key="msg.id">
           <!-- System Message -->
           <div v-if="msg.type === 'system'" class="flex justify-center my-2">
-            <div class="flex items-center gap-2 px-3 py-1.5 bg-pink-50 rounded-full border border-pink-100">
-              <Icon icon="mingcute:check-circle-line" class="text-pink-500 text-sm" />
-              <span class="text-xs text-pink-500">{{ msg.text }}</span>
+            <div class="flex items-center gap-2 px-3 py-1.5 bg-primary-50 rounded-full border border-primary-100">
+              <Icon icon="mingcute:check-circle-line" class="text-primary-500 text-sm" />
+              <span class="text-xs text-primary-500">{{ msg.text }}</span>
             </div>
           </div>
 
@@ -180,13 +180,13 @@
               'flex gap-2 group relative transition-all duration-500',
               msg.senderId === currentUser.id ? 'flex-row-reverse' : 'flex-row',
               isSameSenderAsPrev(group, index) ? 'mt-0.5' : 'mt-3',
-              highlightedMessageId === msg.id ? 'bg-pink-100/50 rounded-xl -mx-2 px-2 py-1' : ''
+              highlightedMessageId === msg.id ? 'bg-primary-100/50 rounded-xl -mx-2 px-2 py-1' : ''
             ]"
           >
             <div class="shrink-0 w-8">
               <div
                   v-if="!isSameSenderAsPrev(group, index)"
-                  :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm', getMemberById(msg.senderId)?.avatarBg ?? 'bg-pink-400']"
+                  :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm', getMemberById(msg.senderId)?.avatarBg ?? 'bg-primary-400']"
               >
                 {{ getMemberName(msg.senderId)[0] }}
               </div>
@@ -195,7 +195,7 @@
             <div class="flex-1 max-w-[72%] relative">
               <span
                   v-if="!isSameSenderAsPrev(group, index) && msg.senderId !== currentUser.id"
-                  class="text-xs text-pink-500 font-medium mb-1 ml-1 block"
+                  class="text-xs text-primary-500 font-medium mb-1 ml-1 block"
               >
                 {{ getMemberName(msg.senderId) }}
               </span>
@@ -206,18 +206,18 @@
                     :class="[
                     'px-3 py-1 my-px rounded-[20px] text-[16px] leading-relaxed',
                     msg.senderId === currentUser.id
-                      ? 'bg-linear-to-br from-pink-500 to-rose-500 text-white shadow-md shadow-pink-200'
-                      : 'bg-white text-rose-800 shadow-sm border border-pink-100'
+                      ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200'
+                      : 'bg-white text-primary-800 shadow-sm border border-primary-100'
                   ]"
                 >
 
                   <!-- Reply Preview -->
                   <div v-if="msg.replyTo" :class="[
-                    'text-xs px-3 py-2 rounded-[11px] mb-1.5 mt-2 border-pink-400 bg-pink-50 max-w-full',
+                    'text-xs px-3 py-2 rounded-[11px] mb-1.5 mt-2 border-primary-400 bg-primary-50 max-w-full',
                   ]">
                     <div class="divide-y divide-blue-900 w-full h-px"></div>
-                    <span class="font-medium text-pink-500">{{ getMemberName(getMessageById(msg.replyTo)?.senderId ?? 0) }}</span>
-                    <p class="text-pink-400 truncate">{{ getMessageById(msg.replyTo)?.text }}</p>
+                    <span class="font-medium text-primary-500">{{ getMemberName(getMessageById(msg.replyTo)?.senderId ?? 0) }}</span>
+                    <p class="text-primary-400 truncate">{{ getMessageById(msg.replyTo)?.text }}</p>
                   </div>
 
                   <!-- File Attachment Display -->
@@ -259,10 +259,10 @@
 
                   <!-- Todo Reference -->
                   <div v-if="msg.todoRef" :class="[
-                    'flex items-center gap-2 px-3 py-2 rounded-xl mb-1.5 bg-pink-50 border border-pink-200 text-xs text-rose-700 cursor-pointer hover:bg-pink-100 transition-all',
+                    'flex items-center gap-2 px-3 py-2 rounded-xl mb-1.5 bg-primary-50 border border-primary-200 text-xs text-primary-700 cursor-pointer hover:bg-primary-100 transition-all',
                     msg.senderId === currentUser.id ? 'rounded-tr-sm' : 'rounded-tl-sm'
                   ]" @click="emit('view-todo', msg.todoRef!)">
-                    <Icon icon="mingcute:task-2-line" class="text-pink-500 shrink-0" />
+                    <Icon icon="mingcute:task-2-line" class="text-primary-500 shrink-0" />
                     <span class="font-medium">Task: {{ msg.todoRef.text }}</span>
                     <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[msg.todoRef.priority]]">
                       {{ msg.todoRef.priority }}
@@ -282,15 +282,15 @@
                       <Icon
                           v-if="msg.senderId === currentUser.id"
                           :icon="msg.read ? 'solar:check-read-linear' : 'solar:check-linear'"
-                          :class="['text-xs', msg.read ? 'text-emerald-300' : 'text-pink-300']"
+                          :class="['text-xs', msg.read ? 'text-emerald-300' : 'text-primary-300']"
                       />
-                      <span :class="['text-[12px]', msg.senderId === currentUser.id ? 'text-pink-400' : 'text-pink-300']">
+                      <span :class="['text-[12px]', msg.senderId === currentUser.id ? 'text-primary-400' : 'text-primary-300']">
                         {{ formatTime(msg.timestamp) }}
                       </span>
 
                       <!-- Pinned Indicator -->
                       <div v-if="msg.pinned" class="flex items-center gap-1 mb-1">
-                        <Icon icon="iconoir:pin" class="text-rose-600 text-xs" />
+                        <Icon icon="iconoir:pin" class="text-primary-600 text-xs" />
                       </div>
 
                       <div v-if="msg.edited" class="text-[10px] opacity-70 ml-1"><Icon icon="mdi:edit-outline" class="text-blue-600 text-xs" /></div>
@@ -305,10 +305,10 @@
                           :class="[
                           'flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs transition-all',
                           hasUserReacted(msg.id, String(emoji))
-                            ? 'bg-pink-200/80 text-pink-700'
+                            ? 'bg-primary-200/80 text-primary-700'
                             : msg.senderId === currentUser.id
                             ? 'bg-white/20 text-white/80 hover:bg-white/30'
-                            : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                            : 'bg-primary-50 text-primary-600 hover:bg-primary-100'
                         ]"
                       >
                         {{ emoji }} <span>{{ (users as number[]).length }}</span>
@@ -326,7 +326,7 @@
                       msg.senderId === currentUser.id ? '-left-6' : '-right-6'
                     ]"
                 >
-                  <Icon icon="mage:dots" class="text-pink-500 text-lg" />
+                  <Icon icon="mage:dots" class="text-primary-500 text-lg" />
                 </button>
               </div>
             </div>
@@ -336,12 +336,12 @@
 
       <!-- Typing Indicator -->
       <div v-if="typingUsers.length > 0" class="flex items-center gap-2 mt-2 ml-10">
-        <div class="flex gap-1 bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-pink-100">
-          <span class="w-1.5 h-1.5 bg-pink-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
-          <span class="w-1.5 h-1.5 bg-pink-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
-          <span class="w-1.5 h-1.5 bg-pink-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+        <div class="flex gap-1 bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-primary-100">
+          <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+          <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+          <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
         </div>
-        <span class="text-xs text-pink-400">{{ typingText }}</span>
+        <span class="text-xs text-primary-400">{{ typingText }}</span>
       </div>
 
       <div ref="bottomAnchor"></div>
@@ -357,37 +357,37 @@
           :style="{ top: menuStyle.top + 'px', left: menuStyle.left + 'px', transformOrigin: menuOrigin }"
       >
         <!-- Quick Emoji Reactions -->
-        <div class="flex gap-1 px-2 py-1.5 border-b max-w-40 overflow-x-auto scrollbar-thin border-pink-100">
+        <div class="flex gap-1 px-2 py-1.5 border-b max-w-40 overflow-x-auto scrollbar-thin border-primary-100">
           <button
               v-for="emoji in quickEmojis"
               :key="emoji"
               @click="toggleReaction(activeMenu.id, emoji); activeMenuId = null"
-              class="text-base hover:scale-125 transition-transform px-1 hover:bg-pink-50 rounded"
+              class="text-base hover:scale-125 transition-transform px-1 hover:bg-primary-50 rounded"
           >{{ emoji }}</button>
         </div>
 
-        <button @click="copyMessage(activeMenu.text); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-rose-700 hover:bg-pink-50 transition-colors">
-          <Icon icon="solar:copy-linear" class="text-pink-500 text-sm" />
+        <button @click="copyMessage(activeMenu.text); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+          <Icon icon="solar:copy-linear" class="text-primary-500 text-sm" />
           Copy
         </button>
 
-        <button @click="replyTo = activeMenu; activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-rose-700 hover:bg-pink-50 transition-colors">
-          <Icon icon="solar:reply-linear" class="text-pink-500 text-sm" />
+        <button @click="replyTo = activeMenu; activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+          <Icon icon="solar:reply-linear" class="text-primary-500 text-sm" />
           Reply
         </button>
 
-        <button v-if="activeMenu.senderId === currentUser.id" @click="startEdit(activeMenu); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-rose-700 hover:bg-pink-50 transition-colors">
-          <Icon icon="mi:edit" class="text-pink-500 text-sm" />
+        <button v-if="activeMenu.senderId === currentUser.id" @click="startEdit(activeMenu); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+          <Icon icon="mi:edit" class="text-primary-500 text-sm" />
           Edit
         </button>
 
-        <button @click="togglePin(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-rose-700 hover:bg-pink-50 transition-colors">
-          <Icon :icon="activeMenu.pinned ? 'ri:unpin-line' : 'iconoir:pin'" class="text-pink-500 text-sm" />
+        <button @click="togglePin(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+          <Icon :icon="activeMenu.pinned ? 'ri:unpin-line' : 'iconoir:pin'" class="text-primary-500 text-sm" />
           {{ activeMenu.pinned ? 'Unpin' : 'Pin' }}
         </button>
 
-        <button v-if="activeMenu.senderId === currentUser.id" @click="deleteMessage(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors">
-          <Icon icon="mingcute:delete-line" class="text-red-400 text-sm" />
+        <button v-if="activeMenu.senderId === currentUser.id" @click="deleteMessage(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors">
+          <Icon icon="mingcute:delete-line" class="text-primary-500 text-sm" />
           Delete
         </button>
       </div>
@@ -395,7 +395,7 @@
 
     <!-- Scroll to Bottom Button -->
     <div v-if="unreadCount > 0 && !isNearBottom" class="absolute bottom-24 right-6 z-20">
-      <button @click="scrollToBottom" class="flex items-center gap-1.5 px-3 py-2 bg-pink-500 text-white rounded-full text-xs font-medium shadow-lg hover:bg-pink-600 transition-all">
+      <button @click="scrollToBottom" class="flex items-center gap-1.5 px-3 py-2 bg-primary-500 text-white rounded-full text-xs font-medium shadow-lg hover:bg-primary-600 transition-all">
         <Icon icon="mingcute:arrow-down-line" />
         {{ unreadCount }} new
       </button>
@@ -433,12 +433,12 @@
     </div>
 
     <!-- Reply Preview -->
-    <div v-if="replyTo" class="shrink-0 mx-4 mb-2 px-3 py-2 bg-pink-50 rounded-xl border border-pink-200 flex items-center gap-2">
+    <div v-if="replyTo" class="shrink-0 mx-4 mb-2 px-3 py-2 bg-primary-50 rounded-xl border border-primary-200 flex items-center gap-2">
       <div class="flex-1">
-        <p class="text-xs font-medium text-pink-500">Replying to {{ getMemberName(replyTo.senderId) }}</p>
-        <p class="text-xs text-pink-400 truncate">{{ replyTo.text }}</p>
+        <p class="text-xs font-medium text-primary-500">Replying to {{ getMemberName(replyTo.senderId) }}</p>
+        <p class="text-xs text-primary-400 truncate">{{ replyTo.text }}</p>
       </div>
-      <button @click="replyTo = null" class="text-pink-400 hover:text-pink-600">
+      <button @click="replyTo = null" class="text-primary-400 hover:text-primary-600">
         <Icon icon="mingcute:close-line" />
       </button>
     </div>
@@ -454,57 +454,57 @@
 
     <!-- Input Area -->
     <div ref="inputAreaRef" class="shrink-0 fixed bottom-0 right-0 left-0 px-4 pb-4 pt-2">
-      <div class="bg-white rounded-2xl border border-pink-200 shadow-sm overflow-hidden">
+      <div class="bg-white rounded-2xl border border-primary-200 shadow-sm overflow-hidden">
 
         <!-- Attachment Menu -->
-        <div v-if="showAttachMenu" class="px-4 pt-3 pb-2 border-b border-pink-100">
-          <p class="text-xs text-pink-400 mb-2 font-medium">Attach & Share</p>
+        <div v-if="showAttachMenu" class="px-4 pt-3 pb-2 border-b border-primary-100">
+          <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
 
-          <label class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-pink-50 hover:bg-pink-100 transition-all text-sm text-rose-700 cursor-pointer mb-1">
-            <Icon icon="solar:gallery-linear" class="text-pink-500" />
+          <label class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 cursor-pointer mb-1">
+            <Icon icon="solar:gallery-linear" class="text-primary-500" />
             Upload Image
             <input type="file" accept="image/*" class="hidden" @change="handleFileSelect($event, 'image')" />
           </label>
 
-          <label class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-pink-50 hover:bg-pink-100 transition-all text-sm text-rose-700 cursor-pointer mb-1">
-            <Icon icon="solar:document-linear" class="text-pink-500" />
+          <label class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 cursor-pointer mb-1">
+            <Icon icon="solar:document-linear" class="text-primary-500" />
             Upload File
             <input type="file" class="hidden" @change="handleFileSelect($event, 'file')" />
           </label>
 
-          <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-pink-50 hover:bg-pink-100 transition-all text-sm text-rose-700 mt-1">
-            <Icon icon="mingcute:task-2-line" class="text-pink-500" />
+          <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
+            <Icon icon="mingcute:task-2-line" class="text-primary-500" />
             Create Task
           </button>
         </div>
 
         <!-- Inline Todo Creation -->
-        <div v-if="showCreateTodoInline" class="px-4 pt-3 pb-2 border-b border-pink-100 space-y-2">
-          <p class="text-xs text-pink-500 font-semibold flex items-center gap-1">
+        <div v-if="showCreateTodoInline" class="px-4 pt-3 pb-2 border-b border-primary-100 space-y-2">
+          <p class="text-xs text-primary-500 font-semibold flex items-center gap-1">
             <Icon icon="mingcute:task-2-line" /> New Task
           </p>
           <input
               v-model="inlineTodo.title"
               type="text"
               placeholder="Task title *"
-              class="w-full px-3 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200"
+              class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200"
           />
           <textarea
               v-model="inlineTodo.description"
               rows="2"
               placeholder="Description (optional)"
-              class="w-full px-3 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:border-pink-400 focus:ring-1 focus:ring-pink-200 resize-none"
+              class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none"
           ></textarea>
           <div class="flex gap-2">
-            <select v-model="inlineTodo.priority" class="flex-1 px-3 py-2 rounded-xl border border-pink-200 text-sm focus:outline-none focus:ring-1 focus:ring-pink-200 text-rose-700 font-medium">
+            <select v-model="inlineTodo.priority" class="flex-1 px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:ring-1 focus:ring-primary-200 text-primary-700 font-medium">
               <option value="low">🟢 Low</option>
               <option value="medium">🟡 Medium</option>
               <option value="high">🔴 High</option>
             </select>
-            <button @click="createTodoFromChat" :disabled="!inlineTodo.title.trim()" class="px-4 py-2 bg-pink-500 text-white rounded-xl text-sm font-medium hover:bg-pink-600 transition-all disabled:opacity-50">
+            <button @click="createTodoFromChat" :disabled="!inlineTodo.title.trim()" class="px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50">
               Create
             </button>
-            <button @click="showCreateTodoInline = false" class="px-3 py-2 text-pink-400 hover:text-pink-600">
+            <button @click="showCreateTodoInline = false" class="px-3 py-2 text-primary-400 hover:text-primary-600">
               <Icon icon="mingcute:close-line" />
             </button>
           </div>
@@ -516,7 +516,7 @@
           <button
               v-if="!isRecording"
               @click="startRecording"
-              :class="['p-2 rounded-xl transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-pink-400 hover:bg-pink-50 hover:text-pink-500']"
+              :class="['p-2 rounded-xl transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
               v-tooltip="'Record voice message'"
           >
             <Icon icon="solar:microphone-bold" class="text-lg" />
@@ -525,7 +525,7 @@
           <!-- Attachment Button -->
           <button
               @click="showAttachMenu = !showAttachMenu"
-              :class="['p-2 rounded-xl transition-all shrink-0', showAttachMenu ? 'bg-pink-100 text-pink-600' : 'text-pink-400 hover:bg-pink-50 hover:text-pink-500']"
+              :class="['p-2 rounded-xl transition-all shrink-0', showAttachMenu ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
               v-tooltip="'Attach file or image'"
           >
             <Icon icon="solar:paperclip-linear" class="text-lg" />
@@ -539,7 +539,7 @@
               @keydown.enter.shift.exact="inputText += '\n'"
               rows="1"
               placeholder="Type a message..."
-              class="flex-1 resize-none bg-transparent text-sm text-rose-800 placeholder-pink-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
+              class="flex-1 resize-none bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
               style="field-sizing: content"
           ></textarea>
 
@@ -550,8 +550,8 @@
               :class="[
               'p-2.5 rounded-xl transition-all shrink-0',
               inputText.trim()
-                ? 'bg-linear-to-br from-pink-500 to-rose-500 text-white shadow-md shadow-pink-200 hover:shadow-lg hover:scale-105 active:scale-95'
-                : 'bg-pink-100 text-pink-300 cursor-not-allowed'
+                ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95'
+                : 'bg-primary-100 text-primary-300 cursor-not-allowed'
             ]"
               v-tooltip="'Send message'"
           >
@@ -633,10 +633,10 @@ const emit = defineEmits<{
   'open-tasks': []
 }>()
 
-const currentUser: Member = { id: 1, name: 'You', avatarBg: 'bg-pink-500', online: true }
+const currentUser: Member = { id: 1, name: 'You', avatarBg: 'bg-primary-500', online: true }
 
 const members = ref<Member[]>([
-  { id: 1, name: 'You',    avatarBg: 'bg-pink-500',   online: true  },
+  { id: 1, name: 'You',    avatarBg: 'bg-primary-500',   online: true  },
   { id: 2, name: 'Sara',   avatarBg: 'bg-violet-500', online: true  },
   { id: 3, name: 'Ali',    avatarBg: 'bg-sky-500',    online: false },
   { id: 4, name: 'Mina',   avatarBg: 'bg-emerald-500',online: true  },

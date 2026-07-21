@@ -2,34 +2,34 @@
   <!-- Collapsed Bar (desktop only) -->
   <div
       v-if="isCollapsed"
-      class="hidden sm:flex flex-col rounded-2xl items-center w-14 h-full border border-pink-200/50 bg-white/30 shadow-lg shadow-pink-200/40 backdrop-blur-sm shrink-0 pt-5 gap-3"
+      class="hidden sm:flex flex-col rounded-2xl items-center w-14 h-full border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm shrink-0 pt-5 gap-3'"
   >
     <button
         @click="isCollapsed = false"
-        v-tooltip:end="'Show Tasks'"
-        class="w-9 h-9 flex items-center justify-center rounded-xl text-pink-600 hover:bg-pink-100/70 transition-all cursor-e-resize!"
+        title="Show Tasks"
+        class="w-9 h-9 flex items-center justify-center rounded-xl text-primary-600 hover:bg-primary-100/70 transition-all cursor-e-resize!"
     >
       <Icon icon="mingcute:layout-left-fill" class="text-lg" />
     </button>
     <button
         @click="emit('add-todo')"
         v-tooltip:end="'Add Task'"
-        class="w-9 h-9 flex items-center justify-center rounded-xl text-pink-600 hover:bg-pink-100/70 transition-all"
+        class="w-9 h-9 flex items-center justify-center rounded-xl text-primary-600 hover:bg-primary-100/70 transition-all"
     >
       <Icon icon="mingcute:add-line" class="text-lg" />
     </button>
     <button
         @click="swTheme = !swTheme"
         v-tooltip:end="swTheme ? 'light' : 'dark'"
-        class="w-9 h-9 flex items-center justify-center rounded-xl text-pink-600 hover:bg-pink-100/70 transition-all"
+        class="w-9 h-9 flex items-center justify-center rounded-xl text-primary-600 hover:bg-primary-100/70 transition-all"
     >
       <Icon :icon="swTheme ? 'material-symbols:sunny-outline-rounded' : 'material-symbols:mode-night-outline' " class="text-lg" />
     </button>
   </div>
 
-  <div v-else :class="[
-'relative border border-pink-200/50 bg-white/30 shadow-lg shadow-pink-200/40 backdrop-blur-sm flex flex-col h-full overflow-visible rounded-tl-2xl rounded-bl-2xl rounded-br-2xl',
-isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
+  <div v-else ref="listPanelRef" :class="[
+    'relative border border-primary-200/50 bg-linear-to-br from-white via-primary-50/40 to-primary-100/40 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-visible rounded-tl-2xl rounded-bl-2xl rounded-br-2xl',
+    isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
     'w-full md:w-1/3',
     isMobile && !showOnMobile ? 'hidden' : 'flex'
   ]">
@@ -37,7 +37,7 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
     <div class="relative z-20 ps-4 py-5 border-b border-white/20 shrink-0 backdrop-blur-xl bg-white/5">
       <!-- Sidebar Title Row -->
       <div class="flex items-center justify-between pe-4 mb-3">
-        <h2 class="text-lg font-bold text-rose-900">Tasks</h2>
+        <h2 class="text-lg font-bold text-primary-900">Tasks</h2>
 
         <div class="flex items-center gap-2">
           <!-- Status Filter icon button -->
@@ -48,8 +48,8 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                 :class="[
                   'w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300',
                   currentFilter !== 'all'
-                    ? 'bg-white/30 backdrop-blur-xl border border-white/40 text-pink-600 shadow-[0_8px_16px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]'
-                    : 'text-pink-500 hover:bg-pink-100/70 hover:text-pink-700'
+                    ? 'bg-white/30 backdrop-blur-xl border border-white/40 text-primary-600 shadow-[0_8px_16px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]'
+                    : 'text-primary-500 hover:bg-primary-100/70 hover:text-primary-700'
                 ]"
             >
               <Icon icon="mingcute:check-circle-line" class="text-lg" />
@@ -70,12 +70,12 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                     :key="filter.value"
                     @click.stop="selectStatusFilter(filter.value)"
                     :class="[
-                      'w-full px-4 py-2 text-left text-xs hover:bg-pink-50 transition-all flex items-center gap-2',
-                      currentFilter === filter.value ? 'text-pink-600 font-medium bg-pink-50' : 'text-rose-700'
+                      'w-full px-4 py-2 text-left text-xs hover:bg-primary-50 transition-all flex items-center gap-2',
+                      currentFilter === filter.value ? 'text-primary-600 font-medium bg-primary-50' : 'text-primary-700'
                     ]"
                 >
                   {{ filter.label }}
-                  <Icon v-if="currentFilter === filter.value" icon="mingcute:check-fill" class="ms-auto text-pink-600" />
+                  <Icon v-if="currentFilter === filter.value" icon="mingcute:check-fill" class="ms-auto text-primary-600" />
                 </button>
               </div>
             </Transition>
@@ -89,8 +89,8 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                 :class="[
                   'w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300',
                   currentTimeSort !== 'date-desc'
-                    ? 'bg-white/30 backdrop-blur-xl border border-white/40 text-pink-600 shadow-[0_8px_16px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]'
-                    : 'text-pink-500 hover:bg-pink-100/70 hover:text-pink-700'
+                    ? 'bg-white/30 backdrop-blur-xl border border-white/40 text-primary-600 shadow-[0_8px_16px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]'
+                    : 'text-primary-500 hover:bg-primary-100/70 hover:text-primary-700'
                 ]"
             >
               <Icon icon="solar:sort-broken" class="text-lg" />
@@ -111,13 +111,13 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                     :key="sort.value"
                     @click.stop="selectTimeSort(sort.value)"
                     :class="[
-                      'w-full px-4 py-2 text-left text-xs hover:bg-pink-50 transition-all flex items-center gap-2',
-                      currentTimeSort === sort.value ? 'text-pink-600 font-medium bg-pink-50' : 'text-rose-700'
+                      'w-full px-4 py-2 text-left text-xs hover:bg-primary-50 transition-all flex items-center gap-2',
+                      currentTimeSort === sort.value ? 'text-primary-600 font-medium bg-primary-50' : 'text-primary-700'
                     ]"
                 >
                   <Icon :icon="sort.icon" class="text-sm" />
                   {{ sort.label }}
-                  <Icon v-if="currentTimeSort === sort.value" icon="mingcute:check-fill" class="ms-auto text-pink-600" />
+                  <Icon v-if="currentTimeSort === sort.value" icon="mingcute:check-fill" class="ms-auto text-primary-600" />
                 </button>
               </div>
             </Transition>
@@ -131,8 +131,8 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                 :class="[
                   'w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300',
                   currentPriorityFilter !== 'all'
-                    ? 'bg-white/30 backdrop-blur-xl border border-white/40 text-pink-600 shadow-[0_8px_16px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]'
-                    : 'text-pink-500 hover:bg-pink-100/70 hover:text-pink-700'
+                    ? 'bg-white/30 backdrop-blur-xl border border-white/40 text-primary-600 shadow-[0_8px_16px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.4)]'
+                    : 'text-primary-500 hover:bg-primary-100/70 hover:text-primary-700'
                 ]"
             >
               <Icon icon="solar:flag-linear" class="text-lg" />
@@ -153,12 +153,12 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                     :key="priority.value"
                     @click.stop="selectPriorityFilter(priority.value)"
                     :class="[
-                      'w-full px-4 py-2 text-left text-xs hover:bg-pink-50 transition-all flex items-center gap-2',
-                      currentPriorityFilter === priority.value ? 'text-pink-600 font-medium bg-pink-50' : 'text-rose-700'
+                      'w-full px-4 py-2 text-left text-xs hover:bg-primary-50 transition-all flex items-center gap-2',
+                      currentPriorityFilter === priority.value ? 'text-primary-600 font-medium bg-primary-50' : 'text-primary-700'
                     ]"
                 >
                   {{ priority.label }}
-                  <Icon v-if="currentPriorityFilter === priority.value" icon="mingcute:check-fill" class="ms-auto text-pink-600" />
+                  <Icon v-if="currentPriorityFilter === priority.value" icon="mingcute:check-fill" class="ms-auto text-primary-600" />
                 </button>
               </div>
             </Transition>
@@ -167,7 +167,7 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
           <button
               @click="isCollapsed = true"
               v-tooltip="'Hide Tasks'"
-              class="hidden md:flex w-8 h-8 items-center justify-center rounded-lg text-pink-500 hover:bg-pink-100/70 hover:text-pink-700 transition-all !cursor-e-resize"
+              class="hidden md:flex w-8 h-8 items-center justify-center rounded-lg text-primary-500 hover:bg-primary-100/70 hover:text-primary-700 transition-all !cursor-e-resize"
           >
             <Icon icon="mingcute:layout-left-line" class="text-lg" />
           </button>
@@ -175,7 +175,7 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
               v-if="hideChatButton"
               @click="closeMobile"
               v-tooltip="'Close'"
-              class="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-rose-700 transition-all"
+              class="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-primary-700 transition-all"
           >
             <Icon icon="carbon:chat" class="text-lg" />
           </button>
@@ -184,7 +184,7 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
 
       <!-- Selection Actions -->
       <div class="flex gap-2 mb-3" v-if="selectedIds.size > 0">
-        <button @click="deleteSelected" class="flex-1 px-3 py-2 bg-red-500/80 backdrop-blur-md text-white rounded-xl text-xs hover:bg-red-600/90 transition-all flex items-center justify-center gap-2 shadow-[0_4px_6px_rgba(0,0,0,0.1),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] transform hover:scale-105 active:scale-95">
+        <button @click="deleteSelected" class="flex-1 px-3 py-2 bg-primary-500/80 backdrop-blur-md text-white rounded-xl text-xs hover:bg-primary-600/90 transition-all flex items-center justify-center gap-2 shadow-[0_4px_6px_rgba(0,0,0,0.1),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] transform hover:scale-105 active:scale-95">
           <Icon icon="mingcute:delete-line" /> Delete ({{ selectedIds.size }})
         </button>
       </div>
@@ -192,7 +192,7 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
 
     <!-- Todo List with Scroll -->
     <div class="flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 pb-24 md:pb-24">
-      <div v-if="filteredTodos.length === 0" class="text-center justify-center flex py-10 text-pink-300 text-sm">
+      <div v-if="filteredTodos.length === 0" class="text-center justify-center flex py-10 text-primary-300 text-sm">
         <Icon icon="mingcute:empty-box-line" class="text-lg relative bottom-0.5 me-0.5" />
         No tasks yet.
       </div>
@@ -202,7 +202,7 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
           :class="[
           'bg-white rounded-md p-3 mb-2 cursor-pointer transition-all border-s-4',
           selectedTodo?.id === todo.id
-            ? 'border-pink-500 shadow-lg bg-pink-50'
+            ? 'border-primary-500 shadow-lg bg-primary-50'
             : 'hover:shadow-md',
           todo.completed ? 'opacity-75' : '',
           priorityBorderColors[todo.priority]
@@ -215,15 +215,15 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                 type="checkbox"
                 :checked="todo.completed"
                 @change="emit('toggle-complete', todo.id)"
-                class="w-4 h-4 accent-pink-600 cursor-pointer rounded"
+                class="w-4 h-4 accent-primary-600 cursor-pointer rounded"
             />
           </div>
 
           <div class="flex-1" @click="selectTodo(todo)">
-            <p :class="['text-sm font-medium line-clamp-1 wrap-break-word', todo.completed ? 'line-through text-pink-300' : 'text-purple-950']">
+            <p :class="['text-sm font-medium line-clamp-1 wrap-break-word', todo.completed ? 'line-through text-primary-300' : 'text-purple-950']">
               {{ todo.text }}
             </p>
-            <p v-if="todo.description" class="text-xs text-pink-400 mt-1 line-clamp-2 wrap-break-word">
+            <p v-if="todo.description" class="text-xs text-primary-400 mt-1 line-clamp-2 wrap-break-word">
               {{ todo.description }}
             </p>
             <!-- Steps progress indicator -->
@@ -233,10 +233,10 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
                   <div
                       v-for="step in todo.steps"
                       :key="step.id"
-                      :class="['h-1 flex-1 rounded-full transition-all', step.completed ? 'bg-pink-500' : 'bg-pink-200']"
+                      :class="['h-1 flex-1 rounded-full transition-all', step.completed ? 'bg-primary-500' : 'bg-primary-200']"
                   ></div>
                 </div>
-                <span class="text-xs text-pink-500 font-medium">
+                <span class="text-xs text-primary-500 font-medium">
                   {{ getCompletedStepsCount(todo) }}/{{ todo.steps.length }}
                 </span>
               </div>
@@ -246,14 +246,14 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
           <div class="flex gap-1 shrink-0" @click.stop>
             <button
                 @click="emit('edit-todo', todo.id)"
-                class="px-2 py-2 bg-pink-50 text-pink-700 rounded-full text-xs hover:bg-pink-100"
+                class="px-2 py-2 bg-primary-50 text-primary-700 rounded-full text-xs hover:bg-primary-100"
                 :disabled="todo.completed"
             >
               <Icon icon="mi:edit" />
             </button>
             <button
                 @click="emit('delete-todo', todo.id)"
-                class="px-2 py-2 bg-red-50 text-rose-600 rounded-full text-xs hover:bg-rose-600 hover:text-white transition-all duration-200"
+                class="px-2 py-2 bg-primary-50 text-primary-600 rounded-full text-xs hover:bg-primary-600 hover:text-white transition-all duration-200"
             >
               <Icon icon="mingcute:delete-line" />
             </button>
@@ -266,17 +266,17 @@ isWorkplan ? 'rounded-tr-2xl' : 'rounded-tr-none',
     <div class="absolute bottom-0 inset-s-0 inset-e-0 z-10">
       <!-- Stats Card -->
       <div class="mx-4 rounded-4xl px-7 py-3 flex justify-between text-xs backdrop-blur-xl border border-white/30
-          text-rose-700 bg-white/25
+          text-primary-700 bg-white/25
           [box-shadow:0_-8px_32px_rgba(0,0,0,0.1),0_4px_6px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_-1px_0_rgba(255,255,255,0.1)]
           [backdrop-filter:blur(20px)_saturate(180%)] [-webkit-backdrop-filter:blur(20px)_saturate(180%)]">
-        <div>Total: <span class="font-bold text-rose-900">{{ totalCount }}</span></div>
-        <div>Completed: <span class="font-bold text-rose-900">{{ completedCount }}</span></div>
-        <div>Remaining: <span class="font-bold text-rose-900">{{ pendingCount }}</span></div>
+        <div>Total: <span class="font-bold text-primary-900">{{ totalCount }}</span></div>
+        <div>Completed: <span class="font-bold text-primary-900">{{ completedCount }}</span></div>
+        <div>Remaining: <span class="font-bold text-primary-900">{{ pendingCount }}</span></div>
       </div>
       <div class="p-4">
         <button
             @click="emit('add-todo')"
-            class="w-full px-4 py-3 bg-linear-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-4xl font-medium shadow-lg transition-all flex items-center justify-center gap-2"
+            class="w-full px-4 py-3 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-4xl font-medium shadow-lg transition-all flex items-center justify-center gap-2"
         >
           Add New Task
         </button>
@@ -348,9 +348,13 @@ function computeMenuAlign(triggerEl: HTMLElement): 'left' | 'right' {
 
   const rect = wrapper.getBoundingClientRect()
   const menuEl = wrapper.querySelector('[data-dropdown-panel]') as HTMLElement | null
-  const menuWidth = menuEl?.offsetWidth || 160
+  const menuWidth = menuEl?.offsetWidth || 160 // fallback ~ min-w-40
   const margin = 8
 
+  // مرز واقعیِ خودِ پنل TodoList، نه کل عرض صفحه. تو موبایل این پنل تقریباً
+  // هم‌عرض کل صفحه‌ست پس فرقی نمی‌کرد، ولی تو دسکتاپ فقط ۱/۳ عرض صفحه‌ست —
+  // با window.innerWidth محاسبه می‌شد که همیشه فضای زیادی نشون می‌داد و
+  // دراپ‌داون از پنل بیرون می‌زد، هیچ‌وقت به سمت مقابل flip نمی‌شد.
   const panelRect = listPanelRef.value?.getBoundingClientRect()
   const rightBound = panelRect ? panelRect.right : window.innerWidth
   const leftBound = panelRect ? panelRect.left : 0
@@ -358,7 +362,7 @@ function computeMenuAlign(triggerEl: HTMLElement): 'left' | 'right' {
   const spaceRight = rightBound - rect.left - margin
   const spaceLeft = rect.right - leftBound - margin
 
-  // سمت پیش‌فرض بر اساس جهت واقعی صفحه، نه چپ/راست ثابت
+  // سمت پیش‌فرض بر اساس جهت واقعی صفحه (rtl/ltr)، نه چپ/راست ثابت
   const isRtl = getComputedStyle(wrapper).direction === 'rtl'
   const preferred: 'left' | 'right' = isRtl ? 'left' : 'right'
   const fallback: 'left' | 'right' = isRtl ? 'right' : 'left'
