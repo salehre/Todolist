@@ -10,7 +10,7 @@
         v-for="s in 3"
         :key="s"
         class="h-1 flex-1 rounded-full transition-all duration-500"
-        :class="s <= currentStep ? 'bg-violet-500' : 'bg-slate-100'"
+        :class="s <= currentStep ? 'bg-primary-500' : 'bg-slate-100'"
       />
     </div>
 
@@ -36,9 +36,9 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-violet-600 to-indigo-600
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
                  text-white font-semibold text-sm transition-all duration-200
-                 hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-violet-200
+                 hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                  active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
                  flex items-center justify-center gap-2"
         >
@@ -69,7 +69,7 @@
             :class="[
               'w-11 h-13 text-center text-xl font-bold rounded-xl border-2 outline-none transition-all duration-200 bg-white',
               otpError ? 'border-rose-400 text-rose-600 bg-rose-50' :
-              otpDigits[i] ? 'border-violet-500 text-violet-700' : 'border-slate-200 focus:border-violet-400',
+              otpDigits[i] ? 'border-primary-500 text-primary-700' : 'border-slate-200 focus:border-primary-400',
             ]"
             @input="onDigitInput(i, $event)"
             @keydown="onKeyDown(i, $event)"
@@ -86,8 +86,8 @@
 
         <!-- countdown -->
         <p class="text-center text-sm text-slate-500">
-          <span v-if="countdown > 0">ارسال مجدد تا <span class="font-bold text-violet-600 tabular-nums">{{ formatCountdown }}</span></span>
-          <button v-else @click="resendCode" class="text-violet-600 font-medium hover:text-violet-700">ارسال مجدد کد</button>
+          <span v-if="countdown > 0">ارسال مجدد تا <span class="font-bold text-primary-600 tabular-nums">{{ formatCountdown }}</span></span>
+          <button v-else @click="resendCode" class="text-primary-600 font-medium hover:text-primary-700">ارسال مجدد کد</button>
         </p>
 
         <!-- راهنمای شبیه‌سازی -->
@@ -99,9 +99,9 @@
         <button
           :disabled="!isCodeComplete || isLoading"
           @click="verifyCode"
-          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-violet-600 to-indigo-600
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
                  text-white font-semibold text-sm transition-all duration-200
-                 hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-violet-200
+                 hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                  active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
                  flex items-center justify-center gap-2"
         >
@@ -156,9 +156,9 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-violet-600 to-indigo-600
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
                  text-white font-semibold text-sm transition-all duration-200
-                 hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-violet-200
+                 hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                  active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
                  flex items-center justify-center gap-2"
         >

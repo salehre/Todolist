@@ -36,7 +36,7 @@
       <!-- رمز عبور -->
       <div>
         <div class="flex justify-between items-center mb-1.5">
-          <NuxtLink to="/auth/forgot-password" class="text-xs text-violet-600 hover:text-violet-700 transition-colors">
+          <NuxtLink to="/auth/forgot-password" class="text-xs text-primary-600 hover:text-primary-700 transition-colors">
             رمز عبور را فراموش کردی؟
           </NuxtLink>
           <label class="text-sm font-medium text-slate-700">رمز عبور <span class="text-rose-500">*</span></label>
@@ -80,9 +80,9 @@
       <button
         type="submit"
         :disabled="isLoading"
-        class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-l from-violet-600 to-indigo-600
+        class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
-               hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-violet-200
+               hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
                flex items-center justify-center gap-2"
       >
@@ -103,7 +103,7 @@
     <template #footer>
       <p class="text-sm text-slate-500">
         حساب نداری؟
-        <NuxtLink to="/auth/signup" class="text-violet-600 font-medium hover:text-violet-700 mr-1">
+        <NuxtLink to="/auth/signup" class="text-primary-600 font-medium hover:text-primary-700 mr-1">
           ثبت‌نام کن
         </NuxtLink>
       </p>

@@ -22,8 +22,8 @@
             isError
               ? 'border-rose-400 text-rose-600 bg-rose-50 shake'
               : otpDigits[i]
-                ? 'border-violet-500 text-violet-700 shadow-sm shadow-violet-100'
-                : 'border-slate-200 text-slate-800 focus:border-violet-400 focus:shadow-sm focus:shadow-violet-100',
+                ? 'border-primary-500 text-primary-700 shadow-sm shadow-primary-100'
+                : 'border-slate-200 text-slate-800 focus:border-primary-400 focus:shadow-sm focus:shadow-primary-100',
           ]"
           @input="onDigitInput(i, $event)"
           @keydown="onKeyDown(i, $event)"
@@ -44,9 +44,9 @@
       <button
         :disabled="!isCodeComplete || isLoading"
         @click="verifyCode"
-        class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-violet-600 to-indigo-600
+        class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
-               hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-violet-200
+               hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
                flex items-center justify-center gap-2"
       >
@@ -58,13 +58,13 @@
       <div class="text-center text-sm">
         <span v-if="countdown > 0" class="text-slate-500">
           ارسال مجدد تا
-          <span class="font-bold text-violet-600 tabular-nums">{{ formatCountdown }}</span>
+          <span class="font-bold text-primary-600 tabular-nums">{{ formatCountdown }}</span>
         </span>
         <button
           v-else
           :disabled="isResending"
           @click="resendCode"
-          class="text-violet-600 font-medium hover:text-violet-700 disabled:opacity-50 transition-colors"
+          class="text-primary-600 font-medium hover:text-primary-700 disabled:opacity-50 transition-colors"
         >
           {{ isResending ? 'در حال ارسال...' : 'ارسال مجدد کد' }}
         </button>

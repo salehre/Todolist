@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen w-screen gap-3 overflow-hidden bg-pink-50 p-3">
+  <div class="flex h-screen w-screen gap-3 overflow-hidden bg-primary-50 p-3">
     <DashboardSidebar />
     <div class="flex min-w-0 flex-1 flex-col gap-3 overflow-hidden">
       <DashboardHeader />

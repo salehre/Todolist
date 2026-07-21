@@ -57,9 +57,9 @@
       <button
         type="submit"
         :disabled="isLoading"
-        class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-l from-violet-600 to-indigo-600
+        class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
-               hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-violet-200
+               hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed
                flex items-center justify-center gap-2"
       >
@@ -73,7 +73,7 @@
     <template #footer>
       <p class="text-sm text-slate-500">
         قبلاً حساب داری؟
-        <NuxtLink to="/auth/login" class="text-violet-600 font-medium hover:text-violet-700 mr-1">
+        <NuxtLink to="/auth/login" class="text-primary-600 font-medium hover:text-primary-700 mr-1">
           وارد شو
         </NuxtLink>
       </p>

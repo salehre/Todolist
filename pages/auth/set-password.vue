@@ -78,9 +78,9 @@
       <button
         type="submit"
         :disabled="isLoading || !canSubmit"
-        class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-l from-violet-600 to-indigo-600
+        class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
-               hover:from-violet-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-violet-200
+               hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
                flex items-center justify-center gap-2"
       >
