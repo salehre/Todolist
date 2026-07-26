@@ -10,7 +10,7 @@
         v-if="justRegistered"
         class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center gap-2 text-sm text-emerald-700"
       >
-        <Icon icon="mdi:check-circle-outline" class="text-lg flex-shrink-0" />
+        <Icon icon="mdi:check-circle-outline" class="text-lg shrink-0" />
         ثبت‌نام با موفقیت انجام شد! حالا وارد شو
       </div>
     </Transition>
@@ -36,10 +36,10 @@
       <!-- رمز عبور -->
       <div>
         <div class="flex justify-between items-center mb-1.5">
-          <NuxtLink to="/auth/forgot-password" class="text-xs text-primary-600 hover:text-primary-700 transition-colors">
+          <label class="text-[13px] font-semibold text-white/85">رمز عبور <span class="text-rose-300">*</span></label>
+          <NuxtLink to="/auth/forgot-password" class="text-xs text-primary-300 hover:text-primary-200 transition-colors">
             رمز عبور را فراموش کردی؟
           </NuxtLink>
-          <label class="text-sm font-medium text-slate-700">رمز عبور <span class="text-rose-500">*</span></label>
         </div>
         <AuthInput
           v-model="form.password"
@@ -90,20 +90,12 @@
         <span>{{ isLoading ? 'در حال ورود...' : 'ورود' }}</span>
       </button>
 
-      <!-- راهنمای شبیه‌سازی -->
-      <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-700 text-center">
-        <Icon icon="mdi:information-outline" class="inline ml-1" />
-        حالت آزمایشی: هر نام کاربری با رمز
-        <span class="font-bold mx-1" dir="ltr">password123</span>
-        وارد می‌شود
-      </div>
-
     </form>
 
     <template #footer>
-      <p class="text-sm text-slate-500">
+      <p class="text-sm text-white/70">
         حساب نداری؟
-        <NuxtLink to="/auth/signup" class="text-primary-600 font-medium hover:text-primary-700 mr-1">
+        <NuxtLink to="/auth/signup" class="text-primary-300 font-semibold hover:text-primary-200 mr-1 transition-colors">
           ثبت‌نام کن
         </NuxtLink>
       </p>

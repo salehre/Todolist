@@ -147,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'dashboard' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 import { onMounted } from "vue";
 import TodoList from "~/components/TodoList.vue";

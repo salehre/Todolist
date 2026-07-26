@@ -3,7 +3,7 @@
   <div
       v-if="isCollapsed"
       :class="['hidden sm:flex flex-col rounded-2xl items-center w-14 h-full border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm shrink-0 pt-5 gap-3',
-       isWorkplan ? 'rounded-tr-2xl' : 'md:rounded-tr-none'
+       isWorkplan ? 'rounded-se-2xl' : 'md:rounded-se-none'
       ]">
     <button
         @click="isCollapsed = false"
@@ -30,8 +30,8 @@
 
   <div v-else ref="listPanelRef" :class="[
     'relative border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-visible',
-    'rounded-tl-2xl rounded-bl-2xl rounded-br-2xl rounded-tr-2xl',
-    isWorkplan ? 'rounded-tr-2xl' : 'md:rounded-tr-none',
+    'rounded-ss-2xl rounded-es-2xl rounded-ee-2xl rounded-se-2xl',
+    isWorkplan ? 'rounded-se-2xl' : 'md:rounded-se-none',
     'w-full md:w-1/3',
     isMobile && !showOnMobile ? 'hidden' : 'flex'
   ]">

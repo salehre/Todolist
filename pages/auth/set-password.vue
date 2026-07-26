@@ -66,8 +66,8 @@
       <Transition name="slide-down">
         <div
           v-if="form.password && form.confirmPassword"
-          class="flex items-center gap-2 text-xs justify-end"
-          :class="passwordsMatch ? 'text-emerald-600' : 'text-rose-500'"
+          class="flex items-center gap-2 text-xs font-medium justify-end"
+          :class="passwordsMatch ? 'text-emerald-300' : 'text-rose-300'"
         >
           <span>{{ passwordsMatch ? 'رمزها با هم مطابقت دارند' : 'رمزها با هم مطابقت ندارند' }}</span>
           <Icon :icon="passwordsMatch ? 'mdi:check-circle' : 'mdi:close-circle'" />

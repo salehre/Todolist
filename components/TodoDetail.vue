@@ -1,6 +1,6 @@
 <template>
   <div :class="[
-    'md:rounded-ss-none rounded-t-2xl border border-primary-200/50 bg-linear-to-br from-white via-primary-50/40 to-primary-100/40 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-hidden',
+    'md:rounded-ss-none rounded-2xl border border-primary-200/50 bg-linear-to-br from-white via-primary-50/40 to-primary-100/40 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-hidden',
     'w-full md:flex-1 md:w-0',
     !modelValue && isMobile ? 'hidden' : 'flex'
   ]">

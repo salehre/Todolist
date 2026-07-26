@@ -3,10 +3,10 @@
     <label
       v-if="label"
       :for="inputId"
-      class="text-sm font-medium text-slate-700 text-right"
+      class="text-[13px] font-semibold text-white/85 text-right tracking-wide"
     >
       {{ label }}
-      <span v-if="required" class="text-rose-500 mr-0.5">*</span>
+      <span v-if="required" class="text-rose-300 mr-0.5">*</span>
     </label>
 
     <div class="relative">
@@ -26,15 +26,15 @@
         :autocomplete="autocomplete"
         :disabled="disabled"
         :class="[
-          'w-full rounded-xl border px-4 py-3 text-sm text-slate-800 bg-white',
+          'w-full rounded-xl border px-4 py-3 text-sm text-slate-800 bg-white shadow-sm',
           'placeholder:text-slate-400 outline-none transition-all duration-200',
-          'focus:ring-2 focus:ring-primary-300 focus:border-primary-500',
+          'focus:ring-4 focus:ring-primary-100 focus:border-primary-500 focus:shadow-md',
           $slots.iconRight ? 'pr-10' : '',
           $slots.iconLeft ? 'pl-10' : '',
           error
-            ? 'border-rose-400 bg-rose-50/30'
+            ? 'border-rose-400 bg-rose-50/40 focus:ring-rose-100 focus:border-rose-400'
             : 'border-slate-200 hover:border-slate-300',
-          disabled ? 'opacity-50 cursor-not-allowed bg-slate-50' : '',
+          disabled ? 'opacity-50 cursor-not-allowed bg-slate-50 shadow-none' : '',
         ]"
         @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
         @blur="$emit('blur')"
@@ -51,14 +51,14 @@
 
     <!-- پیام خطا -->
     <Transition name="slide-down">
-      <p v-if="error" class="text-xs text-rose-500 text-right flex items-center gap-1 justify-end">
+      <p v-if="error" class="text-xs text-rose-300 text-right flex items-center gap-1 justify-end">
         <Icon icon="mdi:alert-circle-outline" class="text-sm shrink-0" />
         {{ error }}
       </p>
     </Transition>
 
     <!-- راهنما -->
-    <p v-if="hint && !error" class="text-xs text-slate-400 text-right">
+    <p v-if="hint && !error" class="text-xs text-white/50 text-right">
       {{ hint }}
     </p>
   </div>

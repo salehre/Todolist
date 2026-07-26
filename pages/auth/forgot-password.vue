@@ -9,8 +9,8 @@
       <div
         v-for="s in 3"
         :key="s"
-        class="h-1 flex-1 rounded-full transition-all duration-500"
-        :class="s <= currentStep ? 'bg-primary-500' : 'bg-slate-100'"
+        class="h-1.5 flex-1 rounded-full transition-all duration-500"
+        :class="s <= currentStep ? 'bg-primary-400 shadow-sm shadow-primary-400/50' : 'bg-white/15'"
       />
     </div>
 
@@ -36,7 +36,7 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
+          class="w-full py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
                  text-white font-semibold text-sm transition-all duration-200
                  hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                  active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
@@ -52,8 +52,8 @@
       <!-- ─── مرحله ۲: ورود کد OTP ──────────────────────────────────────── -->
       <div v-else-if="currentStep === 2" key="step2" class="space-y-5">
 
-        <p class="text-center text-sm text-slate-500">
-          کد ۶ رقمی به <span class="font-medium text-slate-700">{{ maskedEmail }}</span> ارسال شد
+        <p class="text-center text-sm text-white/70">
+          کد ۶ رقمی به <span class="font-semibold text-white">{{ maskedEmail }}</span> ارسال شد
         </p>
 
         <!-- OTP inputs -->
@@ -85,21 +85,15 @@
         </Transition>
 
         <!-- countdown -->
-        <p class="text-center text-sm text-slate-500">
-          <span v-if="countdown > 0">ارسال مجدد تا <span class="font-bold text-primary-600 tabular-nums">{{ formatCountdown }}</span></span>
-          <button v-else @click="resendCode" class="text-primary-600 font-medium hover:text-primary-700">ارسال مجدد کد</button>
+        <p class="text-center text-sm text-white/70">
+          <span v-if="countdown > 0">ارسال مجدد تا <span class="font-bold text-primary-300 tabular-nums">{{ formatCountdown }}</span></span>
+          <button v-else @click="resendCode" class="text-primary-300 font-semibold hover:text-primary-200 transition-colors">ارسال مجدد کد</button>
         </p>
-
-        <!-- راهنمای شبیه‌سازی -->
-        <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-700 text-center">
-          <Icon icon="mdi:information-outline" class="inline ml-1" />
-          حالت آزمایشی: کد <span class="font-bold tracking-widest" dir="ltr">1 2 3 4 5 6</span>
-        </div>
 
         <button
           :disabled="!isCodeComplete || isLoading"
           @click="verifyCode"
-          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
+          class="w-full py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
                  text-white font-semibold text-sm transition-all duration-200
                  hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                  active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
@@ -171,7 +165,7 @@
     </Transition>
 
     <template #footer>
-      <NuxtLink to="/auth/login" class="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 mx-auto transition-colors justify-center">
+      <NuxtLink to="/auth/login" class="text-sm text-white/70 hover:text-white flex items-center gap-1 mx-auto transition-colors justify-center">
         <Icon icon="mdi:arrow-right" />
         بازگشت به ورود
       </NuxtLink>
@@ -303,15 +297,7 @@ async function verifyCode() {
   isLoading.value = true
   otpError.value = false
   try {
-    // TODO: جایگزین با → POST /api/auth/verify-reset-code
-    const code = otpDigits.value.join('')
-    if (code === '123456') {
-      currentStep.value = 3
-    } else {
-      otpError.value = true
-      otpDigits.value = ['', '', '', '', '', '']
-      setTimeout(() => otpRefs.value[0]?.focus(), 50)
-    }
+    currentStep.value = 3
   } finally {
     isLoading.value = false
   }
@@ -330,9 +316,16 @@ async function submitNewPassword() {
 
   isLoading.value = true
   try {
-    // TODO: جایگزین با → POST /api/auth/reset-password
-    await resetPassword(otpDigits.value.join(''), newPassword.value)
-    router.push('/auth/login?reset=true')
+        const ok = await resetPassword(otpDigits.value.join(''), newPassword.value)
+            if (ok) {
+            router.push('/auth/login?reset=true')
+          } else {
+            // کد اشتباه/منقضیه؛ برگرد مرحله‌ی ۲ و پیام خطا رو اونجا نشون بده
+                currentStep.value = 2
+            otpError.value = true
+            otpDigits.value = ['', '', '', '', '', '']
+                setTimeout(() => otpRefs.value[0]?.focus(), 50)
+              }
   } catch {
     errors.newPassword = 'خطا در ذخیره رمز. دوباره تلاش کن'
   } finally {

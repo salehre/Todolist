@@ -71,9 +71,9 @@
     </form>
 
     <template #footer>
-      <p class="text-sm text-slate-500">
+      <p class="text-sm text-white/70">
         قبلاً حساب داری؟
-        <NuxtLink to="/auth/login" class="text-primary-600 font-medium hover:text-primary-700 mr-1">
+        <NuxtLink to="/auth/login" class="text-primary-300 font-semibold hover:text-primary-200 mr-1 transition-colors">
           وارد شو
         </NuxtLink>
       </p>

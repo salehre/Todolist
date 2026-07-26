@@ -10,7 +10,7 @@
       />
     </div>
     <!-- برچسب -->
-    <p class="text-xs text-right transition-colors duration-300" :class="labelColor">
+    <p class="text-xs text-right font-medium transition-colors duration-300" :class="labelColor">
       {{ label }}
     </p>
     <!-- راهنماهای کمبود -->
@@ -19,7 +19,7 @@
         v-for="hint in hints"
         :key="hint.text"
         class="text-xs flex items-center gap-1.5 justify-end"
-        :class="hint.passed ? 'text-emerald-600' : 'text-slate-400'"
+        :class="hint.passed ? 'text-emerald-300' : 'text-white/45'"
       >
         <span>{{ hint.text }}</span>
         <Icon
@@ -38,9 +38,9 @@ import { Icon } from '@iconify/vue'
 const props = defineProps<{ password: string }>()
 
 const hints = computed(() => [
-  { text: 'حداقل ۸ کاراکتر',    passed: props.password.length >= 8 },
+  { text: 'حداقل ۸ کاراکتر',     passed: props.password.length >= 8 },
   { text: 'حداقل یک عدد',        passed: /\d/.test(props.password) },
-  { text: 'حروف بزرگ و کوچک',   passed: /[a-z]/.test(props.password) && /[A-Z]/.test(props.password) },
+  { text: 'حروف بزرگ و کوچک',    passed: /[a-z]/.test(props.password) && /[A-Z]/.test(props.password) },
   { text: 'یک کاراکتر خاص',      passed: /[^a-zA-Z0-9]/.test(props.password) },
 ])
 
@@ -52,13 +52,13 @@ const label = computed(() => {
 })
 
 const labelColor = computed(() => {
-  if (!props.password) return 'text-slate-400'
-  return ['text-rose-500', 'text-orange-500', 'text-amber-500', 'text-emerald-500', 'text-emerald-600'][score.value]
+  if (!props.password) return 'text-white/40'
+  return ['text-rose-300', 'text-orange-300', 'text-amber-300', 'text-emerald-300', 'text-emerald-300'][score.value]
 })
 
 function barColor(i: number) {
-  if (!props.password || score.value === 0) return 'bg-slate-100'
+  if (!props.password || score.value === 0) return 'bg-white/15'
   const colors = ['bg-rose-400', 'bg-orange-400', 'bg-amber-400', 'bg-emerald-400']
-  return i <= score.value ? colors[score.value - 1] || 'bg-slate-100' : 'bg-slate-100'
+  return i <= score.value ? colors[score.value - 1] || 'bg-white/15' : 'bg-white/15'
 }
 </script>

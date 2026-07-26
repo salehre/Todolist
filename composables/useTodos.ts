@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import type { Todo, Step, DialogForm, DialogMode } from '~/types/todoType'
 import { mapTodoFromApi } from '~/src/services/todoMapper'
 import api from '~/src/services/api'
+import { toast } from 'vue-sonner'
 
 export function useTodos() {
     const todos = ref<Todo[]>([])
@@ -27,6 +28,7 @@ export function useTodos() {
             todos.value = response.data.map(mapTodoFromApi)
         } catch (error) {
             console.error('خطا در گرفتن tasks:', error)
+            toast.error('گرفتن لیست تسک‌ها ناموفق بود')
         } finally {
             isLoading.value = false
         }
@@ -178,6 +180,7 @@ export function useTodos() {
             if (selectedTodo.value?.id === id) selectedTodo.value = null
         } catch (error) {
             console.error('خطا در حذف task:', error)
+            toast.error('حذف تسک ناموفق بود')
         } finally {
             closeDeleteDialog()
         }
@@ -222,6 +225,7 @@ export function useTodos() {
                 })
                 const newTodo = mapTodoFromApi(response.data)
                 todos.value.unshift(newTodo)
+                toast.success('تسک اضافه شد')
             } else {
                 const response = await api.put('/tasks/updateTask', {
                     id: editingId.value,
@@ -239,9 +243,11 @@ export function useTodos() {
                         selectedTodo.value = { ...todo }
                     }
                 }
+                toast.success('تسک ویرایش شد')
             }
         } catch (error) {
             console.error('خطا در ذخیره task:', error)
+            toast.error('ذخیره تسک ناموفق بود')
         } finally {
             closeDialog()
         }

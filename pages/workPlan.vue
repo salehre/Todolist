@@ -154,7 +154,7 @@ const {
   submitDialog,
 } = useTodos()
 
-definePageMeta({ layout: 'dashboard' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 // ─── Select Todo ──────────────────────────────────────────────────────────────
 function handleSelectTodo(todo: Todo): void {

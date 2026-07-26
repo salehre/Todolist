@@ -6,8 +6,10 @@ import { defineNuxtPlugin } from '#app'
 // اشتباه کمتر دیده بشه.
 export default defineNuxtPlugin(() => {
     const savedTheme = localStorage.getItem('app-theme')
-    const theme = savedTheme === 'lime' || savedTheme === 'sky' || savedTheme === 'emerald' ? savedTheme : 'lime'
-    document.documentElement.setAttribute('data-theme', theme)
+    const theme = ['sky', 'emerald', 'orange', 'rose'].includes(savedTheme || '') ? savedTheme : 'sky'
+    if (theme != null) {
+        document.documentElement.setAttribute('data-theme', theme)
+    }
 
     const savedDark = localStorage.getItem('app-dark-mode')
     const isDark = savedDark === 'true'

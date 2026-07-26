@@ -1,6 +1,6 @@
 <template>
   <div :class="[
-    'flex flex-col h-full bg-white/30 backdrop-blur-sm w-full flex-1',
+    'flex flex-col h-full bg-white/30 backdrop-blur-sm w-full flex-1 pb-16',
     { 'hidden': isMobile && hideMobile }
   ]">
 
@@ -570,9 +570,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Priority } from '~/types/todoType'
-import { useToast } from "vue-toastification";
-
-const toast = useToast();
+import { toast } from "vue-sonner";
 
 interface Member {
   id: number

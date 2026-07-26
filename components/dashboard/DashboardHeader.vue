@@ -75,7 +75,13 @@
 
       <!-- اطلاعات کاربر: به useAuth واقعی وصله -->
       <div class="flex items-center gap-2.5 rounded-xl py-1.5 ps-1.5 pe-2.5 hover:bg-slate-100">
+        <img
+            v-if="authState.user?.avatar_url"
+            :src="authState.user.avatar_url"
+            class="h-8 w-8 shrink-0 rounded-full object-cover"
+        />
         <div
+            v-else
             class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-xs font-bold text-white"
         >
           {{ userInitial }}

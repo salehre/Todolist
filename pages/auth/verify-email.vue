@@ -56,32 +56,24 @@
 
       <!-- ارسال مجدد -->
       <div class="text-center text-sm">
-        <span v-if="countdown > 0" class="text-slate-500">
+        <span v-if="countdown > 0" class="text-white/70">
           ارسال مجدد تا
-          <span class="font-bold text-primary-600 tabular-nums">{{ formatCountdown }}</span>
+          <span class="font-bold text-primary-300 tabular-nums">{{ formatCountdown }}</span>
         </span>
         <button
           v-else
           :disabled="isResending"
           @click="resendCode"
-          class="text-primary-600 font-medium hover:text-primary-700 disabled:opacity-50 transition-colors"
+          class="text-primary-300 font-semibold hover:text-primary-200 disabled:opacity-50 transition-colors"
         >
           {{ isResending ? 'در حال ارسال...' : 'ارسال مجدد کد' }}
         </button>
       </div>
 
-      <!-- راهنمای شبیه‌سازی -->
-      <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-700 text-center">
-        <Icon icon="mdi:information-outline" class="inline ml-1" />
-        حالت آزمایشی: کد صحیح
-        <span class="font-bold tracking-widest mx-1" dir="ltr">1 2 3 4 5 6</span>
-        است
-      </div>
-
     </div>
 
     <template #footer>
-      <button @click="router.back()" class="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 mx-auto transition-colors">
+      <button @click="router.back()" class="text-sm text-white/70 hover:text-white flex items-center gap-1 mx-auto transition-colors">
         <Icon icon="mdi:arrow-right" />
         بازگشت
       </button>

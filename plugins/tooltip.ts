@@ -80,9 +80,24 @@ function positionTooltip(target: HTMLElement, rawSide: TooltipSide) {
 
 function showTooltip(target: HTMLElement, text: string, side: TooltipSide) {
     if (!text || window.innerWidth < 768) return
+
+    // مهم: هر تایمر قبلی رو پاک کن، وگرنه ممکنه چند تا show همزمان صف بشه
+    if (showTimer) clearTimeout(showTimer)
     if (hideTimer) clearTimeout(hideTimer)
 
     showTimer = setTimeout(() => {
+        // 🔑 چک اصلی: مطمئن شو المنت هنوز تو DOM و واقعاً قابل دیدنه
+        // (رفع شده: اگه المنت حذف یا display:none بشه، mouseleave شلیک نمیشه
+        // و target.getBoundingClientRect() صفر برمی‌گرده -> تولتیپ می‌پره گوشه‌ی صفحه)
+        if (!target.isConnected || target.offsetParent === null) {
+            return
+        }
+
+        const rect = target.getBoundingClientRect()
+        if (rect.width === 0 && rect.height === 0) {
+            return
+        }
+
         const el = ensureTooltipEl()
         el.textContent = text
         positionTooltip(target, side)
@@ -92,7 +107,6 @@ function showTooltip(target: HTMLElement, text: string, side: TooltipSide) {
         })
     }, 300)
 }
-
 function hideTooltip() {
     if (showTimer) clearTimeout(showTimer)
     if (!tooltipEl) return
