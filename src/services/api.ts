@@ -33,4 +33,26 @@ export async function ensureCsrfCookie(): Promise<void> {
     await axios.get(`${base}/sanctum/csrf-cookie`, { withCredentials: true })
 }
 
+// در انتهای src/services/api.ts
+export function getErrorMessage(e: any, fallback: string): string {
+    if (!e?.response) {
+        return 'اتصال به سرور برقرار نشد. اینترنتت رو چک کن'
+    }
+    const status = e.response.status
+    const data = e.response.data
+
+    if (status === 419) return 'نشست شما منقضی شده؛ صفحه رو رفرش کن'
+    if (status === 401) return 'برای این کار باید وارد حسابت بشی'
+    if (status === 422) {
+        // اگه لاراول یه خطای validation فیلد-به-فیلد فرستاده، همون رو نشون بده
+        if (data?.errors) {
+            const firstError = Object.values(data.errors)[0]
+            if (Array.isArray(firstError) && firstError[0]) return firstError[0] as string
+        }
+        return data?.message || fallback
+    }
+    if (status >= 500) return 'مشکلی سمت سرور پیش اومد؛ بعداً دوباره امتحان کن'
+    return data?.message || fallback
+}
+
 export default api

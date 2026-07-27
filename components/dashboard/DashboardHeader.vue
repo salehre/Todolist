@@ -169,6 +169,7 @@ const pageTitle = computed(() => {
     '/mainTodo': 'تودولیست من',
     '/workPlan': 'کار تیمی',
     '/customTodo': 'تودولیست شخصی',
+    '/aboutMe': 'درباره من',
     '/settings': 'تنظیمات',
   }
   return (route.meta.title as string) || titles[route.path] || 'داشبورد'

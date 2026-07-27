@@ -153,8 +153,8 @@ async function handleSubmit() {
   isLoading.value = true
   try {
     // TODO: جایگزین با → POST /api/auth/set-password
-    await setPassword(form.password)
-    router.push('/auth/login?registered=true')
+    const ok = await setPassword(form.password)
+    if (ok) router.push('/auth/login?registered=true')
   } catch {
     errors.password = 'خطا در تنظیم رمز عبور. دوباره تلاش کن'
   } finally {

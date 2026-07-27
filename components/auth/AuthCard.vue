@@ -6,7 +6,7 @@
       dir="rtl"
   >
     <!-- لایه‌ی تیره‌ی نیم‌شفاف روی عکس تا فرم خوانا بمونه -->
-    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/35 to-black/50" />
+    <div class="absolute inset-0 bg-linear-to-b from-black/40 via-black/35 to-black/50" />
 
     <!-- کارت اصلی -->
     <div class="relative z-10 w-full max-w-md animate-card-in">
@@ -16,7 +16,7 @@
         <div class="flex flex-col items-center mb-7">
           <div
             v-if="icon"
-            class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 shadow-lg shadow-primary-900/30 ring-1 ring-white/30 flex items-center justify-center mb-4"
+            class="w-16 h-16 rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 shadow-lg shadow-primary-900/30 ring-1 ring-white/30 flex items-center justify-center mb-4"
           >
             <Icon :icon="icon" class="text-3xl text-white" />
           </div>

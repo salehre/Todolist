@@ -44,9 +44,7 @@
         >
           <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
           <span>{{ isLoading ? 'در حال ارسال...' : 'ارسال کد' }}</span>
-          <Icon v-if="!isLoading" icon="mdi:arrow-left" />
         </button>
-
       </form>
 
       <!-- ─── مرحله ۲: ورود کد OTP ──────────────────────────────────────── -->
@@ -102,7 +100,6 @@
           <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
           <span>{{ isLoading ? 'در حال بررسی...' : 'تأیید کد' }}</span>
         </button>
-
       </div>
 
       <!-- ─── مرحله ۳: رمز جدید ─────────────────────────────────────────── -->
@@ -150,7 +147,7 @@
         <button
           type="submit"
           :disabled="isLoading"
-          class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
+          class="w-full py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
                  text-white font-semibold text-sm transition-all duration-200
                  hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                  active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
@@ -166,7 +163,6 @@
 
     <template #footer>
       <NuxtLink to="/auth/login" class="text-sm text-white/70 hover:text-white flex items-center gap-1 mx-auto transition-colors justify-center">
-        <Icon icon="mdi:arrow-right" />
         بازگشت به ورود
       </NuxtLink>
     </template>

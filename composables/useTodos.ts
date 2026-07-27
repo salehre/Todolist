@@ -3,6 +3,7 @@ import type { Todo, Step, DialogForm, DialogMode } from '~/types/todoType'
 import { mapTodoFromApi } from '~/src/services/todoMapper'
 import api from '~/src/services/api'
 import { toast } from 'vue-sonner'
+import { getErrorMessage } from '~/src/services/api'
 
 export function useTodos() {
     const todos = ref<Todo[]>([])
@@ -28,7 +29,7 @@ export function useTodos() {
             todos.value = response.data.map(mapTodoFromApi)
         } catch (error) {
             console.error('خطا در گرفتن tasks:', error)
-            toast.error('گرفتن لیست تسک‌ها ناموفق بود')
+            toast.error(getErrorMessage(error, 'گرفتن لیست تسک‌ها ناموفق بود'))
         } finally {
             isLoading.value = false
         }

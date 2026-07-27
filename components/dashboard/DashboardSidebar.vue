@@ -109,7 +109,7 @@ const navItems: NavItem[] = [
   { label: 'تودولیست من', icon: 'mdi:format-list-checks', to: '/mainTodo' },
   { label: 'کار تیمی', icon: 'mdi:account-group-outline', to: '/workPlan' },
   { label: 'تودولیست شخصی', icon: 'mdi:notebook-outline', to: '/customTodo' },
-  { label: 'درباره من', icon: 'mdi:calendar-month-outline', to: '/aboutMe' },
+  { label: 'درباره من', icon: 'weui:me-filled', to: '/aboutMe' },
   { label: 'تنظیمات', icon: 'mdi:cog-outline', to: '/settings' },
 ]
 

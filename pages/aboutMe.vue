@@ -135,34 +135,33 @@
       </div>
 
       <!-- سایدبار حمایت، فقط دسکتاپ -->
-      <aside class="hidden w-90 shrink-0 lg:block">
-        <div class="sticky top-6">
+      <aside class="hidden pe-5 w-80 shrink-0 lg:block">
+        <div class="sticky top-5">
           <div
-              class="relative text-center overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
+              class="relative text-center items-center flex flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 pt-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
 
-            <div
-                class="mt-2 flex w-full flex-col items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-5">
-              <img
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://www.coffeete.ir/salehrezaei"
-                  alt="کد QR حمایت مالی"
-                  class="h-60 w-60 rounded-lg"
-              />
-            </div>
+            <!--            <div-->
+            <!--                class="mt-2 flex w-full flex-col items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-5">-->
+            <img
+                src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://www.coffeete.ir/salehrezaei"
+                alt="کد QR حمایت مالی"
+                class="h-48 w-48 m-0 rounded-lg"
+            />
+            <!--            </div>-->
             <a
                 href="http://www.coffeete.ir/salehrezaei"
                 target="_blank"
-                class="flex-col inline-flex"
+                class="inline-flex"
             >
               <img
-                  src="/images/coffee.png"
+                  src="/images/coffee-rtl.png"
                   alt="حمایت مالی"
-                  class="w-70 h-14 mt-6 flex flex-col justify-center rounded-xl"
+                  class="w-50 h-30"
               />
             </a>
           </div>
         </div>
       </aside>
-
     </div>
 
     <!-- دکمه شناور حمایت، فقط موبایل -->

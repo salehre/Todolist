@@ -57,7 +57,7 @@
       <button
         type="submit"
         :disabled="isLoading"
-        class="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
+        class="w-full mt-2 py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
                hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed
@@ -65,7 +65,6 @@
       >
         <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
         <span>{{ isLoading ? 'در حال ارسال...' : 'ادامه' }}</span>
-        <Icon v-if="!isLoading" icon="mdi:arrow-left" class="text-lg" />
       </button>
 
     </form>
