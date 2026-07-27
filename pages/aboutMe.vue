@@ -1,240 +1,230 @@
 <template>
-  <div class="min-h-screen bg-base-100 text-base-content relative overflow-hidden">
+  <div class="h-full overflow-y-auto p-1">
+    <div class="mx-auto flex max-w-6xl gap-6 px-1 pb-24">
 
-    <!-- subtle editor-style dot grid -->
-    <div
-        class="pointer-events-none absolute inset-0 opacity-[0.05]"
-        style="background-image: radial-gradient(currentColor 1px, transparent 1px); background-size: 24px 24px;"
-    ></div>
+      <!-- ستون اصلی -->
+      <div class="min-w-0 flex-1 space-y-6 lg:max-w-3xl">
 
-    <!-- Container -->
-    <div class="relative max-w-3xl mx-auto px-6 py-20 sm:py-28 space-y-24">
-
-      <!-- 1. هدف پروژه -->
-      <section class="reveal space-y-5">
-        <p class="eyebrow text-primary/80">// درباره</p>
-        <h1 class="font-display text-4xl sm:text-5xl font-black leading-tight">
-          درباره پروژه
-        </h1>
-        <p class="text-lg leading-8 opacity-80 max-w-xl">
-          این پروژه با هدف ساخت یک ابزار ساده، سریع و کاربردی برای کاربران ساخته شده.
-          تمرکز اصلی روی تجربه کاربری خوب و حل یک نیاز واقعیه.
-        </p>
-        <p class="opacity-60 max-w-xl">
-          هدف نهایی اینه که این پروژه به‌مرور تبدیل به یک ابزار کامل‌تر و حرفه‌ای‌تر بشه.
-        </p>
-      </section>
-
-      <!-- 2. مهارت‌ها -->
-      <section class="reveal space-y-8">
-        <p class="eyebrow text-primary/80">// مهارت‌ها</p>
-        <h2 class="font-display text-2xl sm:text-3xl font-bold">چی می‌سازم</h2>
-
-        <div class="grid sm:grid-cols-3 gap-4">
+        <!-- هدر صفحه -->
+        <div
+            class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
           <div
-              v-for="skill in skills"
-              :key="skill.title"
-              class="skill-card group p-6 rounded-2xl bg-base-200 border border-base-300/50 hover:border-primary/40 hover:-translate-y-1 transition-all duration-300"
-          >
+              class="relative flex h-40 flex-col items-center justify-center bg-linear-to-l from-primary-600 via-primary-500 to-primary-400 px-6 text-center sm:h-48">
             <div
-                class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-content transition-colors duration-300"
-                v-html="skill.icon"
+                class="pointer-events-none absolute inset-0 opacity-10"
+                style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 22px 22px;"
             ></div>
-            <h3 class="font-semibold mb-3">{{ skill.title }}</h3>
-            <div class="flex flex-wrap gap-1.5">
-              <span
-                  v-for="tag in skill.tags"
-                  :key="tag"
-                  class="eyebrow-tag px-2 py-1 rounded-md bg-base-300/60 opacity-70"
-              >{{ tag }}</span>
+            <h1 class="relative mt-2 text-2xl font-black text-white sm:text-3xl">درباره پروژه</h1>
+          </div>
+
+          <div class="space-y-4 p-6 md:p-8">
+            <p class="text-base leading-8 text-slate-600">
+              این پروژه با هدف ساخت یک ابزار ساده، سریع و کاربردی برای کاربران ساخته شده.
+              تمرکز اصلی روی تجربه کاربری خوب و حل یک نیاز واقعیه.
+            </p>
+            <p class="text-sm leading-7 text-slate-400">
+              هدف نهایی اینه که این پروژه به‌مرور تبدیل به یک ابزار کامل‌تر و حرفه‌ای‌تر بشه.
+            </p>
+          </div>
+        </div>
+
+        <!-- مهارت‌ها -->
+        <div
+            class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">
+          <h2 class="mt-2 text-lg font-bold text-slate-800">چی می‌سازم</h2>
+
+          <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div
+                v-for="skill in skills"
+                :key="skill.title"
+                class="group rounded-xl border border-slate-200/70 p-5 transition-all hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-md hover:shadow-primary-100"
+            >
+              <div
+                  class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-600 transition-colors group-hover:bg-primary-500 group-hover:text-white">
+                <Icon :icon="skill.icon" class="text-lg"></Icon>
+              </div>
+              <h3 class="mt-4 text-sm font-semibold text-slate-700">{{ skill.title }}</h3>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                <span
+                    v-for="tag in skill.tags"
+                    :key="tag"
+                    class="rounded-md bg-slate-100 px-2 py-1 font-mono text-[11px] text-slate-500"
+                >{{ tag }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </section>
 
-      <!-- 3. لینک‌ها -->
-      <section class="reveal space-y-6">
-        <p class="eyebrow text-primary/80">// لینک‌ها</p>
-        <h2 class="font-display text-2xl sm:text-3xl font-bold">جایی که می‌تونی پیدام کنی</h2>
+        <!-- کارت حمایت، نسخه موبایل -->
+        <div
+            class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl lg:hidden">
+          <h2 class="text-lg font-bold text-slate-800">حمایت از پروژه</h2>
+          <p class="mt-3 text-sm leading-7 text-slate-600">
+            اگر این پروژه برات مفید بوده، می‌تونی با یه حمایت کوچیک کمک کنی که توسعه‌اش ادامه پیدا کنه.
+          </p>
 
-        <div class="flex flex-wrap gap-3">
           <a
-              v-for="link in links"
-              :key="link.label"
-              :href="link.href"
+              href="http://www.coffeete.ir/salehrezaei"
               target="_blank"
-              rel="noopener"
-              class="link-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-base-200 border border-base-300/50 hover:bg-base-300 hover:border-primary/40 transition-all duration-300"
+              class="mt-4 inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-primary-500 to-primary-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700 hover:-translate-y-0.5"
           >
-            <span class="w-4 h-4 shrink-0" v-html="link.icon"></span>
-            <span class="font-medium">{{ link.label }}</span>
+            <Icon icon="mdi:coffee-outline" class="text-lg"></Icon>
+            حمایت مالی
           </a>
         </div>
-      </section>
 
-      <!-- 4 + 5. حمایت از پروژه -->
-      <section class="reveal">
-        <div class="relative p-8 sm:p-10 rounded-3xl bg-base-200/60 border border-base-300/50 overflow-hidden">
-          <div class="absolute -top-10 -left-10 w-48 h-48 bg-primary/10 rounded-full blur-3xl"></div>
+        <!-- فوتر: لینک‌ها -->
+        <div
+            class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">
+          <h2 class="mt-2 text-lg font-bold text-slate-800">جایی که می‌تونی پیدام کنی</h2>
 
-          <div class="relative space-y-5">
-            <p class="eyebrow text-primary/80">// حمایت</p>
-            <h2 class="font-display text-2xl sm:text-3xl font-bold">حمایت از پروژه</h2>
-
-            <p class="text-lg leading-8 opacity-80 max-w-xl">
-              اگر این پروژه برات مفید بوده، می‌تونی با یه حمایت کوچیک کمک کنی که
-              توسعه‌اش ادامه پیدا کنه و امکانات بیشتری بهش اضافه بشه.
-            </p>
-
-            <p class="opacity-60">
-              حتی کوچیک‌ترین حمایت هم تاثیر زیادی داره ❤️
-            </p>
-
+          <div class="mt-5 flex flex-wrap gap-3">
             <a
-                href="#"
-                class="donate-btn inline-flex items-center gap-2 mt-2 px-8 py-3.5 rounded-2xl bg-primary text-primary-content font-semibold shadow-lg shadow-primary/20 hover:opacity-90 hover:-translate-y-0.5 transition-all duration-300"
+                v-for="link in links"
+                :key="link.label"
+                :href="link.href"
+                target="_blank"
+                rel="noopener"
+                class="group inline-flex h-11 w-11 items-center justify-center rounded-full text-primary-800 transition-all hover:text-primary-600"
             >
-              <span>☕</span>
-              <span>حمایت مالی</span>
+              <Icon :icon="link.icon" class="text-xl h-8 w-8 text-current transition-colors"/>
+            </a>
+          </div>
+
+          <!-- سمت ارتباط با من -->
+          <div class="mt-6 flex flex-col gap-3">
+            <h2 class="text-lg font-bold text-slate-800">ارتباط با من</h2>
+
+            <template v-if="authState.isLoggedIn">
+              <input
+                  type="text"
+                  placeholder="اسمت (اختیاری)"
+                  v-model="feedback.name"
+                  class="w-full rounded-xl border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              />
+              <textarea
+                  rows="4"
+                  placeholder="برام بنویس"
+                  v-model="feedback.message"
+                  class="w-full resize-none rounded-xl border border-slate-200/70 bg-white px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              />
+              <button
+                  type="button"
+                  @click="sendFeedback"
+                  :disabled="sending || !feedback.message.trim()"
+                  class="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-primary-500 to-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700 hover:-translate-y-0.5"
+                  :class="{ 'cursor-not-allowed opacity-50 hover:translate-y-0': sending || !feedback.message.trim() }"
+              >
+                <Icon icon="mdi:send-outline" class="text-base"></Icon>
+                {{ sending ? 'در حال ارسال...' : 'ارسال پیام' }}
+              </button>
+            </template>
+
+            <div v-else class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center">
+              <p class="text-sm text-slate-500">برای ارسال پیام اول باید وارد حسابت بشی.</p>
+              <NuxtLink
+                  to="/auth/login"
+                  class="mt-3 inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-primary-500 to-primary-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700"
+              >
+                <Icon icon="mdi:login" class="text-base" />
+                ورود / ثبت‌نام
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- سایدبار حمایت، فقط دسکتاپ -->
+      <aside class="hidden w-90 shrink-0 lg:block">
+        <div class="sticky top-6">
+          <div
+              class="relative text-center overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
+
+            <div
+                class="mt-2 flex w-full flex-col items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-5">
+              <img
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://www.coffeete.ir/salehrezaei"
+                  alt="کد QR حمایت مالی"
+                  class="h-60 w-60 rounded-lg"
+              />
+            </div>
+            <a
+                href="http://www.coffeete.ir/salehrezaei"
+                target="_blank"
+                class="flex-col inline-flex"
+            >
+              <img
+                  src="/images/coffee.png"
+                  alt="حمایت مالی"
+                  class="w-70 h-14 mt-6 flex flex-col justify-center rounded-xl"
+              />
             </a>
           </div>
         </div>
-      </section>
+      </aside>
 
     </div>
 
-    <!-- Floating Donate Button -->
+    <!-- دکمه شناور حمایت، فقط موبایل -->
     <a
-        href="#"
-        class="floating-btn fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-content shadow-lg hover:scale-105 transition-transform duration-300"
+        href="http://www.coffeete.ir/salehrezaei"
+        target="_blank"
+        class="fixed bottom-6 left-6 z-50 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary-500 to-primary-600 px-5 py-3 text-white shadow-lg shadow-primary-300/50 transition-transform hover:scale-105 lg:hidden"
     >
-      <span class="ring-pulse"></span>
-      <span>❤️</span>
-      <span class="font-medium">Donate</span>
+      <span class="relative flex h-2 w-2">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70"></span>
+        <span class="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
+      </span>
+      <Icon icon="mdi:heart-outline" class="text-base"></Icon>
+      <span class="text-sm font-medium">حمایت</span>
     </a>
-
   </div>
 </template>
 
-<script setup>
-import { onMounted } from 'vue'
-import { useTheme } from '~/composables/useTheme'
+<script setup lang="ts">
+import { Icon } from '@iconify/vue'
+import { reactive, ref } from 'vue'
+import api from '~/src/services/api'
+import { toast } from 'vue-sonner'
+import { useAuth } from '~/composables/useAuth'
+
+// این صفحه برای همه (حتی لاگین‌نشده‌ها) در دسترسه؛ فقط ارسال پیام نیاز به لاگین داره.
+definePageMeta({ layout: 'dashboard' })
+
+const { authState } = useAuth()
+
+const feedback = reactive({ name: '', message: '' })
+const sending = ref(false)
+
+async function sendFeedback() {
+  if (!feedback.message.trim()) return
+  sending.value = true
+  try {
+    await api.post('/feedback', feedback)
+    toast.success('پیامت ارسال شد')
+    feedback.name = ''
+    feedback.message = ''
+  } catch (e: any) {
+    if (e?.response?.status === 401) {
+      toast.error('برای ارسال پیام باید ثبت نام کنی')
+    } else {
+      toast.error('ارسال پیام ناموفق بود')
+    }
+  } finally {
+    sending.value = false
+  }
+}
 
 const skills = [
-  {
-    title: 'Frontend',
-    tags: ['Vue', 'Nuxt', 'Tailwind'],
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><polyline points="9 8 5 12 9 16"/><polyline points="15 8 19 12 15 16"/></svg>`,
-  },
-  {
-    title: 'Backend',
-    tags: ['Laravel', 'API Design'],
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><circle cx="8" cy="7" r="0.6" fill="currentColor" stroke="none"/><circle cx="8" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg>`,
-  },
-  {
-    title: 'Other',
-    tags: ['UI/UX', 'AI Tools'],
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>`,
-  },
+  { title: 'Frontend', tags: ['Vue', 'Nuxt', 'Tailwind'], icon: 'mdi:code-tags' },
+  { title: 'Backend', tags: ['Laravel', 'API Design'], icon: 'mdi:server-outline' },
+  { title: 'Other', tags: ['UI/UX', 'AI Tools'], icon: 'mdi:creation-outline' },
 ]
 
 const links = [
-  {
-    label: 'GitHub',
-    href: '#',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="2.2"/><circle cx="17" cy="7" r="2.2"/><circle cx="12" cy="16" r="2.2"/><path d="M8.8 8.4 10.7 14M15.2 8.4 13.3 14"/></svg>`,
-  },
-  {
-    label: 'LinkedIn',
-    href: '#',
-    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="9" width="4" height="10" rx="0.5"/><circle cx="5.5" cy="5" r="1.6"/><path d="M11.5 19v-6.5c0-2 1.6-3 3.2-3s2.8 1 2.8 3V19"/><path d="M11.5 12.5V19"/></svg>`,
-  },
+  { label: 'GitHub', href: '#', icon: 'mdi:github' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/saleh-rezaei-1985b5415/', icon: 'mdi:linkedin' },
+  { label: 'Gmail', href: 'mailto:salehrezaeipoor123@gmail.com', icon: 'tabler:brand-gmail' },
+  { label: 'Reddit', href: '#', icon: 'ic:outline-reddit' },
 ]
-
-onMounted(() => {
-  const els = document.querySelectorAll('.reveal')
-  const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible')
-            io.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.15 }
-  )
-  els.forEach((el) => io.observe(el))
-})
 </script>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
-
-.font-display {
-  font-family: 'Vazirmatn', sans-serif;
-}
-
-.eyebrow {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  letter-spacing: 0.02em;
-}
-
-.eyebrow-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-}
-
-/* scroll reveal */
-.reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* floating button pulse ring */
-.floating-btn {
-  position: fixed;
-}
-.ring-pulse {
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  border: 2px solid currentColor;
-  opacity: 0.5;
-  animation: pulse-ring 2.4s ease-out infinite;
-}
-@keyframes pulse-ring {
-  0% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-  .ring-pulse {
-    animation: none;
-    display: none;
-  }
-  .skill-card,
-  .link-btn,
-  .donate-btn,
-  .floating-btn {
-    transition: none !important;
-  }
-}
-</style>

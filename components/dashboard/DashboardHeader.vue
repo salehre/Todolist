@@ -33,14 +33,6 @@
       <!-- این ۳ تا دکمه فقط تو دسکتاپ به همین شکل کنار هم می‌مونن؛
            تو موبایل جمع می‌شن تو دراپ‌داونِ دکمه‌ی «بیشتر» پایین‌تر -->
       <div class="hidden items-center gap-1.5 md:flex">
-        <!-- جستجو -->
-        <button
-            v-tooltip="'جستجو'"
-            class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-        >
-          <Icon icon="mdi:magnify" class="text-lg" />
-        </button>
-
         <!-- اعلان‌ها -->
         <button
             v-tooltip="'اعلان‌ها'"
@@ -79,7 +71,7 @@
             v-if="authState.user?.avatar_url"
             :src="authState.user.avatar_url"
             class="h-8 w-8 shrink-0 rounded-full object-cover"
-        />
+         alt="avatar profile"/>
         <div
             v-else
             class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-xs font-bold text-white"

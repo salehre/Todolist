@@ -3,10 +3,10 @@ import api from '~/src/services/api'
 export type AppTheme = 'sky' | 'emerald' | 'orange' | 'rose'
 
 export const themeOptions: { value: AppTheme; label: string; swatch: string }[] = [
-    { value: 'sky', label: 'آبی آسمانی', swatch: '#0ea5e9' },
-    { value: 'emerald', label: 'زمردی', swatch: '#10b981' },
-    { value: 'orange', label: 'نارنجی', swatch: '#f97316' },
-    { value: 'rose', label: 'رز', swatch: '#f43f5e' },
+    { value: 'sky', label: 'sky', swatch: '#0ea5e9' },
+    { value: 'emerald', label: 'emerald', swatch: '#10b981' },
+    { value: 'orange', label: 'orange', swatch: '#f97316' },
+    { value: 'rose', label: 'rose', swatch: '#f43f5e' },
 ]
 
 export function useTheme() {
