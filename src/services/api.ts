@@ -29,7 +29,7 @@ const api = new Proxy({} as AxiosInstance, {
 
 export async function ensureCsrfCookie(): Promise<void> {
     const config = useRuntimeConfig()
-    const base = config.public.apiBase.replace(/\/api\/?$/, '')
+    const base = config.public.apiBase.replace(/\/$/, '')
     await axios.get(`${base}/sanctum/csrf-cookie`, { withCredentials: true })
 }
 
