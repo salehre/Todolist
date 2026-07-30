@@ -486,7 +486,7 @@
           <input
               v-model="inlineTodo.title"
               type="text"
-              placeholder="Task title *"
+              placeholder="Task title "
               class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200"
           />
           <textarea

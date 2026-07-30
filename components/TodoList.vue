@@ -32,11 +32,11 @@
     'relative border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-visible',
     'rounded-ss-2xl rounded-es-2xl rounded-ee-2xl rounded-se-2xl',
     isWorkplan ? 'rounded-se-2xl' : 'md:rounded-se-none',
-    'w-full md:w-1/3',
+    isMobile ? 'w-full' : 'w-1/3',
     isMobile && !showOnMobile ? 'hidden' : 'flex'
   ]">
     <!-- Header Section -->
-    <div class="relative z-20 ps-4 py-5 border-b border-white/20 shrink-0 backdrop-blur-xl bg-white/5">
+    <div class="@container relative z-20 ps-4 py-5 border-b border-white/20 shrink-0 backdrop-blur-xl bg-white/5">
       <!-- Sidebar Title Row -->
       <div class="flex items-center justify-between pe-4 mb-3">
         <h2 class="text-lg font-bold text-primary-900">Tasks</h2>
@@ -169,7 +169,7 @@
           <button
               @click="isCollapsed = true"
               v-tooltip="'Hide Tasks'"
-              class="hidden md:flex w-8 h-8 items-center justify-center rounded-lg text-primary-500 hover:bg-primary-100/70 hover:text-primary-700 transition-all !cursor-e-resize"
+              class="hidden @min-[360px]:flex w-8 h-8 items-center justify-center rounded-lg text-primary-500 hover:bg-primary-100/70 hover:text-primary-700 transition-all cursor-e-resize!"
           >
             <Icon icon="mingcute:layout-left-line" class="text-lg" />
           </button>
@@ -177,7 +177,7 @@
               v-if="hideChatButton"
               @click="closeMobile"
               v-tooltip="'Close'"
-              class="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-primary-700 transition-all"
+              class="@min-[360px]:hidden w-8 h-8 flex items-center justify-center rounded-lg text-primary-700 transition-all"
           >
             <Icon icon="carbon:chat" class="text-lg" />
           </button>
@@ -326,7 +326,7 @@ const currentFilter        = ref<FilterValue>('all')
 const currentPriorityFilter = ref<PriorityFilterValue>('all')
 const currentTimeSort      = ref<SortValue>('date-desc')
 const selectedIds          = ref<Set<number>>(new Set())
-const isMobile             = ref<boolean>(false)
+const { isMobile }         = useResponsiveMode()
 const isCollapsed          = ref<boolean>(false)
 const swTheme               = ref<boolean>(false)
 const listPanelRef          = ref<HTMLElement | null>(null)
@@ -493,10 +493,6 @@ function getCompletedStepsCount(todo: Todo): number {
   return todo.steps.filter((s: Step) => s.completed).length
 }
 
-function checkMobile(): void {
-  isMobile.value = window.innerWidth < 768
-}
-
 // ─── Selection handlers ─────────────────────────────────────────────────────────
 function selectStatusFilter(value: FilterValue): void {
   currentFilter.value = value
@@ -532,13 +528,10 @@ function handleClickOutside(e: MouseEvent): void {
 
 // ─── Lifecycle ────────────────────────────────────────────────────────────────
 onMounted((): void => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
   document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted((): void => {
-  window.removeEventListener('resize', checkMobile)
   document.removeEventListener('click', handleClickOutside)
 })
 </script>

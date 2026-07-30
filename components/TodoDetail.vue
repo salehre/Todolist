@@ -42,7 +42,7 @@
               <!-- Back Button -->
               <button
                   @click="emit('back')"
-                  :class="['flex items-center gap-1 px-2 py-2 bg-primary-50 text-primary-700 rounded-lg text-sm font-medium hover:bg-primary-100 transition-all shrink-0', !showBackButton && 'sm:hidden']"
+                  :class="['flex items-center gap-1 px-2 py-2 bg-primary-50 text-primary-700 rounded-lg text-sm font-medium hover:bg-primary-100 transition-all shrink-0', !showBackButton && !isMobile && 'hidden']"
               >
                 <Icon icon="mingcute:left-line" class="text-lg" />
               </button>
@@ -306,7 +306,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Step, StepDraft } from '~/types/todoType'
 
@@ -338,7 +338,7 @@ const emit = defineEmits<{
 const showClearStepsDialog = ref<boolean>(false)
 const showStepsDialog      = ref<boolean>(false)
 const stepsDraft           = ref<StepDraft[]>([])
-const isMobile             = ref<boolean>(false)
+const { isMobile }         = useResponsiveMode()
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(dateString: string): string {
@@ -430,18 +430,7 @@ function confirmClearSteps(): void {
 }
 
 // ─── Responsive ───────────────────────────────────────────────────────────────
-function checkMobile(): void {
-  isMobile.value = window.innerWidth < 768
-}
 
-onMounted((): void => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-})
-
-onUnmounted((): void => {
-  window.removeEventListener('resize', checkMobile)
-})
 </script>
 
 <style scoped>

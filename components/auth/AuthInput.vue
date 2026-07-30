@@ -6,7 +6,6 @@
       class="text-[13px] font-semibold text-white/85 text-right tracking-wide"
     >
       {{ label }}
-      <span v-if="required" class="text-rose-300 mr-0.5">*</span>
     </label>
 
     <div class="relative">

@@ -71,7 +71,7 @@
             v-if="authState.user?.avatar_url"
             :src="authState.user.avatar_url"
             class="h-8 w-8 shrink-0 rounded-full object-cover"
-         alt="avatar profile"/>
+            alt="avatar profile"/>
         <div
             v-else
             class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-xs font-bold text-white"
@@ -88,7 +88,7 @@
         </div>
         <button
             v-tooltip="'خروج از حساب'"
-            @click="handleLogout"
+            @click="showLogoutDialog = true"
             class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
         >
           <Icon icon="mdi:logout" class="text-base" />
@@ -138,6 +138,41 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- دیالوگ تایید خروج از حساب -->
+  <Teleport to="body">
+    <div
+        v-if="showLogoutDialog"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click.self="showLogoutDialog = false"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
+        <div class="flex flex-col items-center p-6 text-center">
+          <div class="text-6xl mb-2">
+            <Icon class="text-primary-900" icon="mdi:logout" />
+          </div>
+          <h3 class="text-xl font-bold text-primary-900 mb-2">خروج از حساب کاربری</h3>
+          <p class="text-primary-600 text-sm mb-2">آیا مطمئن هستید که می‌خواهید از حساب کاربری خود خارج شوید؟</p>
+        </div>
+        <div
+            class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl"
+        >
+          <button
+              @click="showLogoutDialog = false"
+              class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all"
+          >
+            انصراف
+          </button>
+          <button
+              @click="confirmLogout"
+              class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all"
+          >
+            خروج
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -178,6 +213,12 @@ const pageTitle = computed(() => {
 function handleLogout(): void {
   logout()
   router.push('/auth/login')
+}
+
+const showLogoutDialog = ref(false)
+function confirmLogout(): void {
+  showLogoutDialog.value = false
+  handleLogout()
 }
 
 // ─── دراپ‌داون موبایل ────────────────────────────────────────────────────

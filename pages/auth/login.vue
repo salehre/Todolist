@@ -36,7 +36,7 @@
       <!-- رمز عبور -->
       <div>
         <div class="flex justify-between items-center mb-1.5">
-          <label class="text-[13px] font-semibold text-white/85">رمز عبور <span class="text-rose-300">*</span></label>
+          <label class="text-[13px] font-semibold text-white/85">رمز عبور </label>
           <NuxtLink to="/auth/forgot-password" class="text-xs text-primary-300 hover:text-primary-200 transition-colors">
             رمز عبور را فراموش کردی؟
           </NuxtLink>
@@ -57,7 +57,7 @@
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="text-slate-400 hover:text-slate-600 transition-colors"
+              class="text-slate-400 hover:text-slate-600 mt-2 transition-colors"
             >
               <Icon :icon="showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" />
             </button>
