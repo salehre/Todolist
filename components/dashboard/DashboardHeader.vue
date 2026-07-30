@@ -52,6 +52,16 @@
         >
           <Icon :icon="isDark ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-lg" />
         </button>
+
+        <!-- تغییر زبان/جهت: locale رو عوض می‌کنه، direction هم خودکار از
+             همون فایل locale (en.json/fa.json) میاد -->
+        <button
+            v-tooltip="isRtl ? 'English' : 'فارسی'"
+            @click="toggleLocale"
+            class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+        >
+          <span class="text-[11px] font-bold uppercase" dir="ltr">{{ locale }}</span>
+        </button>
       </div>
 
       <!-- دکمه‌ی «بیشتر»: فقط موبایل، جای همون ۳ تا دکمه‌ی بالا -->
@@ -135,6 +145,13 @@
           <Icon :icon="isDark ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-lg text-slate-400" />
           تغییر تم
         </button>
+        <button
+            @click="toggleLocale(); mobileMenuOpen = false"
+            class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
+        >
+          <Icon icon="mdi:translate" class="text-lg text-slate-400" />
+          {{ isRtl ? 'English' : 'فارسی' }}
+        </button>
       </div>
     </Transition>
   </Teleport>
@@ -180,12 +197,18 @@ import { computed, nextTick, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useAuth } from '@/composables/useAuth'
 import { useTheme } from '@/composables/useTheme'
+import { useLocale } from '@/composables/useLocale'
 
 const { authState, logout } = useAuth()
 const router = useRouter()
 const route = useRoute()
 
 const { isDark, toggleDark } = useTheme()
+const { locale, isRtl, setLocale } = useLocale()
+
+function toggleLocale(): void {
+  setLocale(isRtl.value ? 'en' : 'fa')
+}
 
 // همون کلید useState که توی DashboardSidebar.vue استفاده شده، پس با هم sync‌ان
 const mobileSidebarOpen = useState<boolean>('dashboard-sidebar-mobile-open', () => false)

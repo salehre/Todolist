@@ -82,7 +82,7 @@
                     v-if="authState.user?.avatar_url"
                     :src="authState.user.avatar_url"
                     class="h-full w-full rounded-full border-4 border-white object-cover shadow-lg"
-                 alt="avatar profile"/>
+                    alt="avatar profile"/>
                 <div v-else class="flex h-full w-full items-center justify-center rounded-full border-4 border-white bg-slate-200 text-3xl font-bold text-slate-500 shadow-lg">
                   {{ authState.user?.name?.[0] || '?' }}
                 </div>

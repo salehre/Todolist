@@ -1,14 +1,14 @@
 <template>
   <AuthCard
-    title="ورود به حساب"
-    subtitle="خوش آمدی! اطلاعات خود را وارد کن"
-    icon="mdi:login-variant"
+      title="ورود به حساب"
+      subtitle="خوش آمدی! اطلاعات خود را وارد کن"
+      icon="mdi:login-variant"
   >
     <!-- پیام موفقیت ثبت‌نام -->
     <Transition name="slide-down">
       <div
-        v-if="justRegistered"
-        class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center gap-2 text-sm text-emerald-700"
+          v-if="justRegistered"
+          class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center gap-2 text-sm text-emerald-700"
       >
         <Icon icon="mdi:check-circle-outline" class="text-lg shrink-0" />
         ثبت‌نام با موفقیت انجام شد! حالا وارد شو
@@ -19,14 +19,14 @@
 
       <!-- نام کاربری -->
       <AuthInput
-        v-model="form.username"
-        label="نام کاربری"
-        placeholder="نام کاربری خود را وارد کن"
-        autocomplete="username"
-        :error="errors.username"
-        required
-        @blur="validateField('username')"
-        @input="clearServerError"
+          v-model="form.username"
+          label="نام کاربری"
+          placeholder="نام کاربری خود را وارد کن"
+          autocomplete="username"
+          :error="errors.username"
+          required
+          @blur="validateField('username')"
+          @input="clearServerError"
       >
         <template #iconRight>
           <Icon icon="mdi:at" />
@@ -42,22 +42,22 @@
           </NuxtLink>
         </div>
         <AuthInput
-          v-model="form.password"
-          :type="showPassword ? 'text' : 'password'"
-          placeholder="رمز عبور خود را وارد کن"
-          autocomplete="current-password"
-          :error="errors.password"
-          @blur="validateField('password')"
-          @input="clearServerError"
+            v-model="form.password"
+            :type="showPassword ? 'text' : 'password'"
+            placeholder="رمز عبور خود را وارد کن"
+            autocomplete="current-password"
+            :error="errors.password"
+            @blur="validateField('password')"
+            @input="clearServerError"
         >
           <template #iconRight>
             <Icon icon="mdi:lock-outline" />
           </template>
           <template #iconLeft>
             <button
-              type="button"
-              @click="showPassword = !showPassword"
-              class="text-slate-400 hover:text-slate-600 mt-2 transition-colors"
+                type="button"
+                @click="showPassword = !showPassword"
+                class="text-slate-400 hover:text-slate-600 mt-2 transition-colors"
             >
               <Icon :icon="showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" />
             </button>
@@ -67,9 +67,9 @@
 
       <!-- دکمه ورود -->
       <button
-        type="submit"
-        :disabled="isLoading"
-        class="w-full mt-2 py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
+          type="submit"
+          :disabled="isLoading"
+          class="w-full mt-2 py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
                hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
@@ -84,7 +84,7 @@
     <template #footer>
       <p class="text-sm text-white/70">
         حساب نداری؟
-        <NuxtLink to="/auth/signup" class="text-primary-300 font-semibold hover:text-primary-200 mr-1 transition-colors">
+        <NuxtLink to="/auth/signup" class="text-primary-300 font-semibold hover:text-primary-200 ms-1 transition-colors">
           ثبت‌نام کن
         </NuxtLink>
       </p>
@@ -132,7 +132,6 @@ async function handleLogin() {
   serverError.value = ''
 
   try {
-    // TODO: جایگزین با → POST /api/auth/login
     const success = await login(form.username, form.password)
 
     if (success) {

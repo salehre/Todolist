@@ -3,7 +3,7 @@
   <div
       class="relative min-h-screen flex items-center justify-center p-4 bg-cover bg-center transition-[background-image] duration-300"
       :style="{ backgroundImage: `url(/images/auth-bg/${currentTheme}.jpg)` }"
-      dir="rtl"
+      :dir="direction"
   >
     <!-- لایه‌ی تیره‌ی نیم‌شفاف روی عکس تا فرم خوانا بمونه -->
     <div class="absolute inset-0 bg-linear-to-b from-black/40 via-black/35 to-black/50" />
@@ -15,8 +15,8 @@
         <!-- لوگو / آیکون -->
         <div class="flex flex-col items-center mb-7">
           <div
-            v-if="icon"
-            class="w-16 h-16 rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 shadow-lg shadow-primary-900/30 ring-1 ring-white/30 flex items-center justify-center mb-4"
+              v-if="icon"
+              class="w-16 h-16 rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 shadow-lg shadow-primary-900/30 ring-1 ring-white/30 flex items-center justify-center mb-4"
           >
             <Icon :icon="icon" class="text-3xl text-white" />
           </div>
@@ -42,6 +42,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { useTheme } from '@/composables/useTheme'
+import { useLocale } from '@/composables/useLocale'
 
 defineProps<{
   title: string
@@ -50,6 +51,7 @@ defineProps<{
 }>()
 
 const { currentTheme } = useTheme()
+const { direction } = useLocale()
 </script>
 
 <style scoped>

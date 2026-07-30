@@ -131,13 +131,6 @@
     --t-950: #fff1f2;
 }
 
-
-@layer base {
-    html{
-        direction: rtl;
-    }
-}
-
 button{
     cursor: pointer;
 }

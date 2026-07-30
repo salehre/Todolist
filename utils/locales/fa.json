@@ -1,8 +1,7 @@
 {
-"cancel": "لغو",
-"all": "",
-"active": "",
-"completed": ""
-
-
+  "direction": "rtl",
+  "cancel": "لغو",
+  "all": "همه",
+  "active": "فعال",
+  "completed": "انجام‌شده"
 }

@@ -1,7 +1,7 @@
-{"cancel": "Cancel",
-"all": "",
-"active": "",
-"completed": ""
-
-
+{
+  "direction": "ltr",
+  "cancel": "Cancel",
+  "all": "All",
+  "active": "Active",
+  "completed": "Completed"
 }

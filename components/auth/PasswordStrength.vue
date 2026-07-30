@@ -1,30 +1,30 @@
 <template>
-  <div class="space-y-2" dir="rtl">
+  <div class="space-y-2" :dir="direction">
     <!-- نوارهای قدرت -->
     <div class="flex gap-1.5">
       <div
-        v-for="i in 4"
-        :key="i"
-        class="h-1.5 flex-1 rounded-full transition-all duration-300"
-        :class="barColor(i)"
+          v-for="i in 4"
+          :key="i"
+          class="h-1.5 flex-1 rounded-full transition-all duration-300"
+          :class="barColor(i)"
       />
     </div>
     <!-- برچسب -->
-    <p class="text-xs text-right font-medium transition-colors duration-300" :class="labelColor">
+    <p class="text-xs text-start font-medium transition-colors duration-300" :class="labelColor">
       {{ label }}
     </p>
     <!-- راهنماهای کمبود -->
     <ul v-if="hints.length" class="space-y-1">
       <li
-        v-for="hint in hints"
-        :key="hint.text"
-        class="text-xs flex items-center gap-1.5 justify-end"
-        :class="hint.passed ? 'text-emerald-300' : 'text-white/45'"
+          v-for="hint in hints"
+          :key="hint.text"
+          class="text-xs flex items-center gap-1.5 justify-end"
+          :class="hint.passed ? 'text-emerald-300' : 'text-white/45'"
       >
         <span>{{ hint.text }}</span>
         <Icon
-          :icon="hint.passed ? 'mdi:check-circle' : 'mdi:circle-outline'"
-          class="shrink-0 text-sm"
+            :icon="hint.passed ? 'mdi:check-circle' : 'mdi:circle-outline'"
+            class="shrink-0 text-sm"
         />
       </li>
     </ul>
@@ -34,8 +34,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useLocale } from '@/composables/useLocale'
 
 const props = defineProps<{ password: string }>()
+
+const { direction } = useLocale()
 
 const hints = computed(() => [
   { text: 'حداقل ۸ کاراکتر',     passed: props.password.length >= 8 },

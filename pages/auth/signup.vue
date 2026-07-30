@@ -1,20 +1,20 @@
 <template>
   <AuthCard
-    title="ایجاد حساب کاربری"
-    subtitle="برای شروع، اطلاعات خود را وارد کنید"
-    icon="mdi:account-plus-outline"
+      title="ایجاد حساب کاربری"
+      subtitle="برای شروع، اطلاعات خود را وارد کنید"
+      icon="mdi:account-plus-outline"
   >
     <form class="space-y-4" @submit.prevent="handleSubmit" novalidate>
 
       <!-- نام و نام خانوادگی -->
       <AuthInput
-        v-model="form.name"
-        label="نام و نام خانوادگی"
-        placeholder="مثال: علی رضایی"
-        autocomplete="name"
-        :error="errors.name"
-        required
-        @blur="validateField('name')"
+          v-model="form.name"
+          label="نام و نام خانوادگی"
+          placeholder="مثال: علی رضایی"
+          autocomplete="name"
+          :error="errors.name"
+          required
+          @blur="validateField('name')"
       >
         <template #iconRight>
           <Icon icon="mdi:account-outline" />
@@ -23,14 +23,14 @@
 
       <!-- نام کاربری -->
       <AuthInput
-        v-model="form.username"
-        label="نام کاربری"
-        placeholder="مثال: ali_rezaei"
-        autocomplete="username"
-        :error="errors.username"
-        :hint="!errors.username && form.username ? 'فقط حروف انگلیسی، عدد و آندرلاین مجاز است' : ''"
-        required
-        @blur="validateField('username')"
+          v-model="form.username"
+          label="نام کاربری"
+          placeholder="مثال: ali_rezaei"
+          autocomplete="username"
+          :error="errors.username"
+          :hint="!errors.username && form.username ? 'فقط حروف انگلیسی، عدد و آندرلاین مجاز است' : ''"
+          required
+          @blur="validateField('username')"
       >
         <template #iconRight>
           <Icon icon="mdi:at" />
@@ -39,14 +39,14 @@
 
       <!-- ایمیل -->
       <AuthInput
-        v-model="form.email"
-        label="آدرس ایمیل"
-        type="email"
-        placeholder="example@gmail.com"
-        autocomplete="email"
-        :error="errors.email"
-        required
-        @blur="validateField('email')"
+          v-model="form.email"
+          label="آدرس ایمیل"
+          type="email"
+          placeholder="example@gmail.com"
+          autocomplete="email"
+          :error="errors.email"
+          required
+          @blur="validateField('email')"
       >
         <template #iconRight>
           <Icon icon="mdi:email-outline" />
@@ -55,9 +55,9 @@
 
       <!-- دکمه ارسال -->
       <button
-        type="submit"
-        :disabled="isLoading"
-        class="w-full mt-2 py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
+          type="submit"
+          :disabled="isLoading"
+          class="w-full mt-2 py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
                hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed
@@ -72,7 +72,7 @@
     <template #footer>
       <p class="text-sm text-white/70">
         قبلاً حساب داری؟
-        <NuxtLink to="/auth/login" class="text-primary-300 font-semibold hover:text-primary-200 mr-1 transition-colors">
+        <NuxtLink to="/auth/login" class="text-primary-300 font-semibold hover:text-primary-200 ms-1 transition-colors">
           وارد شو
         </NuxtLink>
       </p>
@@ -139,7 +139,6 @@ async function handleSubmit() {
 
   isLoading.value = true
   try {
-    // TODO: جایگزین با → POST /api/auth/register
     await registerUser({ name: form.name, username: form.username, email: form.email })
     router.push('/auth/verify-email')
   } catch (e) {
