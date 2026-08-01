@@ -1,16 +1,6 @@
 import { defineNuxtPlugin } from '#app'
 import type { Directive, DirectiveBinding } from 'vue'
 
-// ─── v-tooltip ──────────────────────────────────────────────────────────────
-
-//   <button v-tooltip="'Attach'">...</button>                 <!-- پیش‌فرض: بالا -->
-//   <button v-tooltip:bottom="'Attach'">...</button>
-//   <button v-tooltip:left="'Attach'">...</button>            <!-- همیشه فیزیکی چپ -->
-//   <button v-tooltip:right="'Attach'">...</button>           <!-- همیشه فیزیکی راست -->
-//   <button v-tooltip:start="'Attach'">...</button>           <!-- بر اساس dir: rtl->راست / ltr->چپ -->
-//   <button v-tooltip:end="'Attach'">...</button>             <!-- بر اساس dir: rtl->چپ / ltr->راست -->
-//   <button v-tooltip:left="editingText ? 'Save' : 'Send'">...</button>
-
 type TooltipSide = 'top' | 'bottom' | 'left' | 'right' | 'start' | 'end'
 type ResolvedSide = 'top' | 'bottom' | 'left' | 'right'
 
