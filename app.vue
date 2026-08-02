@@ -11,11 +11,10 @@
 import { Toaster } from 'vue-sonner'
 import 'vue-sonner/style.css'
 const { currentTheme, isDark } = useTheme()
-const { locale, direction } = useLocale()
+const { direction } = useLocale()
 
 useHead({
   htmlAttrs: {
-    lang: locale,
     dir: direction,
     'data-theme': currentTheme,
     class: computed(() => (isDark.value ? 'dark' : '')),

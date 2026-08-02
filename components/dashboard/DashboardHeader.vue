@@ -2,10 +2,7 @@
   <header
       class="flex h-16 shrink-0 items-center justify-between rounded-2xl border border-slate-200/70 bg-white/80 px-5 shadow-lg shadow-slate-200/50 backdrop-blur-xl"
   >
-    <!-- ─── سمت start: دکمه‌ی منو (فقط موبایل) + عنوان صفحه ───────────── -->
     <div class="flex items-center gap-2 overflow-hidden">
-      <!-- تنها راهِ باز کردن سایدبار توی موبایل همینجاست، چون خودِ سایدبار
-           وقتی بسته‌ست عرضش صفره و هیچی ازش دیده نمی‌شه که بشه روش زد -->
       <button
           v-tooltip="'باز کردن منو'"
           @click="mobileSidebarOpen = !mobileSidebarOpen"
@@ -25,15 +22,8 @@
       </h1>
     </div>
 
-    <!-- ─── سمت end: قابلیت‌ها + اطلاعات کاربر ───────────────────────────
-         TODO: دکمه‌های search/notifications فقط UI هستن، هنوز به هیچ
-         API‌ای وصل نیستن. هرکدوم رو که آماده کردی همینجا wire کن.
-    -->
     <div class="flex items-center gap-1.5">
-      <!-- این ۳ تا دکمه فقط تو دسکتاپ به همین شکل کنار هم می‌مونن؛
-           تو موبایل جمع می‌شن تو دراپ‌داونِ دکمه‌ی «بیشتر» پایین‌تر -->
       <div class="hidden items-center gap-1.5 md:flex">
-        <!-- اعلان‌ها -->
         <button
             v-tooltip="'اعلان‌ها'"
             class="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
@@ -44,7 +34,6 @@
           />
         </button>
 
-        <!-- تغییر تم روشن/تاریک -->
         <button
             v-tooltip="'تغییر تم'"
             @click="toggleDark"
@@ -53,8 +42,6 @@
           <Icon :icon="isDark ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-lg" />
         </button>
 
-        <!-- تغییر زبان/جهت: locale رو عوض می‌کنه، direction هم خودکار از
-             همون فایل locale (en.json/fa.json) میاد -->
         <button
             v-tooltip="isRtl ? 'English' : 'فارسی'"
             @click="toggleLocale"
@@ -64,7 +51,6 @@
         </button>
       </div>
 
-      <!-- دکمه‌ی «بیشتر»: فقط موبایل، جای همون ۳ تا دکمه‌ی بالا -->
       <button
           ref="moreButtonRef"
           @click="toggleMobileMenu"
@@ -75,7 +61,6 @@
 
       <div class="mx-1.5 hidden h-6 w-px bg-slate-200 md:block" />
 
-      <!-- اطلاعات کاربر: به useAuth واقعی وصله -->
       <div class="flex items-center gap-2.5 rounded-xl py-1.5 ps-1.5 pe-2.5 hover:bg-slate-100">
         <img
             v-if="authState.user?.avatar_url"
@@ -107,9 +92,6 @@
     </div>
   </header>
 
-  <!-- دراپ‌داونِ موبایل: مستقیم به body تلپورت می‌شه تا هیچ‌وقت زیر
-       المنت‌های دیگه‌ای که خودشون stacking context جدید می‌سازن
-       (مثل backdrop-blur تو TodoDetail.vue) گم نشه -->
   <Teleport to="body">
     <div
         v-if="mobileMenuOpen"
@@ -156,7 +138,6 @@
     </Transition>
   </Teleport>
 
-  <!-- دیالوگ تایید خروج از حساب -->
   <Teleport to="body">
     <div
         v-if="showLogoutDialog"

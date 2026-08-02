@@ -1,6 +1,7 @@
 // ─── useAuth composable ────────────────────────────────────────────────────
 import api, { ensureCsrfCookie, getErrorMessage } from '~/src/services/api'
 import { toast } from 'vue-sonner'
+import { useLocale } from '~/composables/useLocale'
 
 export interface AuthUser {
     name: string
@@ -10,6 +11,7 @@ export interface AuthUser {
     gender?: 'male' | 'female' | 'company' | null
     theme?: string
     dark_mode?: boolean
+    language?: 'fa' | 'en'
     avatar_url?: string | null
     cover_url?: string | null
 }
@@ -73,6 +75,7 @@ export function useAuth() {
             authState.pendingUser = null
             authState.pendingEmail = ''
             useTheme().syncFromUser(res.data.user)
+            useLocale().syncFromUser(res.data.user)
             cachedCoverUrl.value = res.data.user.cover_url ?? null
             toast.success(`خوش اومدی ${res.data.user.name}!`)
             return true
@@ -83,13 +86,14 @@ export function useAuth() {
     }
 
     // ─── Login ────────────────────────────────────────────────────────────
-    async function login(username: string, password: string): Promise<boolean> {
+    async function login(username: string, password: string, remember = false): Promise<boolean> {
         try {
             await ensureCsrfCookie()
-            const res = await api.post('/auth/login', { username, password })
+            const res = await api.post('/auth/login', { username, password, remember })
             authState.user = res.data.user
             authState.isLoggedIn = true
             useTheme().syncFromUser(res.data.user)
+            useLocale().syncFromUser(res.data.user)
             cachedCoverUrl.value = res.data.user.cover_url ?? null
             toast.success('خوش برگشتی!')
             return true
@@ -130,6 +134,7 @@ export function useAuth() {
             if (res.data.user) {
                 authState.user = res.data.user
                 useTheme().syncFromUser(res.data.user)
+                useLocale().syncFromUser(res.data.user)
                 cachedCoverUrl.value = res.data.user.cover_url ?? null
                 authState.isLoggedIn = true
             }
@@ -161,7 +166,7 @@ export function useAuth() {
         }
     }
 
-    // ─── آپلود عکس پروفایل ───────────────────────────────────────────────
+    // ─────────────── آپلود عکس پروفایل ─────────────
     async function uploadAvatar(file: File): Promise<boolean> {
         const formData = new FormData()
         formData.append('avatar', file)
@@ -178,7 +183,7 @@ export function useAuth() {
         }
     }
 
-    // ─── آپلود عکس کاور ──────────────────────────────────────────────────
+    // ────────────────── آپلود عکس کاور ───────────────
     async function uploadCover(file: File): Promise<boolean> {
         const formData = new FormData()
         formData.append('cover', file)

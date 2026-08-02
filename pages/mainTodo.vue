@@ -16,15 +16,15 @@
 
     <!-- جزئیات تسک -->
     <TodoDetail
-        v-model="selectedTodo"
-        @toggle-complete="toggleComplete"
-        @edit-todo="openEditDialog"
-        @delete-todo="openDeleteConfirm"
-        @back="selectedTodo = null"
-        @update-steps="updateSteps"
-        @complete-step="completeStep"
-        @undo-step="undoStep"
-    />
+      v-model="selectedTodo"
+      @toggle-complete="toggleComplete"
+      @edit-todo="openEditDialog"
+      @delete-todo="openDeleteConfirm"
+      @back="selectedTodo = null"
+      @update-steps="updateSteps"
+      @complete-step="completeStep"
+      @undo-step="undoStep"
+  />
 
     <!-- Delete Confirmation Dialog -->
     <div

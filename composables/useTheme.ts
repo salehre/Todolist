@@ -10,8 +10,6 @@ export const themeOptions: { value: AppTheme; label: string; swatch: string }[] 
 ]
 
 export function useTheme() {
-    // useCookie هم سمت سرور (موقع SSR) هم سمت کلاینت خونده می‌شه،
-    // برخلاف localStorage که فقط کلاینت در دسترسه.
     const currentTheme = useCookie<AppTheme>('app-theme', {
         default: () => 'sky',
         sameSite: 'lax',
