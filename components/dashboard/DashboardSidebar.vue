@@ -66,8 +66,6 @@
         class="relative w-64 flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-3 py-4"
         :class="iconOnly ? 'md:w-19' : ''"
     >
-      <!-- هایلایتِ حالت فعال: با اندازه‌گیری موقعیتِ آیتم فعال، یه پس‌زمینه‌ی
-           مشترک بین top/height آیتم قبلی و جدید سُر می‌خوره (transition روی موقعیت) -->
       <div
           v-show="activeIndex !== -1"
           class="pointer-events-none absolute inset-x-3 z-0 rounded-e-3xl bg-primary-50 transition-[top,height] duration-300 ease-in-out"
@@ -92,8 +90,6 @@
           isActive(item.to) ? 'text-primary-700' : 'text-slate-500 hover:text-slate-800',
         ]"
       >
-        <!-- هاور: جنسِ حرکتش عمداً با هایلایتِ فعال (که موقعیتش سُر می‌خوره) فرق داره —
-             اینجا از مرکز بزرگ می‌شه و محو می‌شه (transform-origin: center + scale/opacity) -->
         <span
             v-if="!isActive(item.to)"
             class="pointer-events-none absolute inset-0 -z-10 scale-75 rounded-e-3xl bg-slate-100 opacity-0 transition-[transform,opacity] duration-200 ease-out group-hover:scale-100 group-hover:opacity-100"
@@ -119,7 +115,7 @@
       <span
           class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200"
       >
-        Powered by <span class="font-medium pl-0.5 pt-1 text-[14px] hover:text-primary-600 transition-colors text-slate-500">Saleh Rezaei (adrina's bf)</span>
+        Powered by <span class="font-medium pl-0.5 pt-1 text-[14px] hover:text-primary-600 transition-colors text-slate-500">Saleh Rezaei</span>
       </span>
     </NuxtLink>
   </aside>
@@ -166,13 +162,9 @@ function isActive(to: string): boolean {
 }
 
 // ─── State ───────────────────────────────────────────────────────────
-// حالت جمع/باز بودنِ سایدبار توی دسکتاپ (آیکون‌فقط یا کامل)
 const desktopCollapsed = useState<boolean>('dashboard-sidebar-collapsed', () => false)
-// حالت باز/بسته بودنِ درآور توی موبایل — کاملاً جدا از حالت بالا
-// (shared state چون دکمه‌ی بازکردنش توی DashboardHeader.vue‌ـه)
 const mobileOpen = useState<boolean>('dashboard-sidebar-mobile-open', () => false)
 
-// تشخیص موبایل، دقیقاً همون الگوی خودِ پروژه (مثل TodoList.vue)
 const isMobile = ref(false)
 function checkMobile(): void {
   isMobile.value = window.innerWidth < 768
@@ -187,8 +179,6 @@ onUnmounted(() => {
   window.removeEventListener('resize', updateIndicator)
 })
 
-// آیکون‌فقط فقط توی دسکتاپِ جمع‌شده معنی داره؛ توی موبایل هیچ‌وقت
-// حالت آیکون‌فقط نداریم (یا کاملاً بسته‌ست یا کاملاً باز با لیبل)
 const iconOnly = computed(() => !isMobile.value && desktopCollapsed.value)
 const showLabels = computed(() => isMobile.value ? mobileOpen.value : !desktopCollapsed.value)
 
@@ -210,15 +200,10 @@ function toggleSidebar(): void {
   }
 }
 
-// روی موبایل، با زدن هر آیتم منو (رفتن به صفحه‌ی دیگه) درآور بسته بشه
 function handleNavClick(): void {
   if (isMobile.value) mobileOpen.value = false
 }
 
-// ─── هایلایتِ شناور ──────────────────────────────────────────────────
-// موقعیت (top/height) آیتمِ فعال رو اندازه می‌گیریم و یه بلاکِ مستقل رو به
-// همون مختصات می‌بریم؛ چون CSS transition روی top/height گذاشتیم، این
-// جابه‌جایی به‌صورت اسلاید نرم دیده می‌شه.
 const navEl = ref<HTMLElement | null>(null)
 const itemRefs = ref<(HTMLElement | null)[]>([])
 
@@ -239,8 +224,6 @@ function updateIndicator(): void {
   indicatorHeight.value = el.offsetHeight
 }
 
-// هر چیزی که ممکنه موقعیت/سایز آیتم‌ها رو عوض کنه، باید هایلایت رو دوباره
-// اندازه‌گیری کنه: عوض شدن مسیر، جمع/باز شدن سایدبار (دسکتاپ)، باز شدن موبایل
 watch([activeIndex, desktopCollapsed, mobileOpen, isMobile], () => {
   nextTick(updateIndicator)
 })
