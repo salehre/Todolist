@@ -115,7 +115,6 @@
         to="/aboutMe"
         @click="handleNavClick"
         class="flex h-22 shrink-0 justify-center transition-colors items-center px-4 text-slate-400"
-
     >
       <span
           class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200"
