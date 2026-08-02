@@ -24,6 +24,15 @@
 
     <div class="flex items-center gap-1.5">
       <div class="hidden items-center gap-1.5 md:flex">
+        <!-- جستجو -->
+        <button
+            v-tooltip="isRtl ? 'English' : 'فارسی'"
+            @click="toggleLocale"
+            class="flex h-9 w-9  items-center pt-1 justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+        >
+          <span class="text-[11px] font-bold uppercase" dir="ltr">{{ locale }}</span>
+        </button>
+
         <button
             v-tooltip="'اعلان‌ها'"
             class="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
@@ -41,14 +50,6 @@
         >
           <Icon :icon="isDark ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-lg" />
         </button>
-
-        <button
-            v-tooltip="isRtl ? 'English' : 'فارسی'"
-            @click="toggleLocale"
-            class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-        >
-          <span class="text-[11px] font-bold uppercase" dir="ltr">{{ locale }}</span>
-        </button>
       </div>
 
       <button
@@ -58,37 +59,6 @@
       >
         <Icon icon="mdi:dots-vertical" class="text-lg" />
       </button>
-
-      <div class="mx-1.5 hidden h-6 w-px bg-slate-200 md:block" />
-
-      <div class="flex items-center gap-2.5 rounded-xl py-1.5 ps-1.5 pe-2.5 hover:bg-slate-100">
-        <img
-            v-if="authState.user?.avatar_url"
-            :src="authState.user.avatar_url"
-            class="h-8 w-8 shrink-0 rounded-full object-cover"
-            alt="avatar profile"/>
-        <div
-            v-else
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-xs font-bold text-white"
-        >
-          {{ userInitial }}
-        </div>
-        <div class="hidden text-start sm:block">
-          <p class="text-xs font-semibold leading-tight text-slate-700">
-            {{ authState.user?.name || authState.user?.username || 'کاربر' }}
-          </p>
-          <p class="text-[11px] leading-tight text-slate-400" dir="ltr">
-            {{ authState.user?.email }}
-          </p>
-        </div>
-        <button
-            v-tooltip="'خروج از حساب'"
-            @click="showLogoutDialog = true"
-            class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
-        >
-          <Icon icon="mdi:logout" class="text-base" />
-        </button>
-      </div>
     </div>
   </header>
 
@@ -106,13 +76,6 @@
           class="fixed z-50 w-48 overflow-hidden rounded-xl border border-slate-200/70 bg-white py-1 shadow-lg shadow-slate-200/50"
           :style="{ top: dropdownTop + 'px', left: dropdownLeft + 'px' }"
       >
-        <button
-            @click="mobileMenuOpen = false"
-            class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
-        >
-          <Icon icon="mdi:magnify" class="text-lg text-slate-400" />
-          جستجو
-        </button>
         <button
             @click="mobileMenuOpen = false"
             class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
@@ -137,51 +100,14 @@
       </div>
     </Transition>
   </Teleport>
-
-  <Teleport to="body">
-    <div
-        v-if="showLogoutDialog"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-        @click.self="showLogoutDialog = false"
-    >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
-        <div class="flex flex-col items-center p-6 text-center">
-          <div class="text-6xl mb-2">
-            <Icon class="text-primary-900" icon="mdi:logout" />
-          </div>
-          <h3 class="text-xl font-bold text-primary-900 mb-2">خروج از حساب کاربری</h3>
-          <p class="text-primary-600 text-sm mb-2">آیا مطمئن هستید که می‌خواهید از حساب کاربری خود خارج شوید؟</p>
-        </div>
-        <div
-            class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl"
-        >
-          <button
-              @click="showLogoutDialog = false"
-              class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all"
-          >
-            انصراف
-          </button>
-          <button
-              @click="confirmLogout"
-              class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all"
-          >
-            خروج
-          </button>
-        </div>
-      </div>
-    </div>
-  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import { Icon } from '@iconify/vue'
-import { useAuth } from '@/composables/useAuth'
 import { useTheme } from '@/composables/useTheme'
 import { useLocale } from '@/composables/useLocale'
 
-const { authState, logout } = useAuth()
-const router = useRouter()
 const route = useRoute()
 
 const { isDark, toggleDark } = useTheme()
@@ -194,11 +120,6 @@ function toggleLocale(): void {
 // همون کلید useState که توی DashboardSidebar.vue استفاده شده، پس با هم sync‌ان
 const mobileSidebarOpen = useState<boolean>('dashboard-sidebar-mobile-open', () => false)
 const desktopCollapsed = useState<boolean>('dashboard-sidebar-collapsed', () => false)
-
-const userInitial = computed(() => {
-  const name = authState.user?.name || authState.user?.username || ''
-  return name.trim().charAt(0).toUpperCase() || '?'
-})
 
 // عنوان صفحه از روی مسیر فعلی؛ اگه دوست داشتی می‌تونی به‌جاش
 // از route.meta.title استفاده کنی (توی definePageMeta هر صفحه ست کن)
@@ -213,17 +134,6 @@ const pageTitle = computed(() => {
   }
   return (route.meta.title as string) || titles[route.path] || 'داشبورد'
 })
-
-function handleLogout(): void {
-  logout()
-  router.push('/auth/login')
-}
-
-const showLogoutDialog = ref(false)
-function confirmLogout(): void {
-  showLogoutDialog.value = false
-  handleLogout()
-}
 
 // ─── دراپ‌داون موبایل ────────────────────────────────────────────────────
 const mobileMenuOpen = ref(false)

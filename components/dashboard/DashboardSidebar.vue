@@ -18,29 +18,49 @@
       class="flex h-full shrink-0 flex-col overflow-hidden sm:rounded-2xl border border-slate-200/70 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-xl transition-[width] duration-300 ease-in-out"
       :class="asideClasses"
   >
-    <!-- ─── Brand + دکمه‌ی جمع/باز شدن (دسکتاپ) یا بستن (موبایل) ────── -->
     <div
         class="flex h-16 w-64 shrink-0 items-center border-b border-slate-100 px-3"
         :class="iconOnly ? 'md:w-19 md:justify-center' : 'justify-between'"
     >
-      <div class="flex items-center gap-2.5 overflow-hidden">
+      <NuxtLink
+          to="/settings"
+          v-tooltip="!showLabels ? (authState.user?.name || authState.user?.username) : undefined"
+          class="flex min-w-0 items-center gap-2.5 overflow-hidden rounded-xl py-1 transition-opacity hover:opacity-80"
+      >
+        <img
+            v-if="authState.user?.avatar_url"
+            :src="authState.user.avatar_url"
+            class="h-9 w-9 shrink-0 rounded-full object-cover"
+        />
         <div
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary-600 to-primary-700 shadow-lg shadow-primary-200/60"
+            v-else
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-600 to-primary-700 text-xs font-bold text-white shadow-lg shadow-primary-200/60"
         >
-          <Icon icon="mdi:view-dashboard-outline" class="text-lg text-white" />
+          {{ userInitial }}
         </div>
-        <span
-            class="whitespace-nowrap text-[15px] font-bold text-slate-800 transition-opacity duration-200"
+        <div
+            class="min-w-0 overflow-hidden text-start transition-opacity duration-200"
             :class="showLabels ? 'w-auto opacity-100' : 'w-0 opacity-0'"
         >
-          داشبورد
-        </span>
-      </div>
+          <p class="truncate whitespace-nowrap text-[13px] font-bold text-slate-800">
+            {{ authState.user?.name || 'کاربر' }}
+          </p>
+          <p class="truncate whitespace-nowrap text-[11px] text-slate-400 text-center">
+            {{ authState.user?.username }}
+          </p>
+        </div>
+      </NuxtLink>
+
+      <button
+          v-if="showLabels"
+          v-tooltip="'خروج از حساب'"
+          @click="handleLogout"
+          class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
+      >
+        <Icon icon="mdi:logout" class="text-base" />
+      </button>
     </div>
 
-    <!-- ─── آیتم‌های منو ──────────────────────────────────────────────
-         TODO: این لیست الان استاتیکه. بعداً با یه API پرش کن.
-    -->
     <nav
         ref="navEl"
         class="relative w-64 flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-3 py-4"
@@ -90,12 +110,39 @@
         </span>
       </NuxtLink>
     </nav>
+
+    <NuxtLink
+        to="/aboutMe"
+        @click="handleNavClick"
+        class="flex h-22 shrink-0 justify-center transition-colors items-center px-4 text-slate-400"
+
+    >
+      <span
+          class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200"
+      >
+        Powered by <span class="font-medium pl-0.5 pt-1 text-[14px] hover:text-primary-600 transition-colors text-slate-500">Saleh Rezaei (adrina's bf)</span>
+      </span>
+    </NuxtLink>
   </aside>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useAuth } from '@/composables/useAuth'
+
+const { authState, logout } = useAuth()
+const router = useRouter()
+
+const userInitial = computed(() => {
+  const name = authState.user?.name || authState.user?.username || ''
+  return name.trim().charAt(0).toUpperCase() || '?'
+})
+
+function handleLogout(): void {
+  logout()
+  router.push('/auth/login')
+}
 
 interface NavItem {
   label: string
@@ -109,8 +156,7 @@ const navItems: NavItem[] = [
   { label: 'تودولیست من', icon: 'mdi:format-list-checks', to: '/mainTodo' },
   { label: 'کار تیمی', icon: 'mdi:account-group-outline', to: '/workPlan' },
   { label: 'تودولیست شخصی', icon: 'mdi:notebook-outline', to: '/customTodo' },
-  { label: 'درباره من', icon: 'weui:me-filled', to: '/aboutMe' },
-  { label: 'تنظیمات', icon: 'mdi:cog-outline', to: '/settings' },
+  { label: 'پروفایل', icon: 'weui:me-filled', to: '/settings' },
 ]
 
 const route = useRoute()
