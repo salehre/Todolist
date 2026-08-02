@@ -9,12 +9,10 @@
       <!-- ریل خالی -->
       <div class="absolute inset-0 rounded-full bg-white shadow-inner ring-1 ring-slate-200" />
 
-      <!-- بخش پرشده: دقیقاً تا لبه‌ی دستگیره پر می‌شه (نه بیشتر)، تا دستگیره
-           مماسِ بیرونیِ قسمت پرشده باشه، نه وسطش -->
       <div
           class="absolute inset-y-0 inset-s-0 rounded-full transition-[width,background-color] duration-200 ease-out"
           :class="currentOption.bgClass"
-          :style="{ width: `calc((100% - 32px) * ${fraction})` }"
+          :style="{ width: `calc((100% - 32px) * ${fraction} + 40px)` }"
       />
 
       <!-- نقطه‌های نشانه‌ی پله‌ها -->
@@ -26,13 +24,11 @@
           :style="{ insetInlineStart: `calc((100% - 32px) * ${index / (options.length - 1)} + 13px)` }"
       />
 
-      <!-- دستگیره‌ی سفید: لبه‌ی داخلی‌ش دقیقاً روی لبه‌ی قسمت پرشده می‌شینه (مماس) -->
       <div
-          class="pointer-events-none absolute top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] ring-1 ring-black/5 transition-[inset-inline-start] duration-200 ease-out"
-          :style="{ insetInlineStart: `calc((100% - 32px) * ${fraction})` }"
+          class="pointer-events-none absolute top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-[inset-inline-start] duration-200 ease-out"
+          :style="{ insetInlineStart: `calc((100% - 32px) * ${fraction} + 4px)` }"
       />
 
-      <!-- input رنج شفاف: فقط برای درگ/کیبورد/دسترسی‌پذیری -->
       <input
           type="range"
           min="0"
