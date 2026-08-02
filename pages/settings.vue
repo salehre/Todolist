@@ -2,7 +2,6 @@
   <div class="h-full overflow-y-auto p-1">
     <div class="mx-auto max-w-5xl space-y-6 pb-10">
 
-      <!-- ─── حالت اسکلت (Skeleton) در حین لود ──────────────────────────── -->
       <template v-if="isProfileLoading">
         <!-- اسکلت کارت پروفایل -->
         <div class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
@@ -48,21 +47,16 @@
         </div>
       </template>
 
-      <!-- ─── محتوای اصلی، فقط بعد از لود شدن یوزر ──────────────────────── -->
       <template v-else>
 
-        <!-- ─── کارت پروفایل: بنر + آواتار روکار ───────────────────────────── -->
         <div class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
-          <!-- بنر: عکس کاور خودِ کاربر (اگه آپلود کرده)، وگرنه عکس پیش‌فرض همون تم -->
           <div
-              class="group relative h-56 bg-cover bg-center sm:h-64"
+              class="group object-cover relative h-42 bg-cover bg-center sm:h-64"
               :style="{ backgroundImage: `url(${authState.user?.cover_url || cachedCoverUrl || '/images/auth-bg/' + currentTheme + '.jpg'})` }"
 
           >
-            <!-- لایه‌ی رنگی تم روی عکس، تا با هر عکسی هماهنگ بمونه و خوانا باشه -->
             <div class="absolute inset-0 bg-linear-to-t from-primary-950/60 via-primary-900/20 to-transparent" />
 
-            <!-- دکمه‌ی ویرایش کاور، گوشه‌ی پایین‌راست بنر -->
             <button
                 type="button"
                 @click="coverInput?.click()"

@@ -1,32 +1,32 @@
 <template>
   <div>
     <!-- لیبل بالای اسلایدر: کلمه‌ی سطح با رنگ مخصوص همون سطح -->
-    <p class="mb-3 text-center text-base font-semibold text-slate-800">
+    <p class="mb-2 text-start text-base font-semibold text-primary-900">
       <span :class="currentOption.textClass">{{ currentOption.label }}</span> priority
     </p>
 
-    <div class="relative h-10">
+    <div class="relative h-7">
       <!-- ریل خالی -->
       <div class="absolute inset-0 rounded-full bg-white shadow-inner ring-1 ring-slate-200" />
 
       <div
           class="absolute inset-y-0 inset-s-0 rounded-full transition-[width,background-color] duration-200 ease-out"
           :class="currentOption.bgClass"
-          :style="{ width: `calc((100% - 32px) * ${fraction} + 40px)` }"
+          :style="{ width: `calc((100% - 24px) * ${fraction} + 28px)` }"
       />
 
       <!-- نقطه‌های نشانه‌ی پله‌ها -->
       <span
           v-for="(opt, index) in options"
           :key="opt.value"
-          class="pointer-events-none absolute top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full transition-colors"
+          class="pointer-events-none absolute top-1/2 h-1 w-1 -translate-y-1/2 rounded-full transition-colors"
           :class="index <= modelIndex ? 'bg-white/70' : 'bg-slate-300'"
-          :style="{ insetInlineStart: `calc((100% - 32px) * ${index / (options.length - 1)} + 13px)` }"
+          :style="{ insetInlineStart: `calc((100% - 24px) * ${index / (options.length - 1)} + 12px)` }"
       />
 
       <div
-          class="pointer-events-none absolute top-1/2 h-8 w-8 -translate-y-1/2 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-[inset-inline-start] duration-200 ease-out"
-          :style="{ insetInlineStart: `calc((100% - 32px) * ${fraction} + 4px)` }"
+          class="pointer-events-none absolute top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-[inset-inline-start] duration-200 ease-out"
+          :style="{ insetInlineStart: `calc((100% - 24px) * ${fraction} + 2px)` }"
       />
 
       <input
@@ -69,21 +69,21 @@ function onInput(e: Event): void {
 <style scoped>
 .priority-range::-webkit-slider-runnable-track {
   background: transparent;
-  height: 2.5rem;
+  height: 1.75rem;
 }
 .priority-range::-webkit-slider-thumb {
   appearance: none;
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   opacity: 0;
 }
 .priority-range::-moz-range-track {
   background: transparent;
-  height: 2.5rem;
+  height: 1.75rem;
 }
 .priority-range::-moz-range-thumb {
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   border: none;
   opacity: 0;
 }

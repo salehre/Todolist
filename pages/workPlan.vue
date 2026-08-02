@@ -76,15 +76,7 @@
             ></textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">Priority</label>
-            <select
-                v-model="dialogForm.priority"
-                class="w-full px-4 py-2 rounded-xl border border-primary-200 bg-white text-primary-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-200"
-            >
-              <option value="low">🟢 Low Priority</option>
-              <option value="medium">🟡 Medium Priority</option>
-              <option value="high">🔴 High Priority</option>
-            </select>
+            <PrioritySlider v-model="dialogForm.priority" />
           </div>
         </div>
         <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
@@ -124,6 +116,7 @@ import { ref, onMounted } from 'vue'
 import TodoList   from '~/components/TodoList.vue'
 import TodoDetail from '~/components/TodoDetail.vue'
 import GroupChat  from '~/components/GroupChat.vue'
+import PrioritySlider from '~/components/PrioritySlider.vue'
 import type { Todo, Priority } from '~/types/todoType'
 import api from '~/src/services/api'
 import { mapTodoFromApi } from '~/src/services/todoMapper'
@@ -156,7 +149,6 @@ const {
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-// ─── Select Todo ──────────────────────────────────────────────────────────────
 function handleSelectTodo(todo: Todo): void {
   selectedTodo.value = todos.value.find(t => t.id === todo.id) ?? todo
   mobileListOpen.value = false

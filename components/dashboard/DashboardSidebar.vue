@@ -112,11 +112,10 @@
         @click="handleNavClick"
         class="flex h-22 shrink-0 justify-center transition-colors items-center px-4 text-slate-400"
     >
-      <span
-          class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200"
-      >
-        Powered by <span class="font-medium pl-0.5 pt-1 text-[14px] hover:text-primary-600 transition-colors text-slate-500">Saleh Rezaei</span>
+      <span class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200">
+        Powered by
       </span>
+      <span class="font-medium pl-0.5 text-[14px] hover:text-primary-600 transition-colors text-primary-400">Saleh Rezaei</span>
     </NuxtLink>
   </aside>
 </template>

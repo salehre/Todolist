@@ -494,14 +494,10 @@
               rows="2"
               placeholder="Description (optional)"
               class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none"
-          ></textarea>
+          />
+          <PrioritySlider v-model="inlineTodo.priority" />
           <div class="flex gap-2">
-            <select v-model="inlineTodo.priority" class="flex-1 px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:ring-1 focus:ring-primary-200 text-primary-700 font-medium">
-              <option value="low">🟢 Low</option>
-              <option value="medium">🟡 Medium</option>
-              <option value="high">🔴 High</option>
-            </select>
-            <button @click="createTodoFromChat" :disabled="!inlineTodo.title.trim()" class="px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50">
+            <button @click="createTodoFromChat" :disabled="!inlineTodo.title.trim()" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50">
               Create
             </button>
             <button @click="showCreateTodoInline = false" class="px-3 py-2 text-primary-400 hover:text-primary-600">
@@ -570,6 +566,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Priority } from '~/types/todoType'
+import PrioritySlider from '~/components/PrioritySlider.vue'
 import { toast } from "vue-sonner";
 
 interface Member {

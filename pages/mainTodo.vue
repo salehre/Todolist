@@ -73,10 +73,6 @@
             class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10"
         >
           <h3 class="text-xl flex font-bold text-primary-900">
-            <Icon
-                :icon="dialogMode === 'add' ? '' : 'mage:edit'"
-                class="mt-0.5 me-1 text-lg"
-            />
             {{ dialogMode === "add" ? "Add New Task" : "Edit Task" }}
           </h3>
           <button
@@ -88,40 +84,28 @@
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">
+            <label class="block text-sm font-medium text-primary-900 mb-2">
               Title
             </label>
             <input
                 v-model="dialogForm.title"
                 type="text"
-                placeholder="Enter task title..."
+                placeholder="Enter task title"
                 class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
                 @keyup.enter="submitDialog"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2"
-            >Description</label
-            >
+            <label class="block text-sm font-medium text-primary-900 mb-2"> Description </label>
             <textarea
                 v-model="dialogForm.description"
                 rows="4"
-                placeholder="Enter task description (optional)..."
+                placeholder="Enter task description (optional)"
                 class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"
-            ></textarea>
+            />
           </div>
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2"
-            >Priority</label
-            >
-            <select
-                v-model="dialogForm.priority"
-                class="w-full px-4 py-2 rounded-xl border border-primary-200 bg-white text-primary-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-200"
-            >
-              <option value="low">Low Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="high">High Priority</option>
-            </select>
+            <PrioritySlider v-model="dialogForm.priority" />
           </div>
         </div>
         <div
@@ -154,6 +138,7 @@ import TodoList from "~/components/TodoList.vue";
 import TodoDetail from "~/components/TodoDetail.vue";
 import { Icon } from "@iconify/vue";
 import { useTodos } from "~/composables/useTodos";
+import PrioritySlider from '~/components/Priorityslider.vue'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 const props = defineProps({
