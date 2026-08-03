@@ -140,12 +140,15 @@ import { Icon } from "@iconify/vue";
 import { useTodos } from "~/composables/useTodos";
 import PrioritySlider from '~/components/Priorityslider.vue'
 
+useHead(() => ({
+  titleTemplate: `%s - My TodoList`
+}))
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 const props = defineProps({
   hideChatButton: { type: Boolean, required: false, default: false },
 });
 
-// ─── منطق مشترک CRUD تسک‌ها از composable ─────────────────────────────────────
 const {
   todos,
   selectedTodo,

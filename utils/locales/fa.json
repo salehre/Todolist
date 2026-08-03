@@ -3,5 +3,10 @@
   "cancel": "لغو",
   "all": "همه",
   "active": "فعال",
-  "completed": "انجام‌شده"
+  "completed": "انجام‌شده",
+  "manageSteps": "مدیریت مراحل",
+  "preview": "پیش‌نمایش",
+  "step": "مرحله",
+  "addStepPoint": "افزودن مرحله",
+  "saveSteps": "ذخیره‌ی مراحل"
 }

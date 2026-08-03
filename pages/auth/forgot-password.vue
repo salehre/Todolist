@@ -172,12 +172,16 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import AuthCard from '@/components/auth/AuthCard.vue'
 import AuthInput from '@/components/auth/AuthInput.vue'
 import PasswordStrength from '@/components/auth/PasswordStrength.vue'
 import { useAuth } from '@/composables/useAuth'
+
+useHead(() => ({
+  titleTemplate: `%s - Forget Password`
+}))
 
 const router = useRouter()
 const { sendResetCode, resetPassword } = useAuth()

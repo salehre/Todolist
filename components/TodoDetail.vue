@@ -98,15 +98,17 @@
 
               <!-- Progress Path Section -->
               <div class="p-6 md:p-8 bg-primary-50/30 border-t border-primary-100">
-                <div class="flex items-center justify-between mb-6">
-                  <div class="flex items-center gap-2">
-                    <span class="text-xl"><Icon icon="ci:path" class="text-primary-800 mb-1" /></span>
-                    <h3 class="text-lg font-semibold text-primary-700">Progress Path</h3>
-                    <span v-if="modelValue.steps && modelValue.steps.length > 0" class="text-sm text-primary-500 font-medium">
+                <div class="flex flex-wrap items-center justify-between gap-y-2 mb-6">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="text-xl shrink-0"><Icon icon="ci:path" class="text-primary-800 mb-1" /></span>
+                    <h3 class="text-base md:text-lg font-semibold text-primary-700 truncate">Progress Path</h3>
+                    <span v-if="modelValue.steps && modelValue.steps.length > 0"
+                        class="text-sm text-primary-500 font-medium shrink-0 whitespace-nowrap"
+                    >
                       ({{ getCompletedStepsCount(modelValue) }}/{{ modelValue.steps.length }})
                     </span>
                   </div>
-                  <div class="flex gap-2">
+                  <div class="flex gap-2 shrink-0">
                     <button
                         v-if="modelValue.steps && modelValue.steps.length > 0"
                         @click="showClearStepsDialog = true"
@@ -179,13 +181,6 @@
                             </p>
                           </div>
                           <div class="flex items-center gap-2 shrink-0">
-                            <input
-                                type="checkbox"
-                                :checked="step.completed"
-                                @change="handleCompleteStep(step.id)"
-                                :disabled="!canCompleteStep(modelValue, index)"
-                                class="w-4 h-4 md:w-5 md:h-5 accent-primary-600 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                            />
                             <button
                                 v-if="canUndoStep(modelValue, index)"
                                 @click="handleUndoStep(step.id)"
@@ -194,6 +189,13 @@
                               <Icon icon="solar:undo-left-linear" class="sm:hidden" />
                               <span class="hidden sm:inline">Undo</span>
                             </button>
+                            <input
+                                type="checkbox"
+                                :checked="step.completed"
+                                @change="handleCompleteStep(step.id)"
+                                :disabled="!canCompleteStep(modelValue, index)"
+                                class="w-4 h-4 md:w-5 md:h-5 accent-primary-600 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                            />
                           </div>
                         </div>
                       </div>
@@ -234,7 +236,6 @@
           <div class="text-5xl mb-2"><Icon class="text-primary-900" icon="quill:folder-trash" /></div>
           <h3 class="text-xl font-bold text-primary-800 mb-2">Clear All Steps</h3>
           <p class="text-primary-600 text-sm mb-2">Are you sure you want to clear all steps?</p>
-          <!--          <p class="text-primary-400 text-xs">This action cannot be undone!</p>-->
         </div>
         <div class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl">
           <button @click="showClearStepsDialog = false" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
@@ -246,25 +247,26 @@
     <!-- Steps Management Dialog -->
     <div v-if="showStepsDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeStepsDialog">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col">
-        <div class="flex flex-col px-6 border-b border-primary-100">
-          <button @click="closeStepsDialog" class="text-primary-400 relative top-4 left-48 hover:text-primary-600 text-2xl">✕</button>
-          <h3 class="text-xl font-bold text-primary-900">
-            🔗 Manage Steps
-            <h3 class="mt-3">{{ modelValue?.text }}</h3>
-          </h3>
+
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-3 px-6 py-4">
+            <h1 class="mt-1 block text-primary-500">{{ modelValue?.text }}</h1>
+          <button @click="closeStepsDialog" class="shrink-0 text-primary-400 hover:text-primary-600 text-2xl">✕</button>
         </div>
 
         <!-- Preview -->
         <div class="p-6 bg-primary-50/50 border-b border-primary-100">
-          <div class="text-xs text-primary-600 mb-3 font-medium">PREVIEW</div>
+          <div class="text-xs text-primary-600 mb-3 font-medium">{{ t('preview').toUpperCase() }}</div>
           <div class="flex items-center gap-2 flex-wrap">
             <template v-for="(step, index) in stepsDraft" :key="step.id">
               <div class="flex items-center gap-1">
                 <div :class="[
-                  'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
-                  index === 0 ? 'bg-primary-500 text-white' : 'bg-primary-200 text-primary-600'
-                ]">{{ index + 1 }}</div>
-                <span class="text-xs text-primary-700 truncate max-w-25">{{ step.text || `Step ${index + 1}` }}</span>
+              'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
+              index === 0 ? 'bg-primary-500 text-white' : 'bg-primary-200 text-primary-600'
+            ]">{{ index + 1 }}</div>
+                <span class="text-xs text-primary-700 truncate max-w-25">
+              {{ step.text || `${t('step')} ${index + 1}` }}
+            </span>
               </div>
               <div v-if="index < stepsDraft.length - 1" class="w-4 h-0.5 bg-primary-300"></div>
             </template>
@@ -280,7 +282,7 @@
             <input
                 v-model="step.text"
                 type="text"
-                :placeholder="`Step ${index + 1}...`"
+                :placeholder="`${t('step')} ${index + 1}...`"
                 class="flex-1 px-3 py-2 rounded-lg border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none text-sm"
             />
             <button @click="removeStepFromDraft(index)" class="text-primary-400 hover:text-primary-600 transition-all shrink-0">
@@ -291,17 +293,22 @@
               @click="addStepToDraft"
               class="w-full py-2 border-2 border-dashed border-primary-300 rounded-xl text-primary-500 hover:bg-primary-50 transition-all text-sm flex items-center justify-center gap-1"
           >
-            <Icon icon="mingcute:add-line" /> Add Step Point
+            <Icon icon="mingcute:add-line" /> {{ t('addStepPoint') }}
           </button>
         </div>
 
+        <!-- Footer -->
         <div class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl">
-          <button @click="closeStepsDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
-          <button @click="saveSteps" class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all">Save Steps</button>
+          <button @click="closeStepsDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">
+            {{ t('cancel') }}
+          </button>
+          <button @click="saveSteps" class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all">
+            {{ t('saveSteps') }}
+          </button>
         </div>
+
       </div>
     </div>
-
   </div>
 </template>
 
@@ -309,6 +316,7 @@
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Step, StepDraft } from '~/types/todoType'
+import { useLocale } from '~/composables/useLocale'
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 const props = defineProps({
@@ -339,6 +347,7 @@ const showClearStepsDialog = ref<boolean>(false)
 const showStepsDialog      = ref<boolean>(false)
 const stepsDraft           = ref<StepDraft[]>([])
 const { isMobile }         = useResponsiveMode()
+const { t } = useLocale()
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(dateString: string): string {
@@ -364,17 +373,17 @@ function canCompleteStep(todo: Todo, index: number): boolean {
   return todo.steps[index - 1].completed && !todo.steps[index].completed
 }
 
-function canUndoStep(todo, index) {
+function canUndoStep(todo: { steps: string | any[]; }, index: number) {
   if (!todo.steps?.length) return false
   return todo.steps[index].completed &&
       (index === todo.steps.length - 1 || !todo.steps[index + 1]?.completed)
 }
 
-function handleCompleteStep(stepId) {
+function handleCompleteStep(stepId: number) {
   emit('complete-step', props.modelValue.id, stepId)
 }
 
-function handleUndoStep(stepId) {
+function handleUndoStep(stepId: number) {
   emit('undo-step', props.modelValue.id, stepId)
 }
 
@@ -382,7 +391,7 @@ function handleUndoStep(stepId) {
 function openStepsDialog(): void {
   if (!props.modelValue) return
   stepsDraft.value = props.modelValue.steps?.length
-      ? props.modelValue.steps.map(s => ({ id: s.id, text: s.text }))
+      ? props.modelValue.steps.map((s: { id: any; text: any; }) => ({ id: s.id, text: s.text }))
       : [{ id: Date.now(), text: '' }]
   showStepsDialog.value = true
 }

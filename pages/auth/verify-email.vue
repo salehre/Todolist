@@ -89,6 +89,10 @@ import { Icon } from '@iconify/vue'
 import AuthCard from '@/components/auth/AuthCard.vue'
 import { useAuth } from '@/composables/useAuth'
 
+useHead(() => ({
+  titleTemplate: `%s - Verify Email`
+}))
+
 const router = useRouter()
 const { authState, verifyEmailCode, resendVerificationCode } = useAuth()
 
@@ -169,7 +173,6 @@ async function verifyCode() {
   isError.value = false
 
   try {
-    // TODO: جایگزین با → POST /api/auth/verify-email
     const code = otpDigits.value.join('')
     const success = await verifyEmailCode(code)
 
@@ -188,7 +191,6 @@ async function verifyCode() {
 async function resendCode() {
   isResending.value = true
   try {
-    // TODO: جایگزین با → POST /api/auth/resend-code
     await resendVerificationCode()
     startCountdown()
     otpDigits.value = ['', '', '', '', '', '']

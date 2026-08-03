@@ -89,6 +89,10 @@ import AuthCard from '@/components/auth/AuthCard.vue'
 import AuthInput from '@/components/auth/AuthInput.vue'
 import { useAuth } from '@/composables/useAuth'
 
+useHead(() => ({
+  titleTemplate: `%s - Sign Up`
+}))
+
 const router = useRouter()
 const { registerUser } = useAuth()
 

@@ -28,5 +28,9 @@
 <script setup>
 definePageMeta({ layout: false });
 
+useHead(() => ({
+  titleTemplate: `%s - Home`
+}))
+
 const router = useRouter();
 </script>

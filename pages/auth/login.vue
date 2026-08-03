@@ -110,6 +110,10 @@ import AuthCard from '@/components/auth/AuthCard.vue'
 import AuthInput from '@/components/auth/AuthInput.vue'
 import { useAuth } from '@/composables/useAuth'
 
+useHead(() => ({
+  titleTemplate: `%s - Login`
+}))
+
 const router = useRouter()
 const route = useRoute()
 const { login } = useAuth()

@@ -31,7 +31,7 @@
             v-if="authState.user?.avatar_url"
             :src="authState.user.avatar_url"
             class="h-9 w-9 shrink-0 rounded-full object-cover"
-        />
+         alt="avatar profile"/>
         <div
             v-else
             class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-600 to-primary-700 text-xs font-bold text-white shadow-lg shadow-primary-200/60"
@@ -54,7 +54,7 @@
       <button
           v-if="showLabels"
           v-tooltip="'خروج از حساب'"
-          @click="handleLogout"
+          @click="showLogoutDialog = true"
           class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
       >
         <Icon icon="mdi:logout" class="text-base" />
@@ -108,6 +108,7 @@
     </nav>
 
     <NuxtLink
+        dir="ltr"
         to="/aboutMe"
         @click="handleNavClick"
         class="flex h-22 shrink-0 justify-center transition-colors items-center px-4 text-slate-400"
@@ -115,9 +116,43 @@
       <span class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200">
         Powered by
       </span>
-      <span class="font-medium pl-0.5 text-[14px] hover:text-primary-600 transition-colors text-primary-400">Saleh Rezaei</span>
+      <span class="font-medium tracking-wide ps-0.5 text-[14px] hover:text-primary-600 transition-colors text-primary-400">Saleh Rezaei</span>
     </NuxtLink>
   </aside>
+
+  <Teleport to="body">
+    <div
+        v-if="showLogoutDialog"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        @click.self="showLogoutDialog = false"
+    >
+      <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
+        <div class="flex flex-col items-center p-6 text-center">
+          <div class="text-6xl mb-2">
+            <Icon class="text-primary-900" icon="mdi:logout" />
+          </div>
+          <h3 class="text-xl font-bold text-primary-900 mb-2">خروج از حساب کاربری</h3>
+          <p class="text-primary-600 text-sm mb-2">آیا مطمئن هستید که می‌خواهید از حساب کاربری خود خارج شوید؟</p>
+        </div>
+        <div
+            class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl"
+        >
+          <button
+              @click="showLogoutDialog = false"
+              class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all"
+          >
+            انصراف
+          </button>
+          <button
+              @click="confirmLogout"
+              class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all"
+          >
+            خروج
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -138,13 +173,18 @@ function handleLogout(): void {
   router.push('/auth/login')
 }
 
+const showLogoutDialog = ref(false)
+function confirmLogout(): void {
+  showLogoutDialog.value = false
+  handleLogout()
+}
+
 interface NavItem {
   label: string
   icon: string
   to: string
 }
 
-// TODO: جایگزین با → GET /api/menu (یا مشابه)
 const navItems: NavItem[] = [
   { label: 'داشبورد', icon: 'mdi:view-dashboard-outline', to: '/' },
   { label: 'تودولیست من', icon: 'mdi:format-list-checks', to: '/mainTodo' },

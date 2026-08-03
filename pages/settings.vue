@@ -271,6 +271,10 @@ import { ref, reactive, computed, h, defineComponent } from 'vue'
 import { useTheme } from '~/composables/useTheme'
 import { useAuth } from '~/composables/useAuth'
 
+useHead(() => ({
+  titleTemplate: `%s - Setting`
+}))
+
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { currentTheme, setTheme, themeOptions, isDark, toggleDark } = useTheme()

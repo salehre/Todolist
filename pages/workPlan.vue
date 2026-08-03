@@ -122,10 +122,12 @@ import api from '~/src/services/api'
 import { mapTodoFromApi } from '~/src/services/todoMapper'
 import { useTodos } from '~/composables/useTodos'
 
-// ─── این صفحه علاوه بر منطق مشترک، حالت پنل موبایل و اتصال به چت رو داره ────
+useHead(() => ({
+  titleTemplate: `%s - TeamWork`
+}))
+
 const mobileListOpen = ref<boolean>(false)
 
-// ─── منطق مشترک CRUD تسک‌ها از composable ─────────────────────────────────────
 const {
   todos,
   selectedTodo,

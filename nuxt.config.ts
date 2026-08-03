@@ -11,7 +11,7 @@ export default defineNuxtConfig({
 
   app: {
     head:{
-      title: 'todolist'
+      title: "Todolist"
     }
   },
 

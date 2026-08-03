@@ -103,6 +103,10 @@ import AuthInput from '@/components/auth/AuthInput.vue'
 import PasswordStrength from '@/components/auth/PasswordStrength.vue'
 import { useAuth } from '@/composables/useAuth'
 
+useHead(() => ({
+  titleTemplate: `%s - Set Password`
+}))
+
 const router = useRouter()
 const { setPassword } = useAuth()
 

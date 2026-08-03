@@ -187,7 +187,10 @@ import api from '~/src/services/api'
 import { toast } from 'vue-sonner'
 import { useAuth } from '~/composables/useAuth'
 
-// این صفحه برای همه (حتی لاگین‌نشده‌ها) در دسترسه؛ فقط ارسال پیام نیاز به لاگین داره.
+useHead(() => ({
+  titleTemplate: `%s - About Me`
+}))
+
 definePageMeta({ layout: 'dashboard' })
 
 const { authState } = useAuth()

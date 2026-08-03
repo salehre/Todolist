@@ -3,5 +3,10 @@
   "cancel": "Cancel",
   "all": "All",
   "active": "Active",
-  "completed": "Completed"
+  "completed": "",
+  "manageSteps": "Manage Steps",
+  "preview": "Preview",
+  "step": "Step",
+  "addStepPoint": "Add Step Point",
+  "saveSteps": "Save Steps"
 }
