@@ -133,12 +133,23 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
-import { onMounted } from "vue";
+// import { onMounted } from "vue";
 import TodoList from "~/components/TodoList.vue";
 import TodoDetail from "~/components/TodoDetail.vue";
 import { Icon } from "@iconify/vue";
 import { useTodos } from "~/composables/useTodos";
 import PrioritySlider from '~/components/Priorityslider.vue'
+import { onMounted } from 'vue'
+
+
+// ─── تست موقت Echo — بعد از تأیید، این بلاک رو پاک کن ───────────────────
+onMounted(() => {
+  const { $echo } = useNuxtApp()
+  $echo.private('group.3')
+      .listen('.message.sent', (e: any) => {
+        console.log('پیام رسید:', e)
+      })
+})
 
 useHead(() => ({
   titleTemplate: `%s - My TodoList`

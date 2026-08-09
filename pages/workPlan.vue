@@ -2,6 +2,7 @@
   <div class="flex h-full overflow-hidden font-sans relative">
 
     <TodoList
+        v-if="viewMode === 'todo'"
         :todos="todos"
         :selected-todo="selectedTodo"
         :mobile-open="mobileListOpen"
@@ -10,39 +11,45 @@
         @edit-todo="openEditDialog"
         @delete-todo="handleDeleteFromList"
         @add-todo="openAddDialog"
-        @close-mobile="mobileListOpen = false"
+        @close-mobile="viewMode = 'chat'"
     />
 
-    <!-- Right panel: TodoDetail یا GroupChat -->
-    <transition name="panel-swap" mode="out-in">
+    <!-- Right panel: TodoDetail (only in todo mode) -->
+    <template v-if="viewMode === 'todo'">
+      <transition name="panel-swap" mode="out-in">
+        <TodoDetail
+            v-if="selectedTodo"
+            :key="'detail-' + selectedTodo.id"
+            v-model="selectedTodo"
+            :show-back-button="true"
+            @toggle-complete="toggleComplete"
+            @edit-todo="openEditDialog"
+            @delete-todo="handleDeleteTodoFromDetail"
+            @back="() => { selectedTodo = null; mobileListOpen = true }"
+            @update-steps="updateSteps"
+            @complete-step="completeStep"
+            @undo-step="undoStep"
+            @open-chat="viewMode = 'chat'"
+        />
+        <div v-else key="no-selection" class="hidden md:flex flex-1 flex-col items-center justify-center gap-2 text-primary-300">
+          <Icon icon="solar:checklist-minimalistic-linear" class="text-4xl" />
+          <p class="text-sm">Select a task to see its details</p>
+          <button @click="viewMode = 'chat'" class="mt-1 text-xs text-primary-400 hover:text-primary-600 underline underline-offset-2">
+            Back to Chat
+          </button>
+        </div>
+      </transition>
+    </template>
 
-      <!-- جزئیات تسک -->
-      <TodoDetail
-          v-if="selectedTodo"
-          :key="'detail-' + selectedTodo.id"
-          v-model="selectedTodo"
-          :show-back-button="true"
-          @toggle-complete="toggleComplete"
-          @edit-todo="openEditDialog"
-          @delete-todo="handleDeleteTodoFromDetail"
-          @back="() => { selectedTodo = null; mobileListOpen = true }"
-          @update-steps="updateSteps"
-          @complete-step="completeStep"
-          @undo-step="undoStep"
-      />
-
-      <!-- گروه چت -->
-      <GroupChat
-          v-else
-          key="chat"
-          :todos="todos"
-          :hide-mobile="mobileListOpen"
-          @create-todo="handleCreateTodoFromChat"
-          @view-todo="handleViewTodo"
-          @open-tasks="mobileListOpen = true"
-      />
-
-    </transition>
+    <!-- گروه چت (only in chat mode) -->
+    <GroupChat
+        v-if="viewMode === 'chat'"
+        key="chat"
+        :todos="todos"
+        @create-todo="handleCreateTodoFromChat"
+        @view-todo="handleViewTodo"
+        @open-tasks="viewMode = 'todo'"
+    />
 
     <!-- Add / Edit Task Dialog -->
     <div v-if="isDialogOpen" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeDialog">
@@ -113,6 +120,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { Icon } from '@iconify/vue'
 import TodoList   from '~/components/TodoList.vue'
 import TodoDetail from '~/components/TodoDetail.vue'
 import GroupChat  from '~/components/GroupChat.vue'
@@ -127,6 +135,7 @@ useHead(() => ({
 }))
 
 const mobileListOpen = ref<boolean>(false)
+const viewMode = ref<'chat' | 'todo'>('chat')
 
 const {
   todos,
@@ -174,6 +183,7 @@ async function handleCreateTodoFromChat(title: string, description: string, prio
 function handleViewTodo(todoRef: Pick<Todo, 'id' | 'text' | 'priority'>): void {
   const todo = todos.value.find(t => t.id === todoRef.id)
   if (todo) selectedTodo.value = todo
+  viewMode.value = 'todo'
   mobileListOpen.value = false
 }
 

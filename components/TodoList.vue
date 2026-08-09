@@ -176,8 +176,8 @@
           <button
               v-if="hideChatButton"
               @click="closeMobile"
-              v-tooltip="'Close'"
-              class="@min-[360px]:hidden w-8 h-8 flex items-center justify-center rounded-lg text-primary-700 transition-all"
+              v-tooltip="'Back to Chats'"
+              class="w-8 h-8 flex items-center justify-center rounded-lg text-primary-500 hover:bg-primary-100/70 hover:text-primary-700 transition-all"
           >
             <Icon icon="carbon:chat" class="text-lg" />
           </button>

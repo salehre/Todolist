@@ -113,10 +113,20 @@
         @click="handleNavClick"
         class="flex h-22 shrink-0 justify-center transition-colors items-center px-4 text-slate-400"
     >
-      <span class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200">
-        Powered by
-      </span>
-      <span class="font-medium tracking-wide ps-0.5 text-[14px] hover:text-primary-600 transition-colors text-primary-400">Saleh Rezaei</span>
+      <!-- حالت collapsed: نمایش آیکون -->
+      <div v-if="!showLabels" class="flex items-center justify-center">
+        <Icon icon="stash:user-cog-light" class="text-2xl transition-colors text-primary-900" />
+      </div>
+
+      <!-- حالت expanded: نمایش متن -->
+      <div v-else class="flex items-baseline gap-1">
+    <span class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200">
+      Powered by
+    </span>
+        <span class="font-medium tracking-wide ps-0.5 text-[14px] hover:text-primary-600 transition-colors text-primary-400">
+      Saleh Rezaei
+    </span>
+      </div>
     </NuxtLink>
   </aside>
 
