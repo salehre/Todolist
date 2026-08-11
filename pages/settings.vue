@@ -116,6 +116,7 @@
             <InfoRow icon="mdi:email-outline" label="ایمیل" :value="authState.user?.email" ltr />
             <InfoRow icon="mdi:phone-outline" label="شماره موبایل" :value="authState.user?.phone || 'ثبت نشده'" ltr />
             <InfoRow icon="mdi:gender-male-female" label="جنسیت" :value="genderLabel" />
+            <InfoRow icon="mdi:biography" label="بیوگرافی" :value="authState.user?.bio" />
           </div>
         </div>
 
@@ -241,6 +242,17 @@
                   class="w-full rounded-xl border border-primary-200 px-4 py-2 text-left transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
               />
             </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-primary-700">بیوگرافی</label>
+              <textarea
+                  v-model="form.bio"
+                  rows="3"
+                  maxlength="280"
+                  placeholder="چند خط درباره‌ی خودت..."
+                  class="w-full resize-none rounded-xl border border-primary-200 px-4 py-2 transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              />
+              <p class="mt-1 text-left text-xs text-slate-400" dir="ltr">{{ (form.bio || '').length }}/280</p>
+            </div>
           </div>
 
           <div class="sticky bottom-0 flex gap-3 rounded-b-2xl border-t border-primary-100 bg-white p-6">
@@ -295,6 +307,7 @@ const form = reactive({
   email: '',
   phone: '',
   gender: '' as '' | 'male' | 'female' | 'company',
+  bio: '',
 })
 
 const genderLabel = computed(() => {
@@ -310,6 +323,7 @@ function openEditDialog() {
   form.email = authState.user?.email || ''
   form.phone = authState.user?.phone || ''
   form.gender = authState.user?.gender || ''
+  form.bio = authState.user?.bio || ''
   isDialogOpen.value = true
 }
 

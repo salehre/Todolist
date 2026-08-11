@@ -97,19 +97,19 @@
         >
           <div class="relative shrink-0">
             <img v-if="g.avatarUrl" :src="g.avatarUrl" class="w-10 h-10 rounded-full object-cover" alt="" />
-            <div v-else :class="['w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm', g.avatarBg]">
+            <div v-else :class="['w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm', colorFor(g.id)]">
               {{ g.name[0] }}
             </div>
-            <span v-if="g.unread > 0" class="absolute -top-1 -end-1 min-w-4.5 h-4.5 px-1 flex items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow ring-2 ring-white">
+            <span v-if="g.unread > 0" class="absolute -top-1 -inset-e-1 min-w-4.5 h-4.5 px-1 flex items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow ring-2 ring-white">
             {{ g.unread }}
           </span>
           </div>
           <div v-if="!sidebarIconOnly" class="flex-1 min-w-0 overflow-hidden">
             <div class="flex items-center justify-between gap-1">
               <span class="text-sm font-semibold truncate">{{ g.name }}</span>
-              <span v-if="g.messages.length" class="text-[10px] text-primary-300 shrink-0">{{ formatTime(g.messages[g.messages.length - 1].timestamp) }}</span>
+              <span v-if="lastMessage(g.id)" class="text-[10px] text-primary-300 shrink-0">{{ formatTime(lastMessage(g.id)!.timestamp) }}</span>
             </div>
-            <p class="text-xs text-primary-400 truncate">{{ g.messages.length ? g.messages[g.messages.length - 1].text : (g.description || 'No messages yet') }}</p>
+            <p class="text-xs text-primary-400 truncate">{{ lastMessage(g.id)?.text || g.description || 'No messages yet' }}</p>
           </div>
         </button>
 
@@ -411,9 +411,20 @@
               <div class="shrink-0 w-8">
                 <div
                     v-if="!isSameSenderAsPrev(group, index)"
+                    @click="openUserProfile(msg.senderId)"
+                    class="cursor-pointer"
+                >
+                  <img
+                      v-if="getMemberById(msg.senderId)?.avatarUrl"
+                      :src="getMemberById(msg.senderId)!.avatarUrl!"
+                      class="w-8 h-8 rounded-full object-cover shadow-sm hover:opacity-80 transition"
+                  />
+                  <div
+                    v-else
                     :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm', getMemberById(msg.senderId)?.avatarBg ?? 'bg-primary-400']"
                 >
                   {{ getMemberName(msg.senderId)[0] }}
+                  </div>
                 </div>
               </div>
 
@@ -445,18 +456,37 @@
                       <p class="text-primary-400 truncate">{{ getMessageById(msg.replyTo)?.text }}</p>
                     </div>
 
-                    <!-- File Attachment Display -->
-                    <div v-if="msg.attachment" class="mb-2">
-                      <div v-if="msg.attachment.type === 'image'" class="rounded-lg overflow-hidden max-w-50">
-                        <img :src="msg.attachment.url" :alt="msg.attachment.name" class="w-full h-auto cursor-pointer hover:opacity-90 transition" @click="previewImage(msg.attachment.url)" />
+                    <!-- Attachments (album) -->
+                    <div v-if="msg.attachments && msg.attachments.length" class="mb-2 -mx-3 first:mt-0">
+                      <!-- عکس‌ها: گرید وسط‌چین، بدون توجه به padding نامتقارن حباب -->
+                      <div
+                          v-if="msg.attachments.some(a => a.type === 'image')"
+                          class="flex justify-center px-3"
+                          :class="msg.attachments.filter(a => a.type === 'image').length > 1 ? 'grid grid-cols-2 gap-1' : ''"
+                      >
+                        <img
+                            v-for="a in msg.attachments.filter(a => a.type === 'image')"
+                            :key="a.id"
+                            :src="a.url"
+                            :alt="a.name"
+                            class="rounded-lg max-h-64 w-full object-cover cursor-pointer hover:opacity-90 transition"
+                            @click="previewImage(a.url)"
+                        />
                       </div>
-                      <div v-else class="flex items-center gap-2 p-2 bg-white/20 rounded-lg">
-                        <Icon :icon="getFileIcon(msg.attachment.name)" class="text-2xl" />
+
+                      <!-- ویس -->
+                      <div v-for="a in msg.attachments.filter(a => a.type === 'voice')" :key="a.id" class="px-3 mt-1">
+                        <VoicePlayer :url="a.url" :duration="a.voiceDuration ?? 0" />
+                      </div>
+
+                      <!-- فایل‌های عادی -->
+                      <div v-for="a in msg.attachments.filter(a => a.type === 'file')" :key="a.id" class="mx-3 mt-1 flex items-center gap-2 p-2 bg-white/20 rounded-lg">
+                        <Icon :icon="getFileIcon(a.name)" class="text-2xl" />
                         <div class="flex-1 min-w-0">
-                          <p class="text-xs font-medium truncate">{{ msg.attachment.name }}</p>
-                          <p class="text-[10px] opacity-70">{{ formatFileSize(msg.attachment.size) }}</p>
+                          <p class="text-xs font-medium truncate">{{ a.name }}</p>
+                          <p class="text-[10px] opacity-70">{{ formatFileSize(a.size) }}</p>
                         </div>
-                        <a :href="msg.attachment.url" download class="hover:scale-110 transition">
+                        <a :href="a.url" download class="hover:scale-110 transition">
                           <Icon icon="solar:download-linear" class="text-sm" />
                         </a>
                       </div>
@@ -506,7 +536,7 @@
 
                         <Icon
                             v-if="msg.senderId === currentUser.id"
-                            :icon="msg.read ? 'solar:check-read-linear' : 'solar:check-linear'"
+                            :icon="msg.readBy.includes(currentUser.id) === false && msg.senderId === currentUser.id ? 'solar:check-linear' : 'solar:check-read-linear'"
                             :class="['text-xs', msg.read ? 'text-emerald-300' : 'text-primary-300']"
                         />
                         <span :class="['text-[12px]', msg.senderId === currentUser.id ? 'text-primary-400' : 'text-primary-300']">
@@ -619,22 +649,23 @@
       </Teleport>
 
       <!-- Scroll to Bottom Button -->
-      <div v-if="unreadCount > 0 && !isNearBottom" class="absolute bottom-24 right-6 z-20">
+      <div v-if="!isNearBottom" class="absolute bottom-24 inset-e-6 z-20">
         <button @click="scrollToBottom" class="flex items-center gap-1.5 px-3 py-2 bg-primary-500 text-white rounded-full text-xs font-medium shadow-lg hover:bg-primary-600 transition-all">
           <Icon icon="mingcute:arrow-down-line" />
-          {{ unreadCount }} new
+          <span v-if="unreadCount > 0">{{ unreadCount }} new</span>
         </button>
       </div>
 
-      <!-- Image Preview Modal -->
-      <div v-if="previewImageUrl" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center" @click="previewImageUrl = null">
-        <div class="max-w-[90vw] max-h-[90vh]" @click.stop>
-          <img :src="previewImageUrl" class="max-w-full max-h-[90vh] object-contain rounded-lg"  alt="" />
-          <button @click="previewImageUrl = null" class="absolute top-4 right-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition">
-            <Icon icon="mingcute:close-line" class="text-white text-xl" />
+      <Teleport to="body">
+        <div v-if="previewImageUrl" class="fixed inset-0 z-[80] bg-black/90 flex items-center justify-center" @click="previewImageUrl = null">
+          <div class="max-w-[95vw] max-h-[95vh]" @click.stop>
+            <img :src="previewImageUrl" class="max-w-[95vw] max-h-[95vh] object-contain rounded-lg" alt="" />
+          </div>
+          <button @click="previewImageUrl = null" class="fixed top-4 end-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition">
+            <Icon icon="mingcute:close-line" class="text-white text-2xl" />
           </button>
         </div>
-      </div>
+      </Teleport>
 
       <!-- Bottom Area: recording / reply / edit / input -->
       <div class="absolute inset-x-0 bottom-0 shrink-0 px-4 pb-4 pt-2">
@@ -689,14 +720,16 @@
             <label class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 cursor-pointer mb-1">
               <Icon icon="solar:gallery-linear" class="text-primary-500" />
               Upload Image
-              <input type="file" accept="image/*" class="hidden" @change="handleFileSelect($event, 'image')" />
             </label>
+            <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+              <Icon icon="solar:gallery-linear" class="text-primary-500" />
+              Upload Image(s)
+            </button>
 
-            <label class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 cursor-pointer mb-1">
+            <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
               <Icon icon="solar:document-linear" class="text-primary-500" />
-              Upload File
-              <input type="file" class="hidden" @change="handleFileSelect($event, 'file')" />
-            </label>
+              Upload File(s)
+            </button>
 
             <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
               <Icon icon="mingcute:task-2-line" class="text-primary-500" />
@@ -757,6 +790,7 @@
             <textarea
                 ref="inputRef"
                 v-model="inputText"
+                @input="handleTypingInput"
                 @keydown.enter.exact.prevent="sendMessage"
                 @keydown.enter.shift.exact="inputText += '\n'"
                 rows="1"
@@ -820,11 +854,11 @@
             <div class="p-6 flex flex-col items-center gap-3 border-b border-primary-100">
               <div class="relative">
                 <img v-if="activeGroup.avatarUrl" :src="activeGroup.avatarUrl" class="w-24 h-24 rounded-full object-cover shadow-sm" alt="" />
-                <div v-else :class="['w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-sm', activeGroup.avatarBg]">
-                  {{ activeGroup.name[0] }}
+                <div v-else :class="['w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-sm', colorFor(activeGroup.id)]">
+              {{ activeGroup.name[0] }}
                 </div>
-                <label class="absolute -bottom-1 -end-1 p-2 rounded-full bg-primary-500 text-white shadow-md hover:bg-primary-600 cursor-pointer transition-all">
-                  <Icon icon="solar:camera-bold" class="text-sm" />
+                <label v-if="isGroupAdmin" class="absolute -bottom-1 -inset-e-1 p-2 rounded-full bg-primary-500 text-white shadow-md hover:bg-primary-600 cursor-pointer transition-all">
+              <Icon icon="solar:camera-bold" class="text-sm" />
                   <input type="file" accept="image/*" class="hidden" @change="handleActiveGroupAvatarSelect" />
                 </label>
               </div>
@@ -832,70 +866,233 @@
               <div class="w-full">
                 <label class="block text-[11px] font-semibold uppercase tracking-wide text-primary-300 mb-1">Name</label>
                 <input
-                    v-model="activeGroup.name"
+                    v-model="groupInfoForm.name"
+                    @blur="saveGroupInfo"
+                    @keyup.enter="($event.target as HTMLInputElement).blur()"
                     type="text"
                     class="w-full px-3 py-2 rounded-xl border border-transparent hover:border-primary-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-all text-sm font-semibold text-primary-900 text-center"
+                    :disabled="!isGroupAdmin"
                 />
               </div>
 
               <div class="w-full">
                 <label class="block text-[11px] font-semibold uppercase tracking-wide text-primary-300 mb-1">Description</label>
                 <textarea
-                    v-model="activeGroup.description"
+                    v-model="groupInfoForm.description"
+                    @blur="saveGroupInfo"
                     rows="2"
                     placeholder="Add a description..."
                     class="w-full px-3 py-2 rounded-xl border border-transparent hover:border-primary-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-all text-sm text-primary-600 text-center resize-none"
-                ></textarea>
+                    :disabled="!isGroupAdmin"
+                />
               </div>
             </div>
 
             <!-- Section 2: Members -->
             <div class="p-4">
-              <p class="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wide text-primary-300">
-                Members — {{ activeGroup.members.length }}
-              </p>
+              <div class="flex items-center justify-between px-2 pb-2">
+                <p class="text-[11px] font-semibold uppercase tracking-wide text-primary-300">
+                  Members — {{ members.length }}
+                </p>
+                <button
+                    v-if="isGroupAdmin"
+                    @click="showAddMemberDialog = true"
+                    class="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700"
+                >
+                  <Icon icon="mingcute:user-add-line" class="text-sm" />
+                  Add
+                </button>
+              </div>
+
               <div class="space-y-1">
                 <div
-                    v-for="m in activeGroup.members"
-                    :key="m.id"
-                    class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-primary-50 transition-colors"
+                    v-for="m in members"
+                    :key="m.userId"
+                    class="group/member flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-primary-50 transition-colors"
                 >
-                  <div class="relative shrink-0">
-                    <div :class="['w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm', m.avatarBg]">
-                      {{ m.name[0] }}
-                    </div>
-                    <span
-                        class="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full ring-2 ring-white"
-                        :class="m.online ? 'bg-emerald-500' : 'bg-primary-200'"
-                    />
+                  <img v-if="m.avatarUrl" :src="m.avatarUrl" class="w-10 h-10 rounded-full object-cover shrink-0" alt="" />
+                  <div v-else :class="['w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm shrink-0', colorFor(m.userId)]">
+                    {{ m.name[0] }}
                   </div>
+
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-primary-800 truncate">
-                      {{ m.name }}<span v-if="m.id === currentUser.id" class="text-primary-400 font-normal"> (you)</span>
+                      {{ m.name }}<span v-if="m.userId === currentUser.id" class="text-primary-400 font-normal"> (you)</span>
                     </p>
-                    <p class="text-xs text-primary-400">{{ m.online ? 'Online' : 'Offline' }}</p>
+                    <p class="text-xs text-primary-400">{{ m.role === 'admin' ? 'Admin' : 'Member' }}</p>
                   </div>
+
+                  <!-- مدیر می‌تونه نقش بقیه رو عوض کنه یا حذفشون کنه؛ خودِ فرد هم می‌تونه خودش رو حذف کنه (leave) -->
+                  <div v-if="isGroupAdmin && m.userId !== currentUser.id" class="opacity-0 group-hover/member:opacity-100 transition-opacity flex items-center gap-1">
+                    <button
+                        @click="apiUpdateMemberRole(activeGroupId!, m.userId, m.role === 'admin' ? 'member' : 'admin')"
+                        v-tooltip="m.role === 'admin' ? 'Make member' : 'Make admin'"
+                        class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600"
+                    >
+                      <Icon icon="mingcute:vip-2-line" class="text-sm" />
+                    </button>
+                    <button
+                        @click="apiRemoveMember(activeGroupId!, m.userId)"
+                        v-tooltip="'Remove from group'"
+                        class="p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500"
+                    >
+                      <Icon icon="mingcute:user-remove-line" class="text-sm" />
+                    </button>
+                  </div>
+                  <button
+                      v-else-if="m.userId === currentUser.id"
+                      @click="apiRemoveMember(activeGroupId!, m.userId)"
+                      v-tooltip="'Leave group'"
+                      class="opacity-0 group-hover/member:opacity-100 transition-opacity p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500"
+                  >
+                    <Icon icon="mingcute:exit-line" class="text-sm" />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+          <Teleport to="body">
+            <div
+                v-if="showAddMemberDialog"
+                class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+                @click.self="closeAddMemberDialog"
+            >
+              <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full max-h-[70vh] flex flex-col">
+                <div class="flex items-center justify-between p-5 border-b border-primary-100">
+                  <h3 class="text-base font-bold text-primary-900">Add Member</h3>
+                  <button @click="closeAddMemberDialog" class="text-primary-400 hover:text-primary-600 text-xl">✕</button>
+                </div>
+                <div class="p-4">
+                  <div class="flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2">
+                    <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0 text-sm" />
+                    <input
+                        v-model="memberSearchQuery"
+                        @input="handleMemberSearch"
+                        type="text"
+                        placeholder="Search by username or name..."
+                        class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none"
+                        autofocus
+                    />
+                  </div>
+                </div>
+                <div class="flex-1 overflow-y-auto px-3 pb-3 space-y-1">
+                  <button
+                      v-for="u in memberSearchResults"
+                      :key="u.id"
+                      @click="handleAddMember(u.id)"
+                      class="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-primary-50 transition-colors text-start"
+                  >
+                    <img v-if="u.avatarUrl" :src="u.avatarUrl" class="w-9 h-9 rounded-full object-cover shrink-0" alt="" />
+                    <div v-else :class="['w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', colorFor(u.id)]">
+                      {{ u.name[0] }}
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-medium text-primary-800 truncate">{{ u.name }}</p>
+                      <p class="text-xs text-primary-400" dir="ltr">@{{ u.username }}</p>
+                    </div>
+                  </button>
+                  <p v-if="memberSearchQuery.length >= 2 && memberSearchResults.length === 0" class="text-center text-xs text-primary-300 py-4">
+                    No users found
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Teleport>
         </aside>
       </Transition>
 
       <!-- Click away overlay for message menu -->
       <div v-if="activeMenuId" class="fixed inset-0 z-10" @click="activeMenuId = null"></div>
     </div>
+    <Teleport to="body">
+      <div
+          v-if="showUserProfileDialog && viewedProfile"
+          class="fixed inset-0 z-70 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          @click.self="showUserProfileDialog = false"
+      >
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
+          <!-- بنر -->
+          <div class="h-28 bg-gradient-to-l from-primary-500 to-primary-400 relative">
+            <img v-if="viewedProfile.coverUrl" :src="viewedProfile.coverUrl" class="w-full h-full object-cover" alt="" />
+            <button @click="showUserProfileDialog = false" class="absolute top-3 inset-e-3 p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50">
+              <Icon icon="mingcute:close-line" class="text-lg" />
+            </button>
+          </div>
+          <!-- آواتار روکار -->
+          <div class="flex flex-col items-center relative z-50 -mt-12 px-6 pb-6">
+            <img
+                v-if="viewedProfile.avatarUrl"
+                :src="viewedProfile.avatarUrl"
+                class="w-24 h-24 rounded-full object-cover border-2 border-white shadow-lg"
+            />
+            <div v-else class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white border-4 border-white shadow-lg" :class="colorFor(viewedProfile.id)">
+              {{ viewedProfile.name[0] }}
+            </div>
+            <h3 class="mt-3 text-lg font-bold text-primary-900">{{ viewedProfile.name }}</h3>
+            <p class="text-sm text-primary-400" dir="ltr">@{{ viewedProfile.username }}</p>
+            <p v-if="viewedProfile.bio" class="mt-2 text-sm text-primary-600 text-center">{{ viewedProfile.bio }}</p>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+    <Teleport to="body">
+      <div
+          v-if="showAttachmentPreviewDialog"
+          class="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          @click.self="closeAttachmentPreview"
+      >
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col">
+          <div class="flex items-center justify-between p-4 border-b border-primary-100">
+            <h3 class="text-sm font-bold text-primary-900">{{ pendingFiles.length }} file(s) selected</h3>
+            <button @click="closeAttachmentPreview" class="text-primary-400 hover:text-primary-600 text-xl">✕</button>
+          </div>
 
+          <div class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-2">
+            <div v-for="(f, i) in pendingFiles" :key="i" class="relative aspect-square rounded-xl overflow-hidden bg-primary-50 border border-primary-100">
+              <img v-if="f.isImage" :src="f.previewUrl" class="w-full h-full object-cover" alt="" />
+              <div v-else class="w-full h-full flex flex-col items-center justify-center gap-1 p-2">
+                <Icon :icon="getFileIcon(f.file.name)" class="text-2xl text-primary-400" />
+                <p class="text-[10px] text-primary-500 truncate w-full text-center">{{ f.file.name }}</p>
+              </div>
+              <button
+                  @click="removePendingFile(i)"
+                  class="absolute top-1 end-1 p-1 rounded-full bg-black/50 text-white hover:bg-black/70"
+              >
+                <Icon icon="mingcute:close-line" class="text-xs" />
+              </button>
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-primary-100 space-y-3">
+        <textarea
+            v-model="attachmentCaption"
+            rows="2"
+            placeholder="Add a caption... (optional)"
+            class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none"
+        />
+            <button
+                @click="confirmSendAttachments"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all"
+            >
+              <Icon icon="solar:plain-bold" class="text-base" />
+              Send {{ pendingFiles.length }} file(s)
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Priority } from '~/types/todoType'
-import PrioritySlider from '~/components/PrioritySlider.vue'
+import PrioritySlider from '~/components/Priorityslider.vue'
 import { useGroupChat, type ApiGroup, type ApiMessage } from '~/composables/useGroupChat'
 import { useAuth } from '~/composables/useAuth'
+import {id} from "postcss-selector-parser";
+import api, { getErrorMessage } from '~/src/services/api'
 
 interface Member {
   id: number
@@ -965,150 +1162,272 @@ const emit = defineEmits<{
   'open-tasks': []
 }>()
 
-const currentUser: Member = { id: 1, name: 'You', avatarBg: 'bg-primary-500', online: true }
+const { authState } = useAuth()
+const currentUser = computed(() => ({
+      id: authState.user ? Number((authState.user as any).id ?? 0) : 0,
+      name: authState.user?.name || 'You',
+    }))
 
-const avatarBgOptions = ['bg-primary-500', 'bg-violet-500', 'bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500']
+    const avatarBgOptions = ['bg-primary-500', 'bg-violet-500', 'bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500']
+    function colorFor(id: number): string {
+      return avatarBgOptions[id % avatarBgOptions.length]
+          }
 
-const groups = ref<Group[]>([
-  {
-    id: 1,
-    name: 'Project Team',
-    description: 'Main product team channel',
-    avatarUrl: null,
-    avatarBg: 'bg-primary-500',
-    unread: 0,
-    members: [
-      { id: 1, name: 'You',  avatarBg: 'bg-primary-500',  online: true  },
-      { id: 2, name: 'Sara', avatarBg: 'bg-violet-500',   online: true  },
-      { id: 3, name: 'Ali',  avatarBg: 'bg-sky-500',      online: false },
-      { id: 4, name: 'Mina', avatarBg: 'bg-emerald-500',  online: true  },
-      { id: 5, name: 'Reza', avatarBg: 'bg-amber-500',    online: false },
-    ],
-    messages: [
-      {
-        id: 1, senderId: 2, text: "سلام! جلسه فردا ساعت ۱۰ هست 📅",
-        timestamp: new Date(Date.now() - 3600000 * 3), type: 'text',
-        read: true, pinned: true, edited: false, replyTo: null, reactions: { '👍': [1, 3] }, todoRef: null
-      },
-      {
-        id: 2, senderId: 1, text: "اوکی، آماده‌ام. باید قبلش تسک‌های باقیمونده رو ببندیم",
-        timestamp: new Date(Date.now() - 3600000 * 2.5), type: 'text',
-        read: true, pinned: true, edited: false, replyTo: 1, reactions: {}, todoRef: null
-      },
-      {
-        id: 3, senderId: 4, text: "من یه تسک جدید برای ریفکتور API اضافه کردم 👇",
-        timestamp: new Date(Date.now() - 3600000 * 2), type: 'text',
-        read: true, pinned: false, edited: false, replyTo: null, reactions: { '🔥': [1, 2] }, todoRef: null
-      },
-      {
-        id: 4, senderId: 3, text: "باشه، من روی مستندات کار می‌کنم",
-        timestamp: new Date(Date.now() - 3600000), type: 'text',
-        read: true, pinned: true, edited: false, replyTo: null, reactions: {}, todoRef: null
-      },
-      {
-        id: 5, senderId: 2, text: "عالیه! بریم؟ 🚀",
-        timestamp: new Date(Date.now() - 1800000), type: 'text',
-        read: false, pinned: false, edited: false, replyTo: null, reactions: {}, todoRef: null
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Design Crew',
-    description: 'UI/UX discussions and reviews',
-    avatarUrl: null,
-    avatarBg: 'bg-violet-500',
-    unread: 2,
-    members: [
-      { id: 1, name: 'You',   avatarBg: 'bg-primary-500', online: true  },
-      { id: 6, name: 'Niloo', avatarBg: 'bg-rose-500',    online: true  },
-      { id: 7, name: 'Kian',  avatarBg: 'bg-sky-500',     online: false },
-    ],
-    messages: [
-      {
-        id: 101, senderId: 6, text: "طرح جدید داشبورد رو آپلود کردم، یه نگاه بندازید 🎨",
-        timestamp: new Date(Date.now() - 7200000), type: 'text',
-        read: true, pinned: false, edited: false, replyTo: null, reactions: {}, todoRef: null
-      },
-      {
-        id: 102, senderId: 7, text: "خیلی خوب شده، فقط رنگ دکمه اصلی رو یه بار دیگه ببینیم",
-        timestamp: new Date(Date.now() - 5400000), type: 'text',
-        read: false, pinned: false, edited: false, replyTo: null, reactions: {}, todoRef: null
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Marketing',
-    description: 'Campaigns, content and launches',
-    avatarUrl: null,
-    avatarBg: 'bg-emerald-500',
-    unread: 0,
-    members: [
-      { id: 1, name: 'You',  avatarBg: 'bg-primary-500', online: true },
-      { id: 8, name: 'Dorsa', avatarBg: 'bg-amber-500',  online: false },
-    ],
-    messages: [
-      {
-        id: 201, senderId: 8, text: "کمپین هفته آینده آماده انتشاره ✅",
-        timestamp: new Date(Date.now() - 86400000), type: 'text',
-        read: true, pinned: false, edited: false, replyTo: null, reactions: {}, todoRef: null
-      },
-    ],
-  },
-])
+const {
+  groups: apiGroups,
+  messagesByGroup,
+  fetchGroups,
+  fetchMessages,
+  createGroup: apiCreateGroup,
+  sendMessage: apiSendMessage,
+  pushIncomingMessage,
+  toggleReaction: apiToggleReaction,
+  togglePin: apiTogglePin,
+  deleteMessage: apiDeleteMessage,
+  editMessage: apiEditMessage,
+  updateIncomingMessage,
+  removeIncomingMessage,
+  sendTyping: apiSendTyping,
+  markRead: apiMarkRead,
+  membersByGroup,
+  fetchMembers,
+  searchUsers,
+  addMember: apiAddMember,
+  removeMember: apiRemoveMember,
+  updateMemberRole: apiUpdateMemberRole,
+  updateGroup: apiUpdateGroup,
+  uploadGroupAvatar: apiUploadGroupAvatar,
+  sendMessageWithFiles: apiSendMessageWithFiles,
+  fetchUserProfile,
+} = useGroupChat()
+const activeGroupId = ref<number | null>(null)
 
-const activeGroupId = ref<number>(1)
+let currentEchoChannel: string | null = null
 
-const activeGroup = computed<Group | undefined>(() =>
-    groups.value.find(g => g.id === activeGroupId.value) ?? groups.value[0]
+const showUserProfileDialog = ref(false)
+const viewedProfile = ref<{ id: number; name: string; username: string; avatarUrl: string | null; coverUrl: string | null } | null>(null)
+
+async function openUserProfile(userId: number): Promise<void> {
+  const profile = await fetchUserProfile(userId)
+  if (profile) {
+    viewedProfile.value = profile
+    showUserProfileDialog.value = true
+  }
+}
+
+function subscribeToGroup(groupId: number): void {
+  const { $echo } = useNuxtApp()
+
+  if (currentEchoChannel) {
+    $echo.leave(currentEchoChannel)
+  }
+
+  currentEchoChannel = `group.${groupId}`
+  $echo.private(currentEchoChannel)
+      .listen('.message.sent', (e: { groupId: number; message: ApiMessage }) => {
+        pushIncomingMessage(e.groupId, e.message)
+      })
+
+      .listen('.message.reacted', (e: { groupId: number; message: ApiMessage }) => {
+        updateIncomingMessage(e.groupId, e.message)
+      })
+      .listen('.message.updated', (e: { groupId: number; message: ApiMessage }) => {
+        updateIncomingMessage(e.groupId, e.message)
+      })
+      .listen('.message.deleted', (e: { groupId: number; messageId: number }) => {
+        removeIncomingMessage(e.groupId, e.messageId)
+      })
+      .listen('.message.pinned', (e: { groupId: number; messageId: number; pinned: boolean }) => {
+        const arr = messagesByGroup[e.groupId]
+        const msg = arr?.find(m => m.id === e.messageId)
+        if (msg) msg.pinned = e.pinned
+      })
+
+      .listen('.user.typing', (e: { groupId: number; userId: number; userName: string }) => {
+        if (e.userId === currentUser.value.id) return
+        typingNames.value[e.userId] = e.userName
+        if (!typingUsers.value.includes(e.userId)) {
+          typingUsers.value.push(e.userId)
+        }
+        setTimeout(() => {
+          typingUsers.value = typingUsers.value.filter(id => id !== e.userId)
+        }, 3000)
+      })
+
+      .listen('.message.read', (e: { groupId: number; userId: number; lastReadMessageId: number }) => {
+        const arr = messagesByGroup[e.groupId]
+        if (!arr) return
+        arr.forEach(m => {
+          if (m.id <= e.lastReadMessageId && !m.readBy.includes(e.userId)) {
+            m.readBy.push(e.userId)
+          }
+        })
+      })
+}
+
+const activeGroup = computed<ApiGroup | undefined>(() =>
+    apiGroups.value.find(g => g.id === activeGroupId.value) ?? apiGroups.value[0]
 )
 
-const members = computed<Member[]>(() => activeGroup.value?.members ?? [])
-const onlineMembers = computed<Member[]>(() => members.value.filter(m => m.online))
+const members = computed(() => activeGroupId.value ? (membersByGroup[activeGroupId.value] ?? []) : [])
+const onlineMembers = computed(() => members.value)
+const myRole = computed<'admin' | 'member' | null>(() => {
+  const me = members.value.find(m => m.userId === currentUser.value.id)
+      return me?.role ?? null
+    })
+const isGroupAdmin = computed(() => myRole.value === 'admin')
 
-const messages = computed<Message[]>({
-  get: () => activeGroup.value?.messages ?? [],
-  set: (val) => { if (activeGroup.value) activeGroup.value.messages = val },
-})
+const messages = computed<ApiMessage[]>(() =>
+    activeGroupId.value ? (messagesByGroup[activeGroupId.value] ?? []) : []
+)
 
-function selectGroup(id: number): void {
+async function selectGroup(id: number): Promise<void> {
   activeGroupId.value = id
-  const g = groups.value.find(x => x.id === id)
-  if (g) g.unread = 0
-}
-
-function createGroup(input: { name: string; description: string; avatarUrl: string | null }): Group {
-  const newGroup: Group = {
-    id: Date.now(),
-    name: input.name,
-    description: input.description,
-    avatarUrl: input.avatarUrl,
-    avatarBg: avatarBgOptions[Math.floor(Math.random() * avatarBgOptions.length)],
-    unread: 0,
-    members: [currentUser],
-    messages: [
-      {
-        id: Date.now(),
-        senderId: currentUser.id,
-        text: 'Group created 🎉',
-        timestamp: new Date(),
-        type: 'system',
-        read: true, pinned: false, edited: false, replyTo: null, reactions: {}, todoRef: null,
-      },
-    ],
+  subscribeToGroup(id)
+  if (!membersByGroup[id]) {
+    await fetchMembers(id)
   }
-  groups.value.unshift(newGroup)
-  activeGroupId.value = newGroup.id
-  return newGroup
+  if (!messagesByGroup[id]) {
+    await fetchMessages(id)
+  }
+  const last = messagesByGroup[id]?.[messagesByGroup[id].length - 1]
+  if (last) apiMarkRead(id, last.id)
 }
 
-function getMemberById(id: number): Member | undefined {
-  return members.value.find(m => m.id === id)
+async function createGroup(input: { name: string; description: string }): Promise<void> {
+  const group = await apiCreateGroup({ name: input.name, description: input.description || undefined })
+  if (group) {
+    activeGroupId.value = group.id
+    subscribeToGroup(group.id)
+  }
+}
+
+interface PendingFile {
+  file: File
+  previewUrl: string
+  isImage: boolean
+}
+
+const showAttachmentPreviewDialog = ref(false)
+const pendingFiles = ref<PendingFile[]>([])
+const attachmentCaption = ref('')
+
+function openFilePicker(type: 'image' | 'file'): void {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.multiple = true
+  if (type === 'image') input.accept = 'image/*'
+  input.onchange = (e) => handleFilesSelected(e, type)
+  input.click()
+}
+
+function handleFilesSelected(event: Event, type: 'image' | 'file'): void {
+  const input = event.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  if (!files.length) return
+
+  pendingFiles.value = files.map(file => ({
+    file,
+    previewUrl: type === 'image' ? URL.createObjectURL(file) : '',
+    isImage: type === 'image',
+  }))
+  attachmentCaption.value = ''
+  showAttachMenu.value = false
+  showAttachmentPreviewDialog.value = true
+}
+
+function removePendingFile(index: number): void {
+  const f = pendingFiles.value[index]
+  if (f.previewUrl) URL.revokeObjectURL(f.previewUrl)
+  pendingFiles.value.splice(index, 1)
+  if (pendingFiles.value.length === 0) closeAttachmentPreview()
+}
+
+function closeAttachmentPreview(): void {
+  pendingFiles.value.forEach(f => { if (f.previewUrl) URL.revokeObjectURL(f.previewUrl) })
+  pendingFiles.value = []
+  attachmentCaption.value = ''
+  showAttachmentPreviewDialog.value = false
+}
+
+async function confirmSendAttachments(): Promise<void> {
+  if (!activeGroupId.value || pendingFiles.value.length === 0) return
+
+  await apiSendMessageWithFiles(
+      activeGroupId.value,
+      pendingFiles.value.map(f => f.file),
+      {
+        text: attachmentCaption.value.trim() || undefined,
+        reply_to: replyTo.value?.id,
+      }
+  )
+
+  replyTo.value = null
+  closeAttachmentPreview()
+  scrollToBottom()
+}
+
+const groupInfoForm = reactive({ name: '', description: '' })
+
+watch(activeGroup, (g) => {
+  if (g) {
+    groupInfoForm.name = g.name
+    groupInfoForm.description = g.description || ''
+  }
+}, { immediate: true })
+
+async function saveGroupInfo(): Promise<void> {
+  if (!activeGroupId.value || !isGroupAdmin.value) return
+  const g = activeGroup.value
+  if (!g) return
+  if (groupInfoForm.name === g.name && groupInfoForm.description === (g.description || '')) return // چیزی عوض نشده، درخواست الکی نزن
+
+  await apiUpdateGroup(activeGroupId.value, {
+    name: groupInfoForm.name.trim() || g.name,
+    description: groupInfoForm.description.trim(),
+  })
+}
+
+function lastMessage(groupId: number): ApiMessage | undefined {
+  const arr = messagesByGroup[groupId]
+  return arr && arr.length ? arr[arr.length - 1] : undefined
+}
+
+function getMemberById(id: number) {
+  return members.value.find(m => m.userId === id)
 }
 
 function getMemberName(id: number): string {
   return getMemberById(id)?.name ?? 'Unknown'
+}
+
+
+const showAddMemberDialog = ref(false)
+const memberSearchQuery = ref('')
+const memberSearchResults = ref<{ id: number; name: string; username: string; avatarUrl: string | null }[]>([])
+let memberSearchDebounce: number | null = null
+
+function handleMemberSearch(): void {
+  if (memberSearchDebounce) clearTimeout(memberSearchDebounce)
+  memberSearchDebounce = window.setTimeout(async () => {
+    memberSearchResults.value = await searchUsers(memberSearchQuery.value)
+  }, 300)
+}
+
+async function handleAddMember(userId: number): Promise<void> {
+  if (!activeGroupId.value) return
+  const ok = await apiAddMember(activeGroupId.value, userId)
+  if (ok) {
+    memberSearchQuery.value = ''
+    memberSearchResults.value = []
+    showAddMemberDialog.value = false
+  }
+}
+
+function closeAddMemberDialog(): void {
+  showAddMemberDialog.value = false
+  memberSearchQuery.value = ''
+  memberSearchResults.value = []
 }
 
 const { isMobile } = useResponsiveMode()
@@ -1125,8 +1444,8 @@ function goToTasks(): void {
 const groupSearchQuery = ref<string>('')
 const filteredGroups = computed(() => {
   const q = groupSearchQuery.value.trim().toLowerCase()
-  if (!q) return groups.value
-  return groups.value.filter(g => g.name.toLowerCase().includes(q))
+  if (!q) return apiGroups.value
+  return apiGroups.value.filter(g => g.name.toLowerCase().includes(q))
 })
 
 // ─── Groups sidebar: collapse (desktop) ─────────────────────────────────────
@@ -1173,27 +1492,22 @@ function handleGroupAvatarSelect(event: Event): void {
   input.value = ''
 }
 
-function submitCreateGroup(): void {
+async function submitCreateGroup(): Promise<void> {
   const name = newGroupForm.value.name.trim()
   if (!name) return
-  createGroup({
+  await createGroup({
     name,
     description: newGroupForm.value.description.trim(),
-    avatarUrl: newGroupForm.value.avatarUrl,
   })
   closeCreateGroupDialog()
   mobilePane.value = 'main'
 }
 
-function handleActiveGroupAvatarSelect(event: Event): void {
+async function handleActiveGroupAvatarSelect(event: Event): Promise<void> {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
-  if (!file || !activeGroup.value) return
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    if (activeGroup.value) activeGroup.value.avatarUrl = e.target?.result as string
-  }
-  reader.readAsDataURL(file)
+  if (!file || !activeGroupId.value) return
+  await apiUploadGroupAvatar(activeGroupId.value, file)
   input.value = ''
 }
 
@@ -1263,6 +1577,7 @@ const showCreateTodoInline = ref<boolean>(false)
 const showPinnedDialog = ref<boolean>(false)
 const highlightedMessageId = ref<number | null>(null)
 const typingUsers = ref<number[]>([])
+const typingNames = ref<Record<number, string>>({})
 const isNearBottom = ref<boolean>(true)
 const unreadCount = ref<number>(0)
 const activeMenuId = ref<number | null>(null)
@@ -1312,7 +1627,7 @@ const groupedMessages = computed<Record<string, Message[]>>(() => {
 
 const typingText = computed<string>(() => {
   if (typingUsers.value.length === 0) return ''
-  const names = typingUsers.value.map(id => getMemberName(id))
+  const names = typingUsers.value.map(id => typingNames.value[id] ?? 'someone')
   return names.join(', ') + (typingUsers.value.length === 1 ? ' is typing...' : ' are typing...')
 })
 
@@ -1330,11 +1645,13 @@ function isSameSenderAsPrev(group: Message[], index: number): boolean {
       group[index].type !== 'system' && group[index - 1].type !== 'system'
 }
 
-function formatTime(date: Date): string {
+function formatTime(date: Date | string): string {
+  date = new Date(date)
   return date.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
 }
 
-function getDateLabel(date: Date): string {
+function getDateLabel(date: Date | string): string {
+  date = new Date(date)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
   const days = Math.floor(diff / 86400000)
@@ -1350,7 +1667,7 @@ function highlightText(text: string, query: string): string {
 
 function hasUserReacted(msgId: number, emoji: string): boolean {
   const msg = messages.value.find(m => m.id === msgId)
-  return msg?.reactions[emoji]?.includes(currentUser.id) ?? false
+  return msg?.reactions[emoji]?.includes(currentUser.value.id) ?? false
 }
 
 // --- Floating action menu positioning ---
@@ -1498,79 +1815,6 @@ function toggleVoicePlayback(msgId: number): void {
   }
 }
 
-const pendingAttachment = ref<{
-  file: File
-  type: 'image' | 'file'
-  url: string
-  name: string
-  size: number
-} | null>(null)
-
-async function handleFileSelect(event: Event, type: 'image' | 'file'): Promise<void> {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  if (!file) return
-
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    const url = e.target?.result as string
-
-    pendingAttachment.value = {
-      file,
-      type,
-      url,
-      name: file.name,
-      size: file.size
-    }
-
-    sendMessageWithAttachment()
-  }
-  reader.readAsDataURL(file)
-
-  input.value = ''
-}
-
-function sendMessageWithAttachment(): void {
-  if (!pendingAttachment.value) return
-
-  const attachment = {
-    name: pendingAttachment.value.name,
-    size: pendingAttachment.value.size,
-    type: pendingAttachment.value.type,
-    url: pendingAttachment.value.url
-  }
-
-  const text = inputText.value.trim() || `📎 ${attachment.name}`
-
-  const newMsg: Message = {
-    id: Date.now(),
-    senderId: currentUser.id,
-    text: text,
-    timestamp: new Date(),
-    type: 'text',
-    read: false,
-    pinned: false,
-    edited: false,
-    replyTo: replyTo.value?.id ?? null,
-    reactions: {},
-    todoRef: null,
-    attachment: attachment
-  }
-
-  messages.value.push(newMsg)
-  inputText.value = ''
-  replyTo.value = null
-  showAttachMenu.value = false
-  pendingAttachment.value = null
-  scrollToBottom()
-
-  setTimeout(() => {
-    newMsg.read = true
-  }, 1500)
-
-  simulateReply()
-}
-
 async function startRecording(): Promise<void> {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -1645,82 +1889,43 @@ const pendingVoiceMessage = ref<{ blob: Blob; url: string; duration: number } | 
 
 function sendVoiceMessage(): void {
   if (!pendingVoiceMessage.value) return
+  if (!activeGroupId.value) return
 
-  const text = `🎤 Voice message (${formatDuration(pendingVoiceMessage.value.duration)})`
-
-  const newMsg: Message = {
-    id: Date.now(),
-    senderId: currentUser.id,
-    text: text,
-    timestamp: new Date(),
-    type: 'text',
-    read: false,
-    pinned: false,
-    edited: false,
-    replyTo: replyTo.value?.id ?? null,
-    reactions: {},
-    todoRef: null,
-    voiceMessage: pendingVoiceMessage.value
-  }
-
-  messages.value.push(newMsg)
-  inputText.value = ''
-  replyTo.value = null
-  showAttachMenu.value = false
+  const audioFile = new File(
+      [pendingVoiceMessage.value.blob],
+     'voice-message.webm',
+      { type: 'audio/webm' }
+      )
+  apiSendMessageWithFiles(activeGroupId.value, [audioFile], {
+        voice_duration: pendingVoiceMessage.value.duration,
+  })
   pendingVoiceMessage.value = null
   scrollToBottom()
-
-  setTimeout(() => {
-    newMsg.read = true
-  }, 1500)
-
-  simulateReply()
 }
 
-function sendMessage(): void {
+async function sendMessage(): Promise<void> {
   const text = inputText.value.trim()
-  if (!text && !pendingAttachment.value) return
-
+  if (!text || !activeGroupId.value) return
   if (editingMessage.value) {
-    const msg = messages.value.find(m => m.id === editingMessage.value!.id)
-    if (msg) {
-      msg.text = text
-      msg.edited = true
-    }
+    await apiEditMessage(activeGroupId.value, editingMessage.value.id, text)
     cancelEdit()
     inputText.value = ''
     return
   }
 
-  const newMsg: Message = {
-    id:        Date.now(),
-    senderId:  currentUser.id,
-    text,
-    timestamp: new Date(),
-    type:      'text',
-    read:      false,
-    pinned:    false,
-    edited:    false,
-    replyTo:   replyTo.value?.id ?? null,
-    reactions: {},
-    todoRef:   null,
-  }
+  await apiSendMessage(activeGroupId.value, {
+        text,
+        reply_to: replyTo.value?.id,
+  })
 
-  messages.value.push(newMsg)
   inputText.value = ''
   replyTo.value = null
   showAttachMenu.value = false
   scrollToBottom()
-
-  setTimeout(() => {
-    newMsg.read = true
-  }, 1500)
-
-  simulateReply()
 }
 
 function simulateReply(): void {
-  const bots = members.value.filter(m => m.id !== currentUser.id && m.online)
+  const bots = members.value.filter(m => m.id !== currentUser.value.id && m.online)
   if (!bots.length || Math.random() > 0.4) return
 
   const bot = bots[Math.floor(Math.random() * bots.length)]
@@ -1754,8 +1959,8 @@ function simulateReply(): void {
 }
 
 function deleteMessage(id: number): void {
-  messages.value = messages.value.filter(m => m.id !== id)
-  toast.success("Message deleted")
+  if (!activeGroupId.value) return
+  apiDeleteMessage(activeGroupId.value, id)
 }
 
 function startEdit(msg: Message): void {
@@ -1770,33 +1975,13 @@ function cancelEdit(): void {
 }
 
 function togglePin(id: number): void {
-  const msg = messages.value.find(m => m.id === id)
-  if (msg) msg.pinned = !msg.pinned
+  if (!activeGroupId.value) return
+  apiTogglePin(activeGroupId.value, id)
 }
 
 function toggleReaction(msgId: number, emoji: string): void {
-  const msg = messages.value.find(m => m.id === msgId)
-  if (!msg) return
-
-  // اول ریاکشن قبلی کاربر رو از سایر ایموجی‌ها حذف کن (فقط یک ریاکشن مجاز)
-  for (const key in msg.reactions) {
-    if (key !== emoji) {
-      const idx = msg.reactions[key].indexOf(currentUser.id)
-      if (idx > -1) {
-        msg.reactions[key].splice(idx, 1)
-        if (msg.reactions[key].length === 0) delete msg.reactions[key]
-      }
-    }
-  }
-
-  if (!msg.reactions[emoji]) msg.reactions[emoji] = []
-  const idx = msg.reactions[emoji].indexOf(currentUser.id)
-  if (idx > -1) {
-    msg.reactions[emoji].splice(idx, 1)
-    if (msg.reactions[emoji].length === 0) delete msg.reactions[emoji]
-  } else {
-    msg.reactions[emoji].push(currentUser.id)
-  }
+  if (!activeGroupId.value) return
+  apiToggleReaction(activeGroupId.value, msgId, emoji)
 }
 
 function createTodoFromChat(): void {
@@ -1807,7 +1992,7 @@ function createTodoFromChat(): void {
 
   messages.value.push({
     id:        Date.now(),
-    senderId:  currentUser.id,
+    senderId:  currentUser.value.id,
     text:      `✅ Task created: "${title}"`,
     timestamp: new Date(),
     type:      'system',
@@ -1842,7 +2027,10 @@ async function scrollToMessage(msgId: number): Promise<void> {
 
 function scrollToBottom(): void {
   nextTick(() => {
-    bottomAnchor.value?.scrollIntoView({ behavior: 'smooth' })
+    const { $scrollTo } = useNuxtApp()
+    if (bottomAnchor.value) {
+      $scrollTo(bottomAnchor.value, 300, { container: messagesContainer.value ?? undefined })
+    }
     isNearBottom.value = true
     unreadCount.value = 0
   })
@@ -1862,7 +2050,11 @@ function handleWindowResize(): void {
 }
 
 onMounted((): void => {
-  scrollToBottom()
+  fetchGroups().then(() => {
+    if (apiGroups.value.length > 0) {
+      selectGroup(apiGroups.value[0].id)
+    }
+  })
   messagesContainer.value?.addEventListener('scroll', onScroll)
   window.addEventListener('resize', handleWindowResize)
   document.addEventListener('click', handleDropdownClickOutside)
@@ -1874,6 +2066,12 @@ onMounted((): void => {
   })
 })
 
+onUnmounted(() => {
+  if (currentEchoChannel) {
+    useNuxtApp().$echo.leave(currentEchoChannel)
+  }
+})
+
 onUnmounted((): void => {
   messagesContainer.value?.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', handleWindowResize)
@@ -1883,7 +2081,11 @@ onUnmounted((): void => {
 })
 
 watch(messages, (): void => {
-  if (isNearBottom.value) scrollToBottom()
+  if (isNearBottom.value) {
+    scrollToBottom()
+    const last = messages.value[messages.value.length - 1]
+    if (last && activeGroupId.value) apiMarkRead(activeGroupId.value, last.id)
+  }
 }, { deep: true })
 </script>
 

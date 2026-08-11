@@ -4,11 +4,13 @@ import { toast } from 'vue-sonner'
 import { useLocale } from '~/composables/useLocale'
 
 export interface AuthUser {
+    id: number
     name: string
     username: string
     email: string
     phone?: string | null
     gender?: 'male' | 'female' | 'company' | null
+    bio?: string | null
     theme?: string
     dark_mode?: boolean
     language?: 'fa' | 'en'
@@ -154,8 +156,7 @@ export function useAuth() {
     }
 
     // ─── ویرایش اطلاعات پروفایل ─────────────────────────────────────────
-    async function updateProfile(data: { name: string; username: string; email: string; phone?: string }): Promise<boolean> {
-        try {
+    async function updateProfile(data: { name: string; username: string; email: string; phone?: string; gender?: string; bio?: string }): Promise<boolean> {        try {
             const res = await api.put('/auth/profile', data)
             authState.user = res.data.user
             toast.success('اطلاعات ذخیره شد')
