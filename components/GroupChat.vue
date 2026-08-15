@@ -212,13 +212,13 @@
     >
       <div
           v-if="!loadingGroups && apiGroups.length === 0"
-          class="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center"
+          class="flex flex-1 items-center justify-center p-6"
       >
-        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
-          <Icon icon="solar:users-group-rounded-bold" class="text-3xl text-primary-300" />
+        <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
+            <Icon icon="mdi:users-group" class="text-3xl text-primary-700" />
+          <strong class="text-lg font-semibold text-primary-600">هنوز هیچ گروهی نداری</strong>
+          <p class="text-sm text-primary-400">یه گروه بساز و با اعضای تیمت شروع به گفتگو و اشتراک‌گذاری تسک کن</p>
         </div>
-        <p class="text-sm font-semibold text-primary-800">هنوز هیچ گروهی نداری</p>
-        <p class="max-w-56 text-xs text-primary-400">یه گروه بساز و با اعضای تیمت شروع به گفتگو و اشتراک‌گذاری تسک کن</p>
       </div>
 
       <!-- Header -->
@@ -395,11 +395,13 @@
       >
         <div
             v-if="!loadingMessages && messages.length === 0"
-            class="flex h-full flex-col items-center justify-center gap-2 text-primary-300"
+            class="flex h-full items-center justify-center"
         >
-          <Icon icon="solar:chat-round-dots-linear" class="text-4xl" />
-          <p class="text-sm">هنوز پیامی وجود نداره</p>
-          <p class="text-xs text-primary-300">اولین پیام رو بفرست!</p>
+          <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 px-14 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
+            <Icon icon="ep:chat-round" class="text-4xl text-primary-700" />
+            <strong class="text-lg text-primary-600">هنوز پیامی وجود نداره</strong>
+            <p class="text-sm text-primary-400">اولین پیام رو بفرست!</p>
+          </div>
         </div>
 
         <template v-else>
@@ -1082,8 +1084,12 @@
             <button @click="closeAttachmentPreview" class="text-primary-400 hover:text-primary-600 text-xl">✕</button>
           </div>
 
-          <div class="flex-1 overflow-y-auto p-4 grid grid-cols-3 gap-2">
-            <div v-for="(f, i) in pendingFiles" :key="i" class="relative aspect-square rounded-xl overflow-hidden bg-primary-50 border border-primary-100">
+          <div class="flex-1 overflow-y-auto p-4 flex flex-wrap justify-center gap-2">
+            <div
+                v-for="(f, i) in pendingFiles"
+                :key="i"
+                class="relative w-24 aspect-square rounded-xl overflow-hidden bg-primary-50 border border-primary-100"
+            >
               <img v-if="f.isImage" :src="f.previewUrl" class="w-full h-full object-cover" alt="" />
               <div v-else class="w-full h-full flex flex-col items-center justify-center gap-1 p-2">
                 <Icon :icon="getFileIcon(f.file.name)" class="text-2xl text-primary-400" />

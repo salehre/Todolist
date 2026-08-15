@@ -44,7 +44,7 @@
       <button
         :disabled="!isCodeComplete || isLoading"
         @click="verifyCode"
-        class="w-full py-3 px-4 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700
+        class="w-full py-3 px-4 rounded-xl bg-linear-to-l from-primary-600 to-primary-700
                text-white font-semibold text-sm transition-all duration-200
                hover:from-primary-700 hover:to-primary-800 hover:shadow-lg hover:shadow-primary-200
                active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
@@ -84,7 +84,7 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import AuthCard from '@/components/auth/AuthCard.vue'
 import { useAuth } from '@/composables/useAuth'
@@ -130,6 +130,10 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
 const isCodeComplete = computed(() => otpDigits.value.every(d => d !== ''))
+
+watch(isCodeComplete, (complete) => {
+  if (complete && !isLoading.value) verifyCode()
+})
 
 const maskedEmail = computed(() => {
   const email = authState.pendingEmail || 'ایمیل شما'

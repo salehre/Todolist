@@ -98,27 +98,27 @@
 
         <!-- ─── کارت اطلاعات پایه ───────────────────────────────────────────── -->
         <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">
-          <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-slate-800">اطلاعات پایه</h2>
-            <button
-                type="button"
-                @click="openEditDialog"
-                class="flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100"
-            >
-              <Icon icon="mdi:pencil-outline" />
-              ویرایش
-            </button>
-          </div>
+        <div class="flex mb-4 items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-800">اطلاعات پایه</h2>
+          <button
+              type="button"
+              @click="openEditDialog"
+              class="flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100"
+          >
+            <Icon icon="mdi:pencil-outline" />
+            ویرایش
+          </button>
+        </div>
 
-          <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <InfoRow icon="mdi:account-outline" label="نام" :value="authState.user?.name" />
-            <InfoRow icon="mdi:at" label="نام کاربری" :value="authState.user?.username" ltr />
-            <InfoRow icon="mdi:email-outline" label="ایمیل" :value="authState.user?.email" ltr />
-            <InfoRow icon="mdi:phone-outline" label="شماره موبایل" :value="authState.user?.phone || 'ثبت نشده'" ltr />
-            <InfoRow icon="mdi:gender-male-female" label="جنسیت" :value="genderLabel" />
-            <InfoRow icon="mdi:biography" label="بیوگرافی" :value="authState.user?.bio" />
-            <InfoRow icon="streamline-ultimate:corporate-social-media" label="فضای مجازی" :value="socialLinksLabel" />
-          </div>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <InfoRow icon="mdi:account-outline" label="نام" :value="authState.user?.name" />
+          <InfoRow icon="mdi:at" label="نام کاربری" :value="authState.user?.username" ltr />
+          <InfoRow icon="mdi:email-outline" label="ایمیل" :value="authState.user?.email" ltr />
+          <InfoRow icon="mdi:phone-outline" label="شماره موبایل" :value="authState.user?.phone || '—'" ltr />
+          <InfoRow icon="mdi:gender-male-female" label="جنسیت" :value="genderLabel" />
+          <InfoRow icon="mdi:biography" label="بیوگرافی" :value="authState.user?.bio" />
+          <InfoRow icon="streamline-ultimate:corporate-social-media" label="فضای مجازی" :value="socialLinksLabel" />
+        </div>
         </div>
 
         <!-- ─── کارت تم رنگی ───────────────────────────────────────────────── -->
@@ -366,7 +366,7 @@ const genderLabel = computed(() => {
   if (authState.user?.gender === 'male') return 'مرد'
   if (authState.user?.gender === 'female') return 'زن'
   if (authState.user?.gender === 'company') return 'حقوقی'
-  return 'ثبت نشده'
+  return '—'
 })
 
 function openEditDialog() {
@@ -438,7 +438,7 @@ const InfoRow = defineComponent({
   props: { icon: String, label: String, value: String, ltr: Boolean },
   setup(props) {
     return () =>
-        h('div', { class: 'flex items-start gap-3' }, [
+        h('div', { class: 'flex items-start gap-3 rounded-2xl border border-slate-200/70 bg-white/80 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-xl' }, [
           h('div', { class: 'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-600' }, [
             h(Icon, { icon: props.icon }),
           ]),

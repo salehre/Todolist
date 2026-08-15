@@ -118,7 +118,7 @@
           >
             <template #iconRight><Icon icon="mdi:lock-outline" /></template>
             <template #iconLeft>
-              <button type="button" @click="showPassword = !showPassword" class="text-slate-400 hover:text-slate-600">
+              <button type="button" @click="showPassword = !showPassword" class="text-slate-400 mt-2 hover:text-slate-600">
                 <Icon :icon="showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" />
               </button>
             </template>
@@ -138,7 +138,7 @@
         >
           <template #iconRight><Icon icon="mdi:lock-check-outline" /></template>
           <template #iconLeft>
-            <button type="button" @click="showConfirm = !showConfirm" class="text-slate-400 hover:text-slate-600">
+            <button type="button" @click="showConfirm = !showConfirm" class="text-slate-400 mt-2 hover:text-slate-600">
               <Icon :icon="showConfirm ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" />
             </button>
           </template>
@@ -170,14 +170,17 @@
 </template>
 
 <script setup lang="ts">
+import {toast} from "vue-sonner";
+
 definePageMeta({ layout: false })
 
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import AuthCard from '@/components/auth/AuthCard.vue'
 import AuthInput from '@/components/auth/AuthInput.vue'
 import PasswordStrength from '@/components/auth/PasswordStrength.vue'
 import { useAuth } from '@/composables/useAuth'
+import api from '~/src/services/api'
 
 useHead(() => ({
   titleTemplate: `%s - Forget Password`
@@ -239,6 +242,10 @@ const maskedEmail = computed(() => {
 
 const isCodeComplete = computed(() => otpDigits.value.every(d => d !== ''))
 
+watch(isCodeComplete, (complete) => {
+  if (complete && currentStep.value === 2 && !isLoading.value) verifyCode()
+})
+
 // ─── Validation ───────────────────────────────────────────────────────────────
 function validateEmail() {
   errors.email = ''
@@ -297,8 +304,16 @@ async function verifyCode() {
   isLoading.value = true
   otpError.value = false
   try {
-    currentStep.value = 3
+    const res = await api.post('/auth/verify-reset-code', { email: email.value, code: otpDigits.value.join('') })
+    if (res.data.success) {
+      currentStep.value = 3
+    } else {
+      otpError.value = true
+      otpDigits.value = ['', '', '', '', '', '']
+      setTimeout(() => otpRefs.value[0]?.focus(), 50)
+    }
   } finally {
+    toast.error('code is not correct')
     isLoading.value = false
   }
 }

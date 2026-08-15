@@ -33,13 +33,77 @@
           <span class="text-[11px] font-bold uppercase" dir="ltr">{{ locale }}</span>
         </button>
 
-        <button
-            v-tooltip="'اعلان‌ها'"
-            class="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-        >
-          <Icon icon="mdi:bell-outline" class="text-lg" />
-          <span class="absolute inset-e-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"/>
-        </button>
+        <div class="relative" data-dropdown="notif-menu">
+          <button
+              v-tooltip="'اعلان‌ها'"
+              @click.stop="toggleNotifDropdown"
+              class="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+          >
+            <Icon icon="mdi:bell-outline" class="text-lg" />
+            <span
+                class="absolute inset-e-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"
+                :class="hasUnread() ? '' : 'hidden'"
+            />
+          </button>
+
+          <Transition name="dropdown">
+            <div
+                v-if="showNotifDropdown"
+                data-dropdown="notif-menu"
+                data-dropdown-panel
+                class="absolute top-full mt-1 max-h-96 w-80 overflow-y-auto rounded-xl border border-slate-200/70 bg-white py-1 shadow-lg shadow-slate-200/50 z-[9999]"
+                :class="notifAlign === 'right' ? 'left-0 origin-top-left' : 'right-0 origin-top-right'"
+            >
+              <div v-if="invites.length === 0 && messageNoticeList.length === 0" class="p-6 text-center text-sm text-slate-400">
+                اعلانی نداری
+              </div>
+
+              <!-- دعوت‌نامه‌ها -->
+              <div v-for="inv in invites" :key="'invite-' + inv.id" class="border-b border-slate-100 p-3">
+                <div class="flex items-center gap-2.5">
+                  <img v-if="inv.groupAvatarUrl" :src="inv.groupAvatarUrl" class="h-9 w-9 rounded-full object-cover shrink-0" alt="" />
+                  <div v-else class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600 text-xs font-bold">
+                    {{ inv.groupName[0] }}
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-semibold text-slate-800 truncate">{{ inv.groupName }}</p>
+                    <p class="text-[11px] text-slate-400">{{ inv.invitedByName }} دعوتت کرده</p>
+                  </div>
+                </div>
+                <div class="mt-2 flex gap-2">
+                  <button
+                      @click="handleAccept(inv.id)"
+                      class="flex-1 rounded-lg bg-primary-500 py-1.5 text-xs font-medium text-white hover:bg-primary-600"
+                  >
+                    پذیرفتن
+                  </button>
+                  <button
+                      @click="declineInvite(inv.id)"
+                      class="flex-1 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    رد کردن
+                  </button>
+                </div>
+              </div>
+
+              <!-- اعلان پیام جدید -->
+              <button
+                  v-for="notice in messageNoticeList"
+                  :key="'notice-' + notice.groupId"
+                  @click="openGroupFromNotice(notice.groupId)"
+                  class="flex w-full items-center gap-2.5 border-b border-slate-100 p-3 text-start hover:bg-slate-50 transition-colors"
+              >
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-500">
+                  <Icon icon="solar:chat-round-dots-bold" class="text-base" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-semibold text-slate-800 truncate">{{ notice.groupName }}</p>
+                  <p class="text-[11px] text-primary-500">پیام جدید</p>
+                </div>
+              </button>
+            </div>
+          </Transition>
+        </div>
 
         <button
             v-tooltip="'تغییر تم'"
@@ -56,6 +120,10 @@
           class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 md:hidden"
       >
         <Icon icon="mdi:dots-vertical" class="text-lg" />
+        <span
+            class="absolute inset-e-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"
+            :class="hasUnread() ? '' : 'hidden'"
+        />
       </button>
     </div>
   </header>
@@ -75,11 +143,15 @@
           :style="{ top: dropdownTop + 'px', left: dropdownLeft + 'px' }"
       >
         <button
-            @click="mobileMenuOpen = false"
-            class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
+            @click="mobileMenuOpen = false; showNotifDropdown = true"
+            class="relative flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
         >
           <Icon icon="mdi:bell-outline" class="text-lg text-slate-400" />
           اعلان‌ها
+          <span
+              class="absolute inset-e-3 top-2.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"
+              :class="hasUnread() ? '' : 'hidden'"
+          />
         </button>
         <button
             @click="toggleDark(); mobileMenuOpen = false"
@@ -97,19 +169,85 @@
         </button>
       </div>
     </Transition>
+
+    <!-- روی موبایل هم همون دراپ‌داون اعلان‌ها رو (تمام‌عرض‌تر) نشون بده -->
+    <div
+        v-if="showNotifDropdown"
+        @click="showNotifDropdown = false"
+        class="fixed inset-0 z-40 bg-black/20 md:bg-transparent"
+    />
+    <Transition name="dropdown">
+      <div
+          v-if="showNotifDropdown"
+          class="fixed inset-x-4 top-20 z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200/70 bg-white py-1 shadow-lg shadow-slate-200/50 md:hidden"
+      >
+        <div v-if="invites.length === 0 && messageNoticeList.length === 0" class="p-6 text-center text-sm text-slate-400">
+          اعلانی نداری
+        </div>
+        <div v-for="inv in invites" :key="'m-invite-' + inv.id" class="border-b border-slate-100 p-3">
+          <div class="flex items-center gap-2.5">
+            <img v-if="inv.groupAvatarUrl" :src="inv.groupAvatarUrl" class="h-9 w-9 rounded-full object-cover shrink-0" alt="" />
+            <div v-else class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600 text-xs font-bold">
+              {{ inv.groupName[0] }}
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-slate-800 truncate">{{ inv.groupName }}</p>
+              <p class="text-[11px] text-slate-400">{{ inv.invitedByName }} دعوتت کرده</p>
+            </div>
+          </div>
+          <div class="mt-2 flex gap-2">
+            <button @click="handleAccept(inv.id)" class="flex-1 rounded-lg bg-primary-500 py-1.5 text-xs font-medium text-white hover:bg-primary-600">
+              پذیرفتن
+            </button>
+            <button @click="declineInvite(inv.id)" class="flex-1 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
+              رد کردن
+            </button>
+          </div>
+        </div>
+        <button
+            v-for="notice in messageNoticeList"
+            :key="'m-notice-' + notice.groupId"
+            @click="openGroupFromNotice(notice.groupId)"
+            class="flex w-full items-center gap-2.5 border-b border-slate-100 p-3 text-start hover:bg-slate-50 transition-colors"
+        >
+          <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-500">
+            <Icon icon="solar:chat-round-dots-bold" class="text-base" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-semibold text-slate-800 truncate">{{ notice.groupName }}</p>
+            <p class="text-[11px] text-primary-500">پیام جدید</p>
+          </div>
+        </button>
+      </div>
+    </Transition>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useTheme } from '@/composables/useTheme'
 import { useLocale } from '@/composables/useLocale'
+import { useAuth } from '@/composables/useAuth'
+import { useNotifications } from '@/composables/useNotifications'
 
 const route = useRoute()
+const router = useRouter()
 
 const { isDark, toggleDark } = useTheme()
 const { locale, isRtl, setLocale } = useLocale()
+const { authState } = useAuth()
+const {
+  invites,
+  messageNotices,
+  fetchInvites,
+  acceptInvite,
+  declineInvite,
+  addInviteFromEcho,
+  addMessageNotice,
+  clearMessageNotice,
+  hasUnread,
+} = useNotifications()
 
 function toggleLocale(): void {
   setLocale(isRtl.value ? 'en' : 'fa')
@@ -133,7 +271,58 @@ const pageTitle = computed(() => {
   return (route.meta.title as string) || titles[route.path] || 'داشبورد'
 })
 
-// ─── دراپ‌داون موبایل ────────────────────────────────────────────────────
+// ─── دراپ‌داون اعلان‌ها (دسکتاپ) ─────────────────────────────────────────
+const showNotifDropdown = ref(false)
+const notifAlign = ref<'left' | 'right'>('right')
+const messageNoticeList = computed(() => Object.values(messageNotices))
+
+function toggleNotifDropdown(): void {
+  showNotifDropdown.value = !showNotifDropdown.value
+}
+
+function handleDropdownClickOutside(e: MouseEvent): void {
+  const target = e.target as HTMLElement
+  if (showNotifDropdown.value && !target.closest('[data-dropdown="notif-menu"]')) {
+    showNotifDropdown.value = false
+  }
+}
+
+async function handleAccept(inviteId: number): Promise<void> {
+  const groupId = await acceptInvite(inviteId)
+  if (groupId) {
+    showNotifDropdown.value = false
+    router.push('/workPlan')
+  }
+}
+
+function openGroupFromNotice(groupId: number): void {
+  clearMessageNotice(groupId)
+  showNotifDropdown.value = false
+  router.push('/workPlan')
+}
+
+onMounted(() => {
+  fetchInvites()
+  document.addEventListener('click', handleDropdownClickOutside)
+
+  if (authState.user?.id) {
+    const { $echo } = useNuxtApp()
+    $echo.private(`user.${authState.user.id}`)
+        .listen('.invite.sent', (e: any) => addInviteFromEcho(e))
+        .listen('.message.notification', (e: { groupId: number; groupName: string }) => {
+          addMessageNotice(e.groupId, e.groupName)
+        })
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDropdownClickOutside)
+  if (authState.user?.id) {
+    useNuxtApp().$echo.leave(`user.${authState.user.id}`)
+  }
+})
+
+// ─── دراپ‌داون موبایل (منوی سه‌نقطه) ──────────────────────────────────────
 const mobileMenuOpen = ref(false)
 const moreButtonRef = ref<HTMLElement | null>(null)
 const dropdownPanelRef = ref<HTMLElement | null>(null)
