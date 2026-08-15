@@ -1078,7 +1078,7 @@
       >
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col">
           <div class="flex items-center justify-between p-4 border-b border-primary-100">
-            <h3 class="text-sm font-bold text-primary-900">{{ pendingFiles.length }} file(s) selected</h3>
+            <h3 class="text-sm font-bold text-primary-900">{{ pendingFiles.length }} Files Selected</h3>
             <button @click="closeAttachmentPreview" class="text-primary-400 hover:text-primary-600 text-xl">✕</button>
           </div>
 
@@ -1102,7 +1102,7 @@
         <textarea
             v-model="attachmentCaption"
             rows="2"
-            placeholder="Add a caption... (optional)"
+            placeholder="Add a caption.."
             class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none"
         />
             <button
@@ -1110,7 +1110,7 @@
                 class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all"
             >
               <Icon icon="solar:plain-bold" class="text-base" />
-              Send {{ pendingFiles.length }} file(s)
+              Send {{ pendingFiles.length }} Files
             </button>
           </div>
         </div>
