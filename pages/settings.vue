@@ -117,6 +117,7 @@
             <InfoRow icon="mdi:phone-outline" label="شماره موبایل" :value="authState.user?.phone || 'ثبت نشده'" ltr />
             <InfoRow icon="mdi:gender-male-female" label="جنسیت" :value="genderLabel" />
             <InfoRow icon="mdi:biography" label="بیوگرافی" :value="authState.user?.bio" />
+            <InfoRow icon="streamline-ultimate:corporate-social-media" label="فضای مجازی" :value="socialLinksLabel" />
           </div>
         </div>
 
@@ -253,6 +254,20 @@
               />
               <p class="mt-1 text-left text-xs text-slate-400" dir="ltr">{{ (form.bio || '').length }}/280</p>
             </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium text-primary-700">لینک‌های شبکه‌های اجتماعی</label>
+              <div class="space-y-2">
+                <input
+                    v-for="i in 3"
+                    :key="i"
+                    v-model="form.socialLinks[i - 1]"
+                    type="url"
+                    dir="ltr"
+                    :placeholder="`https://... (لینک ${i}, اختیاری)`"
+                    class="w-full rounded-xl border border-primary-200 px-4 py-2 text-left transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                />
+              </div>
+            </div>
           </div>
 
           <div class="sticky bottom-0 flex gap-3 rounded-b-2xl border-t border-primary-100 bg-white p-6">
@@ -292,8 +307,6 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 const { currentTheme, setTheme, themeOptions, isDark, toggleDark } = useTheme()
 const { authState, updateProfile, uploadAvatar, uploadCover, cachedCoverUrl } = useAuth()
 
-// اگه توی useAuth یه فلگ loading/pending داری، همینو استفاده کن.
-// در غیر این صورت، تا وقتی user لود نشده اسکلت نشون داده میشه.
 const isProfileLoading = computed(() => !authState.user)
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -308,6 +321,13 @@ const form = reactive({
   phone: '',
   gender: '' as '' | 'male' | 'female' | 'company',
   bio: '',
+  socialLinks: ['', '', ''] as string[],
+})
+
+const socialLinksLabel = computed(() => {
+  const links = (authState.user?.socialLinks ?? []).filter(Boolean)
+  if (links.length === 0) return ''
+  return `${links.length} لینک ثبت‌شده`
 })
 
 const genderLabel = computed(() => {
@@ -324,6 +344,11 @@ function openEditDialog() {
   form.phone = authState.user?.phone || ''
   form.gender = authState.user?.gender || ''
   form.bio = authState.user?.bio || ''
+  form.socialLinks = [
+    authState.user?.socialLinks?.[0] || '',
+    authState.user?.socialLinks?.[1] || '',
+    authState.user?.socialLinks?.[2] || '',
+  ]
   isDialogOpen.value = true
 }
 
@@ -334,7 +359,10 @@ function closeEditDialog() {
 async function saveProfile() {
   saving.value = true
   try {
-    const ok = await updateProfile({ ...form })
+    const ok = await updateProfile({
+      ...form,
+      socialLinks: form.socialLinks.filter(link => link.trim() !== ''),
+    })
     if (ok) isDialogOpen.value = false
   } finally {
     saving.value = false

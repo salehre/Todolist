@@ -24,6 +24,8 @@ export interface ApiMessage {
     mentions: number[]
     todoRef: { id: number; text: string; priority: string } | null
     attachments: { id: number; name: string; size: number; type: string; url: string; voiceDuration: number | null }[]
+    status?: 'pending' | 'sent'
+    failed?: boolean
 }
 
 export interface GroupMember {
@@ -48,6 +50,7 @@ export interface UserProfile {
     avatarUrl: string | null
     coverUrl: string | null
     bio: string | null
+    socialLinks: (string | null)[]
 }
 
 export function useGroupChat() {
@@ -103,11 +106,13 @@ export function useGroupChat() {
         }
     }
 
-    async function sendMessage(groupId: number, payload: { text?: string; reply_to?: number }): Promise<void> {
+    async function sendMessage(groupId: number, payload: { text?: string; reply_to?: number }): Promise<ApiMessage | null> {
         try {
-            await api.post(`/groups/${groupId}/messages`, payload)
+            const res = await api.post(`/groups/${groupId}/messages`, payload)
+            return res.data
         } catch (e: any) {
             toast.error(getErrorMessage(e, 'ارسال پیام ناموفق بود'))
+            return null
         }
     }
 
@@ -228,6 +233,29 @@ export function useGroupChat() {
         }
     }
 
+    function addOptimisticMessage(groupId: number, message: ApiMessage): void {
+        if (!messagesByGroup[groupId]) messagesByGroup[groupId] = []
+        messagesByGroup[groupId].push(message)
+    }
+
+    function replaceMessage(groupId: number, tempId: number, real: ApiMessage): void {
+        const arr = messagesByGroup[groupId]
+        if (!arr) return
+        const idx = arr.findIndex(m => m.id === tempId)
+        if (idx === -1) return
+        // اگه broadcast زودتر از جواب POST رسیده و پیام واقعی رو خودش اضافه کرده، فقط موقتی رو حذف کن
+        if (arr.some(m => m.id === real.id)) {
+            arr.splice(idx, 1)
+        } else {
+            arr[idx] = real
+        }
+    }
+
+    function markMessageFailed(groupId: number, tempId: number): void {
+        const msg = messagesByGroup[groupId]?.find(m => m.id === tempId)
+        if (msg) msg.failed = true
+    }
+
     async function updateMemberRole(groupId: number, userId: number, role: 'admin' | 'member'): Promise<boolean> {
         try {
             await api.put(`/groups/${groupId}/members/${userId}/role`, { role })
@@ -335,5 +363,8 @@ export function useGroupChat() {
         uploadGroupAvatar,
         sendMessageWithFiles,
         fetchUserProfile,
+        addOptimisticMessage,
+        replaceMessage,
+        markMessageFailed,
     }
 }

@@ -156,7 +156,7 @@
                   <button
                       v-if="newGroupForm.avatarUrl"
                       @click="newGroupForm.avatarUrl = null"
-                      class="absolute -top-1 -end-1 p-1 rounded-full bg-white text-primary-500 shadow-md hover:bg-primary-50 transition-all border border-primary-100"
+                      class="absolute -top-1 -inset-e-1 p-1 rounded-full bg-white text-primary-500 shadow-md hover:bg-primary-50 transition-all border border-primary-100"
                       v-tooltip="'Remove photo'"
                   >
                     <Icon icon="mingcute:close-line" class="text-xs" />
@@ -210,8 +210,19 @@
           isMobile && mobilePane !== 'main' ? 'hidden' : 'flex'
         ]"
     >
+      <div
+          v-if="!loadingGroups && apiGroups.length === 0"
+          class="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center"
+      >
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-primary-50">
+          <Icon icon="solar:users-group-rounded-bold" class="text-3xl text-primary-300" />
+        </div>
+        <p class="text-sm font-semibold text-primary-800">هنوز هیچ گروهی نداری</p>
+        <p class="max-w-56 text-xs text-primary-400">یه گروه بساز و با اعضای تیمت شروع به گفتگو و اشتراک‌گذاری تسک کن</p>
+      </div>
 
       <!-- Header -->
+      <template v-else>
       <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50">
         <div class="px-5 py-4 flex items-center justify-between">
           <div class="flex items-center gap-3 min-w-0">
@@ -382,6 +393,16 @@
           ref="messagesContainer"
           class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar min-h-0 space-y-1 pb-32"
       >
+        <div
+            v-if="!loadingMessages && messages.length === 0"
+            class="flex h-full flex-col items-center justify-center gap-2 text-primary-300"
+        >
+          <Icon icon="solar:chat-round-dots-linear" class="text-4xl" />
+          <p class="text-sm">هنوز پیامی وجود نداره</p>
+          <p class="text-xs text-primary-300">اولین پیام رو بفرست!</p>
+        </div>
+
+        <template v-else>
         <template v-for="(group, date) in groupedMessages" :key="date">
           <div class="flex items-center gap-3 my-4">
             <div class="flex-1 h-px bg-primary-100"></div>
@@ -418,7 +439,7 @@
                       v-if="getMemberById(msg.senderId)?.avatarUrl"
                       :src="getMemberById(msg.senderId)!.avatarUrl!"
                       class="w-8 h-8 rounded-full object-cover shadow-sm hover:opacity-80 transition"
-                  />
+                   alt="member profile"/>
                   <div
                     v-else
                     :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm', getMemberById(msg.senderId)?.avatarBg ?? 'bg-primary-400']"
@@ -536,8 +557,8 @@
 
                         <Icon
                             v-if="msg.senderId === currentUser.id"
-                            :icon="msg.readBy.includes(currentUser.id) === false && msg.senderId === currentUser.id ? 'solar:check-linear' : 'solar:check-read-linear'"
-                            :class="['text-xs', msg.read ? 'text-emerald-300' : 'text-primary-300']"
+                            :icon="msg.status === 'pending' ? 'mdi:clock-time-four-outline' : msg.failed ? 'mdi:alert-circle-outline' : (msg.readBy.includes(currentUser.id) ? 'solar:check-read-linear' : 'solar:check-linear')"
+                            :class="['text-xs', msg.failed ? 'text-red-400' : (msg.readBy.includes(currentUser.id) ? 'text-emerald-300' : 'text-primary-300')]"
                         />
                         <span :class="['text-[12px]', msg.senderId === currentUser.id ? 'text-primary-400' : 'text-primary-300']">
                         {{ formatTime(msg.timestamp) }}
@@ -600,6 +621,7 @@
         </div>
 
         <div ref="bottomAnchor"></div>
+        </template>
       </div>
 
       <!-- Message Action Menu -->
@@ -657,11 +679,11 @@
       </div>
 
       <Teleport to="body">
-        <div v-if="previewImageUrl" class="fixed inset-0 z-[80] bg-black/90 flex items-center justify-center" @click="previewImageUrl = null">
+        <div v-if="previewImageUrl" class="fixed inset-0 z-80 bg-black/90 flex items-center justify-center" @click="previewImageUrl = null">
           <div class="max-w-[95vw] max-h-[95vh]" @click.stop>
             <img :src="previewImageUrl" class="max-w-[95vw] max-h-[95vh] object-contain rounded-lg" alt="" />
           </div>
-          <button @click="previewImageUrl = null" class="fixed top-4 end-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition">
+          <button @click="previewImageUrl = null" class="fixed top-4 inset-e-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition">
             <Icon icon="mingcute:close-line" class="text-white text-2xl" />
           </button>
         </div>
@@ -816,6 +838,7 @@
           </div>
         </div>
       </div>
+      </template>
 
       <!-- Group Info Panel — stays contained within the chat page itself -->
       <Transition
@@ -839,7 +862,7 @@
       >
         <aside
             v-if="showGroupInfoPanel"
-            class="absolute inset-y-0 end-0 z-40 w-full max-w-sm bg-white shadow-2xl flex flex-col"
+            class="absolute inset-y-0 inset-e-0 z-40 w-full max-w-sm bg-white shadow-2xl flex flex-col"
         >
           <!-- Panel Header -->
           <div class="flex items-center justify-between h-16 shrink-0 px-5 border-b border-primary-100">
@@ -914,7 +937,10 @@
                   <div v-else :class="['w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm shrink-0', colorFor(m.userId)]">
                     {{ m.name[0] }}
                   </div>
-
+                  <span
+                      class="absolute bottom-0 inset-e-0 w-2.5 h-2.5 rounded-full ring-2 ring-white"
+                      :class="onlineUserIds.includes(m.userId) ? 'bg-emerald-500' : 'bg-primary-200'"
+                  />
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-primary-800 truncate">
                       {{ m.name }}<span v-if="m.userId === currentUser.id" class="text-primary-400 font-normal"> (you)</span>
@@ -954,7 +980,7 @@
           <Teleport to="body">
             <div
                 v-if="showAddMemberDialog"
-                class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
+                class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-60 p-4"
                 @click.self="closeAddMemberDialog"
             >
               <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full max-h-[70vh] flex flex-col">
@@ -1012,7 +1038,7 @@
       >
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
           <!-- بنر -->
-          <div class="h-28 bg-gradient-to-l from-primary-500 to-primary-400 relative">
+          <div class="h-28 bg-linear-to-l from-primary-500 to-primary-400 relative">
             <img v-if="viewedProfile.coverUrl" :src="viewedProfile.coverUrl" class="w-full h-full object-cover" alt="" />
             <button @click="showUserProfileDialog = false" class="absolute top-3 inset-e-3 p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50">
               <Icon icon="mingcute:close-line" class="text-lg" />
@@ -1024,13 +1050,25 @@
                 v-if="viewedProfile.avatarUrl"
                 :src="viewedProfile.avatarUrl"
                 class="w-24 h-24 rounded-full object-cover border-2 border-white shadow-lg"
-            />
+             alt="profile"/>
             <div v-else class="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-white border-4 border-white shadow-lg" :class="colorFor(viewedProfile.id)">
               {{ viewedProfile.name[0] }}
             </div>
             <h3 class="mt-3 text-lg font-bold text-primary-900">{{ viewedProfile.name }}</h3>
             <p class="text-sm text-primary-400" dir="ltr">@{{ viewedProfile.username }}</p>
             <p v-if="viewedProfile.bio" class="mt-2 text-sm text-primary-600 text-center">{{ viewedProfile.bio }}</p>
+            <div v-if="viewedProfile.socialLinks?.some(Boolean)" class="mt-4 flex items-center gap-2">
+              <a
+              v-for="(link, i) in viewedProfile.socialLinks.filter(Boolean)"
+              :key="i"
+              :href="link!"
+              target="_blank"
+              rel="noopener"
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors"
+              >
+              <Icon icon="mdi:link-variant" class="text-base" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -1038,7 +1076,7 @@
     <Teleport to="body">
       <div
           v-if="showAttachmentPreviewDialog"
-          class="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          class="fixed inset-0 z-70 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
           @click.self="closeAttachmentPreview"
       >
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col">
@@ -1056,7 +1094,7 @@
               </div>
               <button
                   @click="removePendingFile(i)"
-                  class="absolute top-1 end-1 p-1 rounded-full bg-black/50 text-white hover:bg-black/70"
+                  class="absolute top-1 inset-e-1 p-1 rounded-full bg-black/50 text-white hover:bg-black/70"
               >
                 <Icon icon="mingcute:close-line" class="text-xs" />
               </button>
@@ -1199,6 +1237,9 @@ const {
   uploadGroupAvatar: apiUploadGroupAvatar,
   sendMessageWithFiles: apiSendMessageWithFiles,
   fetchUserProfile,
+  addOptimisticMessage,
+  replaceMessage,
+  markMessageFailed,
 } = useGroupChat()
 const activeGroupId = ref<number | null>(null)
 
@@ -1214,6 +1255,9 @@ async function openUserProfile(userId: number): Promise<void> {
     showUserProfileDialog.value = true
   }
 }
+
+const onlineUserIds = ref<number[]>([])
+let currentPresenceChannel: string | null = null
 
 function subscribeToGroup(groupId: number): void {
   const { $echo } = useNuxtApp()
@@ -1263,6 +1307,22 @@ function subscribeToGroup(groupId: number): void {
           }
         })
       })
+
+  if (currentPresenceChannel) {
+    $echo.leave(currentPresenceChannel)
+  }
+  currentPresenceChannel = `online-group.${groupId}`
+  onlineUserIds.value = []
+  $echo.join(currentPresenceChannel)
+      .here((users: { id: number }[]) => {
+        onlineUserIds.value = users.map(u => u.id)
+      })
+      .joining((user: { id: number }) => {
+        if (!onlineUserIds.value.includes(user.id)) onlineUserIds.value.push(user.id)
+      })
+      .leaving((user: { id: number }) => {
+        onlineUserIds.value = onlineUserIds.value.filter(id => id !== user.id)
+      })
 }
 
 const activeGroup = computed<ApiGroup | undefined>(() =>
@@ -1270,7 +1330,9 @@ const activeGroup = computed<ApiGroup | undefined>(() =>
 )
 
 const members = computed(() => activeGroupId.value ? (membersByGroup[activeGroupId.value] ?? []) : [])
-const onlineMembers = computed(() => members.value)
+const onlineMembers = computed(() =>
+    members.value.filter(m => onlineUserIds.value.includes(m.userId))
+)
 const myRole = computed<'admin' | 'member' | null>(() => {
   const me = members.value.find(m => m.userId === currentUser.value.id)
       return me?.role ?? null
@@ -1913,15 +1975,36 @@ async function sendMessage(): Promise<void> {
     return
   }
 
-  await apiSendMessage(activeGroupId.value, {
+  const groupId = activeGroupId.value
+  const replyToId = replyTo.value?.id ?? null
+  const tempId = -Date.now()
+  addOptimisticMessage(groupId, {
+        id: tempId,
+        senderId: currentUser.value.id,
         text,
-        reply_to: replyTo.value?.id,
+        timestamp: new Date().toISOString(),
+        type: 'text',
+        pinned: false,
+        edited: false,
+        replyTo: replyToId,
+        reactions: {},
+        readBy: [],
+        mentions: [],
+        todoRef: null,
+        attachments: [],
+        status: 'pending',
   })
 
   inputText.value = ''
   replyTo.value = null
   showAttachMenu.value = false
   scrollToBottom()
+  const real = await apiSendMessage(groupId, { text, reply_to: replyToId ?? undefined })
+  if (real) {
+    replaceMessage(groupId, tempId, real)
+  } else {
+    markMessageFailed(groupId, tempId)
+  }
 }
 
 function simulateReply(): void {
@@ -1929,11 +2012,6 @@ function simulateReply(): void {
   if (!bots.length || Math.random() > 0.4) return
 
   const bot = bots[Math.floor(Math.random() * bots.length)]
-  const replies = [
-    'باشه، ممنون! 👍', 'فهمیدم، روش کار می‌کنم', 'عالیه! 🔥',
-    'اوکی', 'باشه، چشم', 'مطمئنی؟ 🤔', 'ممنون از اطلاع‌رسانی ✅',
-    'چقدر خوب!', 'بریم جلو 🚀',
-  ]
 
   const delay = 1500 + Math.random() * 2000
 
@@ -2027,10 +2105,7 @@ async function scrollToMessage(msgId: number): Promise<void> {
 
 function scrollToBottom(): void {
   nextTick(() => {
-    const { $scrollTo } = useNuxtApp()
-    if (bottomAnchor.value) {
-      $scrollTo(bottomAnchor.value, 300, { container: messagesContainer.value ?? undefined })
-    }
+    bottomAnchor.value?.scrollIntoView({ behavior: 'smooth', block: 'end' })
     isNearBottom.value = true
     unreadCount.value = 0
   })
@@ -2069,6 +2144,9 @@ onMounted((): void => {
 onUnmounted(() => {
   if (currentEchoChannel) {
     useNuxtApp().$echo.leave(currentEchoChannel)
+  }
+  if (currentPresenceChannel) {
+    useNuxtApp().$echo.leave(currentPresenceChannel)
   }
 })
 

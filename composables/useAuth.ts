@@ -16,6 +16,7 @@ export interface AuthUser {
     language?: 'fa' | 'en'
     avatar_url?: string | null
     cover_url?: string | null
+    socialLinks?: (string | null)[]
 }
 
 const authState = reactive({
@@ -156,8 +157,10 @@ export function useAuth() {
     }
 
     // ─── ویرایش اطلاعات پروفایل ─────────────────────────────────────────
-    async function updateProfile(data: { name: string; username: string; email: string; phone?: string; gender?: string; bio?: string }): Promise<boolean> {        try {
-            const res = await api.put('/auth/profile', data)
+    async function updateProfile(data: { name: string; username: string; email: string; phone?: string; gender?: string; bio?: string; socialLinks?: string[] }): Promise<boolean> {
+        try {
+            const { socialLinks, ...rest } = data
+            const res = await api.put('/auth/profile', { ...rest, social_links: socialLinks })
             authState.user = res.data.user
             toast.success('اطلاعات ذخیره شد')
             return true
