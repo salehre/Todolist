@@ -50,7 +50,7 @@ export interface UserProfile {
     avatarUrl: string | null
     coverUrl: string | null
     bio: string | null
-    socialLinks: (string | null)[]
+    social_links: { platform: string; url: string }[]
 }
 
 export function useGroupChat() {
@@ -208,14 +208,13 @@ export function useGroupChat() {
         }
     }
 
-    async function addMember(groupId: number, userId: number): Promise<boolean> {
+    async function inviteMember(groupId: number, userId: number): Promise<boolean> {
         try {
-            await api.post(`/groups/${groupId}/members`, { user_id: userId })
-            await fetchMembers(groupId)
-            toast.success('عضو اضافه شد')
+            await api.post(`/groups/${groupId}/invites`, { user_id: userId })
+            toast.success('دعوت‌نامه فرستاده شد')
             return true
         } catch (e: any) {
-            toast.error(getErrorMessage(e, 'اضافه‌کردن عضو ناموفق بود'))
+            toast.error(getErrorMessage(e, 'فرستادن دعوت ناموفق بود'))
             return false
         }
     }
@@ -356,7 +355,7 @@ export function useGroupChat() {
         membersByGroup,
         fetchMembers,
         searchUsers,
-        addMember,
+        inviteMember,
         removeMember,
         updateMemberRole,
         updateGroup,

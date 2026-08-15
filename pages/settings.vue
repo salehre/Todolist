@@ -179,7 +179,6 @@
       <div
           v-if="isDialogOpen"
           class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
-          @click.self="closeEditDialog"
       >
         <div class="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white shadow-2xl">
           <div class="sticky top-0 z-10 flex items-center justify-between border-b border-primary-100 bg-white p-6">
@@ -257,15 +256,42 @@
             <div>
               <label class="mb-2 block text-sm font-medium text-primary-700">لینک‌های شبکه‌های اجتماعی</label>
               <div class="space-y-2">
-                <input
-                    v-for="i in 3"
-                    :key="i"
-                    v-model="form.socialLinks[i - 1]"
-                    type="url"
-                    dir="ltr"
-                    :placeholder="`https://... (لینک ${i}, اختیاری)`"
-                    class="w-full rounded-xl border border-primary-200 px-4 py-2 text-left transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-                />
+                <div v-for="(link, i) in form.socialLinks" :key="i" class="flex gap-2" data-social-dropdown>
+                  <div class="relative shrink-0">
+                    <button
+                        type="button"
+                        @click="toggleSocialDropdown(i)"
+                        class="flex h-10 w-10 items-center justify-center rounded-xl border border-primary-200 hover:bg-primary-50 transition-colors"
+                    >
+                      <Icon :icon="platformInfo(link.platform).icon" class="text-lg" :class="link.platform !== 'other' ? 'text-primary-600' : 'text-slate-400'" />
+                    </button>
+
+                    <div
+                        v-if="openSocialDropdown === i"
+                        class="absolute z-20 mt-1 grid grid-cols-4 gap-1 rounded-xl border border-primary-100 bg-white p-2 shadow-lg w-45"
+                    >
+                      <button
+                          v-for="p in socialPlatforms"
+                          :key="p.value"
+                          type="button"
+                          @click="selectPlatform(i, p.value)"
+                          v-tooltip="p.label"
+                          class="flex items-center justify-center rounded-lg p-2 hover:bg-primary-50 transition-colors"
+                          :class="link.platform === p.value ? 'bg-primary-100' : ''"
+                      >
+                        <Icon :icon="p.icon" class="text-lg" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <input
+                      v-model="link.url"
+                      type="url"
+                      dir="ltr"
+                      :placeholder="`لینک ${platformInfo(link.platform).label}`"
+                      class="flex-1 rounded-xl border border-primary-200 px-4 py-2 text-left transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -294,9 +320,10 @@
 
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
-import { ref, reactive, computed, h, defineComponent } from 'vue'
+import { ref, reactive, computed, h, defineComponent, onMounted, onUnmounted } from 'vue'
 import { useTheme } from '~/composables/useTheme'
 import { useAuth } from '~/composables/useAuth'
+import { socialPlatforms, platformInfo } from '~/utils/socialPlatforms'
 
 useHead(() => ({
   titleTemplate: `%s - Setting`
@@ -321,13 +348,18 @@ const form = reactive({
   phone: '',
   gender: '' as '' | 'male' | 'female' | 'company',
   bio: '',
-  socialLinks: ['', '', ''] as string[],
+  socialLinks: [
+    { platform: 'other', url: '' },
+    { platform: 'other', url: '' },
+    { platform: 'other', url: '' },
+  ] as { platform: string; url: string }[],
 })
 
 const socialLinksLabel = computed(() => {
-  const links = (authState.user?.socialLinks ?? []).filter(Boolean)
+  const links = authState.user?.social_links ?? []
   if (links.length === 0) return ''
-  return `${links.length} لینک ثبت‌شده`
+  return links.map(l => l.platform === 'other' ? ' ' : platformInfo(l.platform).label).join(' - ')
+
 })
 
 const genderLabel = computed(() => {
@@ -344,11 +376,11 @@ function openEditDialog() {
   form.phone = authState.user?.phone || ''
   form.gender = authState.user?.gender || ''
   form.bio = authState.user?.bio || ''
-  form.socialLinks = [
-    authState.user?.socialLinks?.[0] || '',
-    authState.user?.socialLinks?.[1] || '',
-    authState.user?.socialLinks?.[2] || '',
-  ]
+  const existing = authState.user?.social_links || []
+  form.socialLinks = [0, 1, 2].map(i => ({
+        platform: existing[i]?.platform || 'other',
+        url: existing[i]?.url || '',
+  }))
   isDialogOpen.value = true
 }
 
@@ -361,13 +393,33 @@ async function saveProfile() {
   try {
     const ok = await updateProfile({
       ...form,
-      socialLinks: form.socialLinks.filter(link => link.trim() !== ''),
+      social_links: form.socialLinks.filter(l => l.url.trim() !== ''),
     })
     if (ok) isDialogOpen.value = false
   } finally {
     saving.value = false
   }
 }
+
+const openSocialDropdown = ref<number | null>(null)
+
+function toggleSocialDropdown(i: number): void {
+  openSocialDropdown.value = openSocialDropdown.value === i ? null : i
+}
+
+function selectPlatform(i: number, value: string): void {
+  form.socialLinks[i].platform = value
+  openSocialDropdown.value = null
+}
+
+function handleClickOutsideSocial(e: MouseEvent): void {
+  if (openSocialDropdown.value !== null && !(e.target as HTMLElement).closest('[data-social-dropdown]')) {
+    openSocialDropdown.value = null
+  }
+}
+
+onMounted(() => document.addEventListener('click', handleClickOutsideSocial))
+onUnmounted(() => document.removeEventListener('click', handleClickOutsideSocial))
 
 async function onAvatarChange(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]

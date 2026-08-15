@@ -38,9 +38,7 @@
             class="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
         >
           <Icon icon="mdi:bell-outline" class="text-lg" />
-          <span
-              class="absolute inset-e-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"
-          />
+          <span class="absolute inset-e-1.5 top-1.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"/>
         </button>
 
         <button

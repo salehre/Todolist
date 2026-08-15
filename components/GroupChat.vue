@@ -1057,16 +1057,17 @@
             <h3 class="mt-3 text-lg font-bold text-primary-900">{{ viewedProfile.name }}</h3>
             <p class="text-sm text-primary-400" dir="ltr">@{{ viewedProfile.username }}</p>
             <p v-if="viewedProfile.bio" class="mt-2 text-sm text-primary-600 text-center">{{ viewedProfile.bio }}</p>
-            <div v-if="viewedProfile.socialLinks?.some(Boolean)" class="mt-4 flex items-center gap-2">
+            <div v-if="viewedProfile.social_links?.length" class="mt-4 flex items-center gap-2">
               <a
-              v-for="(link, i) in viewedProfile.socialLinks.filter(Boolean)"
-              :key="i"
-              :href="link!"
-              target="_blank"
-              rel="noopener"
-              class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors"
+                  v-for="link in viewedProfile.social_links"
+                  :key="link.platform + link.url"
+                  :href="link.url"
+                  target="_blank"
+                  rel="noopener"
+                  v-tooltip="link.url"
+                  class="flex h-9 w-9 items-center justify-center rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors"
               >
-              <Icon icon="mdi:link-variant" class="text-base" />
+                <Icon :icon="platformInfo(link.platform).icon" class="text-base" />
               </a>
             </div>
           </div>
@@ -1131,6 +1132,8 @@ import { useGroupChat, type ApiGroup, type ApiMessage } from '~/composables/useG
 import { useAuth } from '~/composables/useAuth'
 import {id} from "postcss-selector-parser";
 import api, { getErrorMessage } from '~/src/services/api'
+import { platformInfo } from '~/utils/socialPlatforms'
+import { useNotifications } from '~/composables/useNotifications'
 
 interface Member {
   id: number
@@ -1230,7 +1233,7 @@ const {
   membersByGroup,
   fetchMembers,
   searchUsers,
-  addMember: apiAddMember,
+  inviteMember: apiinviteMember,
   removeMember: apiRemoveMember,
   updateMemberRole: apiUpdateMemberRole,
   updateGroup: apiUpdateGroup,
@@ -1343,9 +1346,11 @@ const messages = computed<ApiMessage[]>(() =>
     activeGroupId.value ? (messagesByGroup[activeGroupId.value] ?? []) : []
 )
 
+const { clearMessageNotice } = useNotifications()
 async function selectGroup(id: number): Promise<void> {
   activeGroupId.value = id
   subscribeToGroup(id)
+  clearMessageNotice(id)
   if (!membersByGroup[id]) {
     await fetchMembers(id)
   }
@@ -1478,7 +1483,7 @@ function handleMemberSearch(): void {
 
 async function handleAddMember(userId: number): Promise<void> {
   if (!activeGroupId.value) return
-  const ok = await apiAddMember(activeGroupId.value, userId)
+  const ok = await apiInviteMember(activeGroupId.value, userId)
   if (ok) {
     memberSearchQuery.value = ''
     memberSearchResults.value = []
