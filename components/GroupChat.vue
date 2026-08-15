@@ -119,7 +119,7 @@
       </div>
 
       <!-- Floating New Group Button -->
-      <div class="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center">
+      <div class="pointer-events-none absolute inset-x-3 bottom-3 flex justify-start">
         <button
             @click="openCreateGroupDialog"
             v-tooltip="'New Group'"
@@ -225,7 +225,7 @@
       <template v-else>
       <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50">
         <div class="px-5 py-4 flex items-center justify-between">
-          <div class="flex items-center gap-3 min-w-0">
+          <div class="flex items-center gap-3 min-w-0 cursor-pointer" @click.stop="showGroupInfoPanel = true; openMenu = null">
             <!-- Group Avatar -->
             <div class="w-10 h-10 rounded-full bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-md shadow-primary-200 z-50 overflow-hidden shrink-0">
               <img v-if="activeGroup?.avatarUrl" :src="activeGroup.avatarUrl" class="w-full h-full object-cover" alt="" />
@@ -713,7 +713,7 @@
         </div>
 
         <!-- Reply Preview -->
-        <div v-if="replyTo" class="mb-2 px-3 py-2 bg-primary-50 rounded-xl border border-primary-200 flex items-center gap-2">
+        <div v-if="replyTo" class="mb-2 px-3 py-2 bg-primary-50 rounded-full border border-primary-200 flex items-center gap-2">
           <div class="flex-1">
             <p class="text-xs font-medium text-primary-500">Replying to {{ getMemberName(replyTo.senderId) }}</p>
             <p class="text-xs text-primary-400 truncate">{{ replyTo.text }}</p>
@@ -724,7 +724,7 @@
         </div>
 
         <!-- Edit Preview -->
-        <div v-if="editingMessage" class="mb-2 px-3 py-2 bg-amber-50 rounded-xl border border-amber-200 flex items-center gap-2">
+        <div v-if="editingMessage" class="mb-2 px-3 py-2 bg-amber-50 rounded-full border border-amber-200 flex items-center gap-2">
           <Icon icon="mi:edit" class="text-amber-500 shrink-0" />
           <p class="text-xs text-amber-600 flex-1 truncate">Editing: {{ editingMessage.text }}</p>
           <button @click="cancelEdit" class="text-amber-400 hover:text-amber-600">
@@ -733,27 +733,23 @@
         </div>
 
         <!-- Input Area -->
-        <div ref="inputAreaRef" class="bg-white rounded-2xl border border-primary-200 shadow-sm overflow-hidden">
+        <div ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
 
           <!-- Attachment Menu -->
           <div v-if="showAttachMenu" class="px-4 pt-3 pb-2 border-b border-primary-100">
             <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
 
-            <label class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 cursor-pointer mb-1">
+            <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
               <Icon icon="solar:gallery-linear" class="text-primary-500" />
-              Upload Image
-            </label>
-            <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-              <Icon icon="solar:gallery-linear" class="text-primary-500" />
-              Upload Image(s)
+              Upload Images
             </button>
 
-            <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+            <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
               <Icon icon="solar:document-linear" class="text-primary-500" />
-              Upload File(s)
+              Upload Files
             </button>
 
-            <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-xl bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
+            <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
               <Icon icon="mingcute:task-2-line" class="text-primary-500" />
               Create Task
             </button>
@@ -793,19 +789,19 @@
             <button
                 v-if="!isRecording"
                 @click="startRecording"
-                :class="['p-2 rounded-xl transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
+                :class="['p-2 rounded-full transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
                 v-tooltip="'Record voice message'"
             >
-              <Icon icon="solar:microphone-bold" class="text-lg" />
+              <Icon icon="mdi:microphone" class="text-xl" />
             </button>
 
             <!-- Attachment Button -->
             <button
                 @click="showAttachMenu = !showAttachMenu"
-                :class="['p-2 rounded-xl transition-all shrink-0', showAttachMenu ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
+                :class="['p-2 rounded-full transition-all shrink-0', showAttachMenu ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
                 v-tooltip="'Attach file or image'"
             >
-              <Icon icon="solar:paperclip-linear" class="text-lg" />
+              <Icon icon="lucide:paperclip" class="text-lg" />
             </button>
 
             <!-- Text Input -->
@@ -819,21 +815,21 @@
                 placeholder="Type a message..."
                 class="flex-1 resize-none bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
                 style="field-sizing: content"
-            ></textarea>
+            />
 
             <!-- Send Button -->
             <button
                 @click="sendMessage"
                 :disabled="!inputText.trim()"
                 :class="[
-              'p-2.5 rounded-xl transition-all shrink-0',
+              'p-2.5 rounded-full transition-all shrink-0',
               inputText.trim()
                 ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95'
                 : 'bg-primary-100 text-primary-300 cursor-not-allowed'
             ]"
                 v-tooltip="'Send message'"
             >
-              <Icon icon="solar:plain-bold" class="text-base" />
+              <Icon icon="pepicons-pop:send" class="text-xl" />
             </button>
           </div>
         </div>
