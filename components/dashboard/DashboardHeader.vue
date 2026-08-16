@@ -36,6 +36,7 @@
         <div class="relative" data-dropdown="notif-menu">
           <button
               v-tooltip="'اعلان‌ها'"
+              ref="notifButtonRef"
               @click.stop="toggleNotifDropdown"
               class="relative flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
@@ -45,25 +46,28 @@
                 :class="hasUnread() ? '' : 'hidden'"
             />
           </button>
+        </div>
 
+        <Teleport to="body">
           <Transition name="dropdown">
             <div
                 v-if="showNotifDropdown"
+                ref="notifPanelRef"
                 data-dropdown="notif-menu"
                 data-dropdown-panel
-                class="absolute top-full mt-1 max-h-96 w-80 overflow-y-auto rounded-xl border border-slate-200/70 bg-white py-1 shadow-lg shadow-slate-200/50 z-[9999]"
-                :class="notifAlign === 'right' ? 'left-0 origin-top-left' : 'right-0 origin-top-right'"
+                class="fixed max-h-96 w-80 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-xl py-2 shadow-lg z-[9999]"
+                :style="{ top: notifDropdownTop + 'px', left: notifDropdownLeft + 'px' }"
             >
               <div v-if="invites.length === 0 && messageNoticeList.length === 0" class="p-6 text-center text-sm text-slate-400">
                 اعلانی نداری
               </div>
 
               <!-- دعوت‌نامه‌ها -->
-              <div v-for="inv in invites" :key="'invite-' + inv.id" class="border-b border-slate-100 p-3">
+              <div v-for="inv in invites" :key="'invite-' + inv.id" class="border-b relative z-9999 border-slate-100 p-3">
                 <div class="flex items-center gap-2.5">
                   <img v-if="inv.groupAvatarUrl" :src="inv.groupAvatarUrl" class="h-9 w-9 rounded-full object-cover shrink-0" alt="" />
                   <div v-else class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600 text-xs font-bold">
-                    {{ inv.groupName[0] }}
+                    {{ inv.groupName?.[0] ?? '?' }}
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold text-slate-800 truncate">{{ inv.groupName }}</p>
@@ -103,7 +107,7 @@
               </button>
             </div>
           </Transition>
-        </div>
+        </Teleport>
 
         <button
             v-tooltip="'تغییر تم'"
@@ -143,7 +147,8 @@
           :style="{ top: dropdownTop + 'px', left: dropdownLeft + 'px' }"
       >
         <button
-            @click="mobileMenuOpen = false; showNotifDropdown = true"
+            data-dropdown="notif-menu"
+            @click.stop="mobileMenuOpen = false; showNotifDropdown = true"
             class="relative flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
         >
           <Icon icon="mdi:bell-outline" class="text-lg text-slate-400" />
@@ -179,6 +184,7 @@
     <Transition name="dropdown">
       <div
           v-if="showNotifDropdown"
+          data-dropdown="notif-menu"
           class="fixed inset-x-4 top-20 z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200/70 bg-white py-1 shadow-lg shadow-slate-200/50 md:hidden"
       >
         <div v-if="invites.length === 0 && messageNoticeList.length === 0" class="p-6 text-center text-sm text-slate-400">
@@ -188,7 +194,7 @@
           <div class="flex items-center gap-2.5">
             <img v-if="inv.groupAvatarUrl" :src="inv.groupAvatarUrl" class="h-9 w-9 rounded-full object-cover shrink-0" alt="" />
             <div v-else class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-primary-600 text-xs font-bold">
-              {{ inv.groupName[0] }}
+              {{ inv.groupName?.[0] ?? '?' }}
             </div>
             <div class="min-w-0 flex-1">
               <p class="text-xs font-semibold text-slate-800 truncate">{{ inv.groupName }}</p>
@@ -274,10 +280,32 @@ const pageTitle = computed(() => {
 // ─── دراپ‌داون اعلان‌ها (دسکتاپ) ─────────────────────────────────────────
 const showNotifDropdown = ref(false)
 const notifAlign = ref<'left' | 'right'>('right')
+const notifButtonRef = ref<HTMLElement | null>(null)
+const notifPanelRef = ref<HTMLElement | null>(null)
+const notifDropdownTop = ref(0)
+const notifDropdownLeft = ref(0)
 const messageNoticeList = computed(() => Object.values(messageNotices))
+
+function positionNotifDropdown(): void {
+  if (!notifButtonRef.value) return
+  const rect = notifButtonRef.value.getBoundingClientRect()
+  const margin = 8
+  const menuWidth = notifPanelRef.value?.offsetWidth || 320 // w-80
+
+  let left = rect.right - menuWidth // پیش‌فرض: لبه‌ی راست پنل رو لبه‌ی راست دکمه
+  if (left < margin) left = margin
+  if (left + menuWidth > window.innerWidth - margin) left = window.innerWidth - menuWidth - margin
+
+  notifDropdownTop.value = rect.bottom + margin
+  notifDropdownLeft.value = left
+}
 
 function toggleNotifDropdown(): void {
   showNotifDropdown.value = !showNotifDropdown.value
+  if (showNotifDropdown.value) {
+    positionNotifDropdown()
+    nextTick(positionNotifDropdown)
+  }
 }
 
 function handleDropdownClickOutside(e: MouseEvent): void {

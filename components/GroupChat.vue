@@ -294,6 +294,15 @@
                   >
                     Group info
                   </button>
+
+                  <button
+                      v-if="isGroupAdmin"
+                      @click.stop="openMenu = null; confirmDeleteGroup()"
+                      class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-primary-100 mt-1"
+                  >
+                    <Icon icon="mingcute:delete-2-line" class="text-sm" />
+                    حذف گروه
+                  </button>
                 </div>
               </Transition>
             </div>
@@ -414,17 +423,20 @@
 
           <template v-for="(msg, index) in group" :key="msg.id">
             <!-- System Message -->
-            <div v-if="msg.type === 'system'" class="flex justify-center my-2">
-              <div class="flex items-center gap-2 px-3 py-1.5 bg-primary-50 rounded-full border border-primary-100">
-                <Icon icon="mingcute:check-circle-line" class="text-primary-500 text-sm" />
-                <span class="text-xs text-primary-500">{{ msg.text }}</span>
-              </div>
+            <div v-if="msg.type === 'system'" class="flex items-center gap-3 my-4">
+              <div class="flex-1 h-px bg-primary-100" />
+              <span class="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/60 px-3 py-1 text-xs text-primary-400">
+                <Icon icon="mingcute:check-circle-line" class="text-sm text-primary-400" />
+                {{ msg.text }}
+              </span>
+              <div class="flex-1 h-px bg-primary-100" />
             </div>
 
             <!-- Regular Message -->
             <div
-                :id="`message-${msg.id}`"
-                :class="[
+              v-else
+              :id="`message-${msg.id}`"
+              :class="[
               'flex gap-2 group relative transition-all duration-500',
               msg.senderId === currentUser.id ? 'flex-row-reverse' : 'flex-row',
               isSameSenderAsPrev(group, index) ? 'mt-0.5' : 'mt-3',
@@ -949,14 +961,14 @@
                   <!-- مدیر می‌تونه نقش بقیه رو عوض کنه یا حذفشون کنه؛ خودِ فرد هم می‌تونه خودش رو حذف کنه (leave) -->
                   <div v-if="isGroupAdmin && m.userId !== currentUser.id" class="opacity-0 group-hover/member:opacity-100 transition-opacity flex items-center gap-1">
                     <button
-                        @click="apiUpdateMemberRole(activeGroupId!, m.userId, m.role === 'admin' ? 'member' : 'admin')"
+                        @click="confirmRoleChange(m)"
                         v-tooltip="m.role === 'admin' ? 'Make member' : 'Make admin'"
                         class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600"
                     >
                       <Icon icon="mingcute:vip-2-line" class="text-sm" />
                     </button>
                     <button
-                        @click="apiRemoveMember(activeGroupId!, m.userId)"
+                        @click="confirmRemoveMember(m)"
                         v-tooltip="'Remove from group'"
                         class="p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500"
                     >
@@ -965,7 +977,7 @@
                   </div>
                   <button
                       v-else-if="m.userId === currentUser.id"
-                      @click="apiRemoveMember(activeGroupId!, m.userId)"
+                      @click="confirmLeaveGroup"
                       v-tooltip="'Leave group'"
                       class="opacity-0 group-hover/member:opacity-100 transition-opacity p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500"
                   >
@@ -1004,7 +1016,8 @@
                       v-for="u in memberSearchResults"
                       :key="u.id"
                       @click="handleAddMember(u.id)"
-                      class="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-primary-50 transition-colors text-start"
+                      :disabled="addingMemberId !== null"
+                      class="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-primary-50 transition-colors text-start disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <img v-if="u.avatarUrl" :src="u.avatarUrl" class="w-9 h-9 rounded-full object-cover shrink-0" alt="" />
                     <div v-else :class="['w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', colorFor(u.id)]">
@@ -1014,6 +1027,7 @@
                       <p class="text-sm font-medium text-primary-800 truncate">{{ u.name }}</p>
                       <p class="text-xs text-primary-400" dir="ltr">@{{ u.username }}</p>
                     </div>
+                    <Icon v-if="addingMemberId === u.id" icon="mdi:loading" class="animate-spin text-primary-400 shrink-0" />
                   </button>
                   <p v-if="memberSearchQuery.length >= 2 && memberSearchResults.length === 0" class="text-center text-xs text-primary-300 py-4">
                     No users found
@@ -1117,6 +1131,47 @@
             >
               <Icon icon="solar:plain-bold" class="text-base" />
               Send {{ pendingFiles.length }} Files
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+    <Teleport to="body">
+      <div
+          v-if="confirmDialog"
+          class="fixed inset-0 z-75 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          @click.self="closeConfirm"
+      >
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+          <div
+              class="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+              :class="confirmDialog.danger ? 'bg-red-50' : 'bg-primary-50'"
+          >
+            <Icon
+                :icon="confirmDialog.danger ? 'mdi:alert-outline' : 'mdi:help-circle-outline'"
+                class="text-2xl"
+                :class="confirmDialog.danger ? 'text-red-500' : 'text-primary-500'"
+            />
+          </div>
+          <h3 class="mt-3 text-base font-bold text-primary-900">{{ confirmDialog.title }}</h3>
+          <p class="mt-1 text-sm text-primary-500">{{ confirmDialog.message }}</p>
+
+          <div class="mt-5 flex gap-3">
+            <button
+                @click="closeConfirm"
+                :disabled="confirmLoading"
+                class="flex-1 rounded-xl border border-primary-200 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 disabled:opacity-50"
+            >
+              انصراف
+            </button>
+            <button
+                @click="runConfirm"
+                :disabled="confirmLoading"
+                class="flex-1 rounded-xl py-2 text-sm font-medium text-white disabled:opacity-50"
+                :class="confirmDialog.danger ? 'bg-red-500 hover:bg-red-600' : 'bg-primary-500 hover:bg-primary-600'"
+            >
+              <Icon v-if="confirmLoading" icon="mdi:loading" class="animate-spin text-base" />
+              <span v-else>{{ confirmDialog.confirmLabel }}</span>
             </button>
           </div>
         </div>
@@ -1235,12 +1290,13 @@ const {
   membersByGroup,
   fetchMembers,
   searchUsers,
-  inviteMember: apiinviteMember,
+  inviteMember: apiInviteMember,
   removeMember: apiRemoveMember,
   updateMemberRole: apiUpdateMemberRole,
   updateGroup: apiUpdateGroup,
   uploadGroupAvatar: apiUploadGroupAvatar,
   sendMessageWithFiles: apiSendMessageWithFiles,
+  deleteGroup: apiDeleteGroup,
   fetchUserProfile,
   addOptimisticMessage,
   replaceMessage,
@@ -1457,6 +1513,89 @@ async function saveGroupInfo(): Promise<void> {
   })
 }
 
+const confirmDialog = ref<{
+  title: string
+  message: string
+  confirmLabel: string
+  danger?: boolean
+  onConfirm: () => void | Promise<void>
+} | null>(null)
+const confirmLoading = ref(false)
+
+function openConfirm(opts: NonNullable<typeof confirmDialog.value>): void {
+  confirmDialog.value = opts
+}
+function closeConfirm(): void {
+  confirmDialog.value = null
+}
+async function runConfirm(): Promise<void> {
+  if (!confirmDialog.value) return
+  confirmLoading.value = true
+  try {
+    await confirmDialog.value.onConfirm()
+  } finally {
+    confirmLoading.value = false
+    confirmDialog.value = null
+  }
+}
+
+function confirmDeleteGroup(): void {
+  if (!activeGroup.value) return
+  openConfirm({
+    title: 'حذف گروه',
+    message: `مطمئنی می‌خوای گروه «${activeGroup.value.name}» رو کامل حذف کنی؟ این کار غیرقابل بازگشته و همه‌ی پیام‌ها هم پاک می‌شن.`,
+    confirmLabel: 'حذف گروه',
+    danger: true,
+    onConfirm: async () => {
+      const id = activeGroupId.value!
+      const ok = await apiDeleteGroup(id)
+      if (ok) {
+        const next = apiGroups.value.find(g => g.id !== id)
+        activeGroupId.value = next ? next.id : null
+        if (activeGroupId.value) await selectGroup(activeGroupId.value)
+      }
+    },
+  })
+}
+
+function confirmRoleChange(m: { userId: number; name: string; role: 'admin' | 'member' }): void {
+  const makeAdmin = m.role !== 'admin'
+  openConfirm({
+    title: makeAdmin ? 'ارتقا به مدیر' : 'تنزل به عضو عادی',
+    message: `${m.name} ${makeAdmin ? 'مدیر گروه بشه' : 'از مدیریت گروه خارج بشه'}؟`,
+    confirmLabel: 'تأیید',
+    onConfirm: () => apiUpdateMemberRole(activeGroupId.value!, m.userId, makeAdmin ? 'admin' : 'member'),
+  })
+}
+
+function confirmRemoveMember(m: { userId: number; name: string }): void {
+  openConfirm({
+    title: 'حذف عضو',
+    message: `${m.name} از گروه حذف بشه؟`,
+    confirmLabel: 'حذف',
+    danger: true,
+    onConfirm: () => apiRemoveMember(activeGroupId.value!, m.userId),
+  })
+}
+
+function confirmLeaveGroup(): void {
+  if (!activeGroup.value) return
+  openConfirm({
+    title: 'ترک گروه',
+    message: `مطمئنی می‌خوای گروه «${activeGroup.value.name}» رو ترک کنی؟`,
+    confirmLabel: 'ترک گروه',
+    danger: true,
+    onConfirm: async () => {
+      const id = activeGroupId.value!
+      await apiRemoveMember(id, currentUser.value.id)
+      showGroupInfoPanel.value = false
+      const next = apiGroups.value.find(g => g.id !== id)
+      activeGroupId.value = next ? next.id : null
+      if (activeGroupId.value) await selectGroup(activeGroupId.value)
+    },
+  })
+}
+
 function lastMessage(groupId: number): ApiMessage | undefined {
   const arr = messagesByGroup[groupId]
   return arr && arr.length ? arr[arr.length - 1] : undefined
@@ -1483,13 +1622,20 @@ function handleMemberSearch(): void {
   }, 300)
 }
 
+const addingMemberId = ref<number | null>(null)
 async function handleAddMember(userId: number): Promise<void> {
   if (!activeGroupId.value) return
+  if (addingMemberId.value) return // یه درخواست هم‌زمان کافیه
+  addingMemberId.value = userId
+  try {
   const ok = await apiInviteMember(activeGroupId.value, userId)
   if (ok) {
     memberSearchQuery.value = ''
     memberSearchResults.value = []
     showAddMemberDialog.value = false
+  }
+  } finally {
+    addingMemberId.value = null
   }
 }
 
@@ -1513,8 +1659,13 @@ function goToTasks(): void {
 const groupSearchQuery = ref<string>('')
 const filteredGroups = computed(() => {
   const q = groupSearchQuery.value.trim().toLowerCase()
-  if (!q) return apiGroups.value
-  return apiGroups.value.filter(g => g.name.toLowerCase().includes(q))
+  const sorted = [...apiGroups.value].sort((a, b) => {
+        const at = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
+        const bt = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
+        return bt - at
+      })
+  if (!q) return sorted
+  return sorted.filter(g => g.name.toLowerCase().includes(q))
 })
 
 // ─── Groups sidebar: collapse (desktop) ─────────────────────────────────────

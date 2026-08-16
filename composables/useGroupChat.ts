@@ -8,6 +8,7 @@ export interface ApiGroup {
     description: string | null
     avatarUrl: string | null
     membersCount: number
+    lastMessageAt: string | null
 }
 
 export interface ApiMessage {
@@ -66,6 +67,7 @@ export function useGroupChat() {
             description: g.description,
             avatarUrl: g.avatar_url,
             membersCount: g.members_count,
+            lastMessageAt: g.last_message_at ?? null,
         }
     }
 
@@ -186,6 +188,11 @@ export function useGroupChat() {
         if (!messagesByGroup[groupId]) messagesByGroup[groupId] = []
         if (messagesByGroup[groupId].some(m => m.id === message.id)) return
         messagesByGroup[groupId].push(message)
+        bumpGroupLastMessage(groupId, message.timestamp)
+    }
+    function bumpGroupLastMessage(groupId: number, timestamp: string): void {
+        const g = groups.value.find(g => g.id === groupId)
+        if (g) g.lastMessageAt = timestamp
     }
 
     const membersByGroup = reactive<Record<number, GroupMember[]>>({})
@@ -196,6 +203,20 @@ export function useGroupChat() {
             membersByGroup[groupId] = res.data
         } catch (e: any) {
             toast.error(getErrorMessage(e, 'گرفتن لیست اعضا ناموفق بود'))
+        }
+    }
+
+    async function deleteGroup(groupId: number): Promise<boolean> {
+        try {
+            await api.delete(`/groups/${groupId}`)
+            groups.value = groups.value.filter(g => g.id !== groupId)
+            delete messagesByGroup[groupId]
+            delete membersByGroup[groupId]
+            toast.success('گروه حذف شد')
+            return true
+        } catch (e: any) {
+            toast.error(getErrorMessage(e, 'حذف گروه ناموفق بود'))
+            return false
         }
     }
 
@@ -235,6 +256,7 @@ export function useGroupChat() {
     function addOptimisticMessage(groupId: number, message: ApiMessage): void {
         if (!messagesByGroup[groupId]) messagesByGroup[groupId] = []
         messagesByGroup[groupId].push(message)
+        bumpGroupLastMessage(groupId, message.timestamp)
     }
 
     function replaceMessage(groupId: number, tempId: number, real: ApiMessage): void {
@@ -365,5 +387,6 @@ export function useGroupChat() {
         addOptimisticMessage,
         replaceMessage,
         markMessageFailed,
+        deleteGroup,
     }
 }
