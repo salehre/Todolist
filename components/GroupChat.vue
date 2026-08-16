@@ -527,26 +527,6 @@
                       </div>
                     </div>
 
-                    <!-- Voice Message Display -->
-                    <div v-if="msg.voiceMessage" class="mb-2 min-w-50">
-                      <div class="flex items-center gap-2">
-                        <button @click="toggleVoicePlayback(msg.id)" class="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition">
-                          <Icon :icon="isPlaying(msg.id) ? 'solar:pause-bold' : 'solar:play-bold'" class="text-sm" />
-                        </button>
-                        <div class="flex-1">
-                          <div class="relative h-1 bg-white/30 rounded-full overflow-hidden">
-                            <div class="absolute inset-y-0 left-0 bg-white rounded-full" :style="{ width: getPlaybackProgress(msg.id) + '%' }"></div>
-                          </div>
-                          <div class="flex justify-between mt-1">
-                            <span class="text-[10px] opacity-70">{{ formatDuration(msg.voiceMessage.duration) }}</span>
-                            <span class="text-[10px] opacity-70">
-                            <Icon icon="solar:microphone-bold" class="text-xs inline" /> Voice message
-                          </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
                     <!-- Todo Reference -->
                     <div v-if="msg.todoRef" :class="[
                     'flex items-center gap-2 px-3 py-2 rounded-xl mb-1.5 bg-primary-50 border border-primary-200 text-xs text-primary-700 cursor-pointer hover:bg-primary-100 transition-all',
@@ -1184,11 +1164,12 @@
 import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Priority } from '~/types/todoType'
-import PrioritySlider from '~/components/Priorityslider.vue'
+import PrioritySlider from '~/components/PrioritySlider.vue'
 import { useGroupChat, type ApiGroup, type ApiMessage } from '~/composables/useGroupChat'
 import { useAuth } from '~/composables/useAuth'
 import {id} from "postcss-selector-parser";
 import api, { getErrorMessage } from '~/src/services/api'
+import { toast } from 'vue-sonner'
 import { platformInfo } from '~/utils/socialPlatforms'
 import { useNotifications } from '~/composables/useNotifications'
 
@@ -1315,6 +1296,14 @@ async function openUserProfile(userId: number): Promise<void> {
     viewedProfile.value = profile
     showUserProfileDialog.value = true
   }
+}
+
+let typingTimeoutId: number | null = null
+function handleTypingInput(): void {
+  if (!activeGroupId.value) return
+  if (typingTimeoutId) return // تا وقتی تایمر قبلی تموم نشده، دوباره نفرست
+  apiSendTyping(activeGroupId.value)
+  typingTimeoutId = window.setTimeout(() => { typingTimeoutId = null }, 2000)
 }
 
 const onlineUserIds = ref<number[]>([])
@@ -1815,9 +1804,6 @@ const audioChunks = ref<Blob[]>([])
 const recordingDuration = ref<number>(0)
 const recordingInterval = ref<number | null>(null)
 const recordingProgress = ref<number>(0)
-const playingVoiceId = ref<number | null>(null)
-const audioElement = ref<HTMLAudioElement | null>(null)
-const playbackProgress = ref<number>(0)
 
 const inlineTodo = ref<InlineTodoForm>({ title: '', description: '', priority: 'medium' })
 
@@ -1993,48 +1979,6 @@ function previewImage(url: string): void {
   previewImageUrl.value = url
 }
 
-function isPlaying(msgId: number): boolean {
-  return playingVoiceId.value === msgId
-}
-
-function getPlaybackProgress(msgId: number): number {
-  if (playingVoiceId.value === msgId) {
-    return playbackProgress.value
-  }
-  return 0
-}
-
-function toggleVoicePlayback(msgId: number): void {
-  const msg = messages.value.find(m => m.id === msgId)
-  if (!msg?.voiceMessage) return
-
-  if (playingVoiceId.value === msgId) {
-    audioElement.value?.pause()
-    playingVoiceId.value = null
-    playbackProgress.value = 0
-  } else {
-    if (audioElement.value) {
-      audioElement.value.pause()
-    }
-    playingVoiceId.value = msgId
-    const audio = new Audio(msg.voiceMessage.url)
-    audioElement.value = audio
-
-    audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
-        playbackProgress.value = (audio.currentTime / audio.duration) * 100
-      }
-    })
-
-    audio.addEventListener('ended', () => {
-      playingVoiceId.value = null
-      playbackProgress.value = 0
-    })
-
-    audio.play()
-  }
-}
-
 async function startRecording(): Promise<void> {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -2163,35 +2107,6 @@ async function sendMessage(): Promise<void> {
   } else {
     markMessageFailed(groupId, tempId)
   }
-}
-
-function simulateReply(): void {
-  const bots = members.value.filter(m => m.id !== currentUser.value.id && m.online)
-  if (!bots.length || Math.random() > 0.4) return
-
-  const bot = bots[Math.floor(Math.random() * bots.length)]
-
-  const delay = 1500 + Math.random() * 2000
-
-  typingUsers.value.push(bot.id)
-  setTimeout(() => {
-    typingUsers.value = typingUsers.value.filter(id => id !== bot.id)
-    messages.value.push({
-      id:        Date.now() + 1,
-      senderId:  bot.id,
-      text:      replies[Math.floor(Math.random() * replies.length)],
-      timestamp: new Date(),
-      type:      'text',
-      read:      false,
-      pinned:    false,
-      edited:    false,
-      replyTo:   null,
-      reactions: {},
-      todoRef:   null,
-    })
-    if (!isNearBottom.value) unreadCount.value++
-    scrollToBottom()
-  }, delay)
 }
 
 function deleteMessage(id: number): void {
