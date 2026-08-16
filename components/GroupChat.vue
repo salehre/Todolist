@@ -670,8 +670,8 @@
 
       <!-- Scroll to Bottom Button -->
       <div v-if="!isNearBottom" class="absolute bottom-24 inset-e-6 z-20">
-        <button @click="scrollToBottom()" class="flex items-center gap-1.5 px-3 py-2 bg-primary-500 text-white rounded-full text-xs font-medium shadow-lg hover:bg-primary-600 transition-all">
-          <Icon icon="mingcute:arrow-down-line" />
+        <button @click="scrollToBottom()" class="flex items-center gap-1.5 p-2.5 bg-primary-500 text-white rounded-full text-sm font-medium shadow-lg hover:bg-primary-600 transition-all">
+          <Icon icon="ep:arrow-down-bold" class="text-lg" />
           <span v-if="unreadCount > 0">{{ unreadCount }} new</span>
         </button>
       </div>
