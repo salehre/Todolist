@@ -9,6 +9,7 @@ export interface ApiGroup {
     avatarUrl: string | null
     membersCount: number
     lastMessageAt: string | null
+    createdAt: string
 }
 
 export interface ApiMessage {
@@ -68,6 +69,7 @@ export function useGroupChat() {
             avatarUrl: g.avatar_url,
             membersCount: g.members_count,
             lastMessageAt: g.last_message_at ?? null,
+            createdAt: g.created_at,
         }
     }
 
@@ -139,11 +141,10 @@ export function useGroupChat() {
     async function deleteMessage(groupId: number, messageId: number): Promise<void> {
         try {
             await api.delete(`/groups/${groupId}/messages/${messageId}`)
-            // حذف محلی رو دستی انجام می‌دیم، چون معمولاً event مخصوص حذف بلافاصله
-            // نمی‌رسه؛ فعلاً optimistic حذفش می‌کنیم
             if (messagesByGroup[groupId]) {
                 messagesByGroup[groupId] = messagesByGroup[groupId].filter(m => m.id !== messageId)
             }
+            recomputeGroupLastMessage(groupId)
         } catch (e: any) {
             toast.error(getErrorMessage(e, 'حذف پیام ناموفق بود'))
         }
@@ -170,6 +171,7 @@ export function useGroupChat() {
         if (messagesByGroup[groupId]) {
             messagesByGroup[groupId] = messagesByGroup[groupId].filter(m => m.id !== messageId)
         }
+        recomputeGroupLastMessage(groupId)
     }
 
     async function sendTyping(groupId: number): Promise<void> {
@@ -287,6 +289,14 @@ export function useGroupChat() {
             toast.error(getErrorMessage(e, 'تغییر نقش ناموفق بود'))
             return false
         }
+    }
+
+    function recomputeGroupLastMessage(groupId: number): void {
+        const g = groups.value.find(g => g.id === groupId)
+        if (!g) return
+        const arr = messagesByGroup[groupId]
+        const last = arr && arr.length ? arr[arr.length - 1] : null
+        g.lastMessageAt = last ? last.timestamp : null
     }
 
     async function updateGroup(groupId: number, data: { name?: string; description?: string }): Promise<boolean> {

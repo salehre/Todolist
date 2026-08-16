@@ -1023,7 +1023,7 @@
                     <div v-else :class="['w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0', colorFor(u.id)]">
                       {{ u.name[0] }}
                     </div>
-                    <div class="min-w-0">
+                    <div class="flex-1 min-w-0">
                       <p class="text-sm font-medium text-primary-800 truncate">{{ u.name }}</p>
                       <p class="text-xs text-primary-400" dir="ltr">@{{ u.username }}</p>
                     </div>
@@ -1167,7 +1167,7 @@
             <button
                 @click="runConfirm"
                 :disabled="confirmLoading"
-                class="flex-1 rounded-xl py-2 text-sm font-medium text-white disabled:opacity-50"
+                class="flex-1 flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-medium text-white disabled:opacity-50"
                 :class="confirmDialog.danger ? 'bg-red-500 hover:bg-red-600' : 'bg-primary-500 hover:bg-primary-600'"
             >
               <Icon v-if="confirmLoading" icon="mdi:loading" class="animate-spin text-base" />
@@ -1660,8 +1660,8 @@ const groupSearchQuery = ref<string>('')
 const filteredGroups = computed(() => {
   const q = groupSearchQuery.value.trim().toLowerCase()
   const sorted = [...apiGroups.value].sort((a, b) => {
-        const at = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0
-        const bt = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0
+    const at = new Date(a.lastMessageAt ?? a.createdAt).getTime()
+    const bt = new Date(b.lastMessageAt ?? b.createdAt).getTime()
         return bt - at
       })
   if (!q) return sorted

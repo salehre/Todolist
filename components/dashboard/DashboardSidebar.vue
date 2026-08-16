@@ -19,7 +19,7 @@
       :class="asideClasses"
   >
     <div
-        class="flex h-16 w-64 shrink-0 items-center border-b border-slate-100 px-3"
+        class="flex h-16 w-full shrink-0 items-center border-b border-slate-100 px-3"
         :class="iconOnly ? 'md:w-19 md:justify-center' : 'justify-between'"
     >
       <NuxtLink
@@ -63,7 +63,7 @@
 
     <nav
         ref="navEl"
-        class="relative w-64 flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-3 py-4"
+        class="relative w-full flex-1 space-y-1 overflow-y-auto overflow-x-hidden px-3 py-4"
         :class="iconOnly ? 'md:w-19' : ''"
     >
       <div
