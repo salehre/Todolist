@@ -400,10 +400,12 @@
       </Teleport>
 
       <!-- Messages Area -->
-      <div
-          ref="messagesContainer"
-          class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar min-h-0 space-y-1 pb-32"
-      >
+        <div
+            ref="messagesContainer"
+            @scroll="onScroll"
+            class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar min-h-0 space-y-1"
+            :style="{ paddingBottom: bottomAreaHeight + 'px', opacity: messagesReady ? 1 : 0 }"
+        >
         <div
             v-if="!loadingMessages && messages.length === 0"
             class="flex h-full items-center justify-center"
@@ -668,7 +670,7 @@
 
       <!-- Scroll to Bottom Button -->
       <div v-if="!isNearBottom" class="absolute bottom-24 inset-e-6 z-20">
-        <button @click="scrollToBottom" class="flex items-center gap-1.5 px-3 py-2 bg-primary-500 text-white rounded-full text-xs font-medium shadow-lg hover:bg-primary-600 transition-all">
+        <button @click="scrollToBottom()" class="flex items-center gap-1.5 px-3 py-2 bg-primary-500 text-white rounded-full text-xs font-medium shadow-lg hover:bg-primary-600 transition-all">
           <Icon icon="mingcute:arrow-down-line" />
           <span v-if="unreadCount > 0">{{ unreadCount }} new</span>
         </button>
@@ -686,7 +688,7 @@
       </Teleport>
 
       <!-- Bottom Area: recording / reply / edit / input -->
-      <div class="absolute inset-x-0 bottom-0 shrink-0 px-4 pb-4 pt-2">
+      <div ref="bottomAreaRef" class="absolute inset-x-0 bottom-0 shrink-0 px-4 pb-4 pt-2">
         <!-- Voice Recording UI -->
         <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-xl border border-red-200 flex items-center gap-3">
           <div class="flex items-center gap-2">
@@ -732,26 +734,28 @@
         <div ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
 
           <!-- Attachment Menu -->
-          <Transition name="slide-up">
-            <div v-if="showAttachMenu" class="overflow-hidden px-4 pt-3 pb-2 border-b border-primary-100">
-              <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
-
-              <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-                <Icon icon="solar:gallery-linear" class="text-primary-500" />
-                Upload Images
-              </button>
-
-              <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-                <Icon icon="solar:document-linear" class="text-primary-500" />
-                Upload Files
-              </button>
-
-              <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
-                <Icon icon="mingcute:task-2-line" class="text-primary-500" />
-                Create Task
-              </button>
+          <div
+              class="grid transition-[grid-template-rows] duration-300 ease-in-out"
+              :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
+          >
+            <div class="overflow-hidden">
+              <div class="px-4 pt-3 pb-2 border-b border-primary-100">
+                <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
+                <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+                  <Icon icon="solar:gallery-linear" class="text-primary-500" />
+                  Upload Images
+                </button>
+                <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+                  <Icon icon="solar:document-linear" class="text-primary-500" />
+                  Upload Files
+                </button>
+                <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
+                  <Icon icon="mingcute:task-2-line" class="text-primary-500" />
+                  Create Task
+                </button>
+              </div>
             </div>
-          </Transition>
+          </div>
 
           <!-- Inline Todo Creation -->
           <div v-if="showCreateTodoInline" class="px-4 pt-3 pb-2 border-b border-primary-100 space-y-2">
@@ -1305,6 +1309,8 @@ async function openUserProfile(userId: number): Promise<void> {
 }
 
 let typingTimeoutId: number | null = null
+const messagesReady = ref<boolean>(false)
+
 function handleTypingInput(): void {
   if (!activeGroupId.value) return
   if (typingTimeoutId) return // تا وقتی تایمر قبلی تموم نشده، دوباره نفرست
@@ -1401,6 +1407,7 @@ const messages = computed<ApiMessage[]>(() =>
 
 const { clearMessageNotice } = useNotifications()
 async function selectGroup(id: number): Promise<void> {
+  messagesReady.value = false
   activeGroupId.value = id
   subscribeToGroup(id)
   clearMessageNotice(id)
@@ -1410,6 +1417,12 @@ async function selectGroup(id: number): Promise<void> {
   if (!messagesByGroup[id]) {
     await fetchMessages(id)
   }
+  await nextTick()
+  jumpToBottomInstant()
+  requestAnimationFrame(() => {
+    jumpToBottomInstant()
+    messagesReady.value = true
+  })
   const last = [...(messagesByGroup[id] ?? [])].reverse().find(m => m.status !== 'pending')
   if (last) apiMarkRead(id, last.id)
 }
@@ -1798,6 +1811,9 @@ const unreadCount = ref<number>(0)
 const activeMenuId = ref<number | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
 const bottomAnchor = ref<HTMLElement | null>(null)
+const bottomAreaRef = ref<HTMLElement | null>(null)
+const bottomAreaHeight = ref<number>(80)
+let bottomAreaResizeObserver: ResizeObserver | null = null
 const inputRef = ref<HTMLTextAreaElement | null>(null)
 const menuOrigin = ref<string>('top left')
 const inputAreaRef = ref<HTMLElement | null>(null)
@@ -2187,12 +2203,22 @@ async function scrollToMessage(msgId: number): Promise<void> {
   }
 }
 
-function scrollToBottom(): void {
+function scrollToBottom(instant: boolean = false): void {
   nextTick(() => {
-    bottomAnchor.value?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    const el = messagesContainer.value
+    if (!el) return
+    el.scrollTo({ top: el.scrollHeight, behavior: instant ? 'auto' : 'smooth' })
     isNearBottom.value = true
     unreadCount.value = 0
   })
+}
+
+function jumpToBottomInstant(): void {
+  const el = messagesContainer.value
+  if (!el) return
+  el.scrollTop = el.scrollHeight
+  isNearBottom.value = true
+  unreadCount.value = 0
 }
 
 function onScroll(): void {
@@ -2214,7 +2240,6 @@ onMounted((): void => {
       selectGroup(apiGroups.value[0].id)
     }
   })
-  messagesContainer.value?.addEventListener('scroll', onScroll)
   window.addEventListener('resize', handleWindowResize)
   document.addEventListener('click', handleDropdownClickOutside)
 
@@ -2223,6 +2248,14 @@ onMounted((): void => {
       closeActiveMenu()
     }
   })
+  if (bottomAreaRef.value) {
+    bottomAreaResizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        bottomAreaHeight.value = entry.contentRect.height + 16
+      }
+    })
+    bottomAreaResizeObserver.observe(bottomAreaRef.value)
+  }
 })
 
 onUnmounted(() => {
@@ -2235,9 +2268,9 @@ onUnmounted(() => {
 })
 
 onUnmounted((): void => {
-  messagesContainer.value?.removeEventListener('scroll', onScroll)
   window.removeEventListener('resize', handleWindowResize)
   document.removeEventListener('click', handleDropdownClickOutside)
+  bottomAreaResizeObserver?.disconnect()
   if (recordingInterval.value) clearInterval(recordingInterval.value)
   if (audioElement.value) audioElement.value.pause()
 })
@@ -2249,6 +2282,10 @@ watch(messages, (): void => {
     if (last && activeGroupId.value) apiMarkRead(activeGroupId.value, last.id)
   }
 }, { deep: true })
+
+watch(bottomAreaHeight, () => {
+  if (isNearBottom.value) scrollToBottom()
+})
 </script>
 
 <style scoped>
@@ -2273,18 +2310,6 @@ watch(messages, (): void => {
 .dropdown-leave-from {
   opacity: 1;
   transform: translateY(0) scale(1);
-}
-
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: opacity 0.42s ease, transform 0.42s ease, max-height 0.42s ease;
-  max-height: 300px;
-}
-.slide-up-enter-from,
-.slide-up-leave-to {
-  opacity: 0;
-  transform: translateY(12px);
-  max-height: 0;
 }
 
 @keyframes fade-in {
