@@ -285,6 +285,7 @@
                       @click.stop="emit('toggle-filter'); openMenu = null"
                       class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors"
                   >
+                    <Icon icon="mi:filter" class="text-sm" />
                     Filter messages
                   </button>
 
@@ -292,6 +293,7 @@
                       @click.stop="showGroupInfoPanel = true; openMenu = null"
                       class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors border-t border-primary-100 mt-1"
                   >
+                    <Icon icon="mi:circle-information" class="text-sm" />
                     Group info
                   </button>
 
@@ -300,7 +302,7 @@
                       @click.stop="openMenu = null; confirmDeleteGroup()"
                       class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-primary-100 mt-1"
                   >
-                    <Icon icon="mingcute:delete-2-line" class="text-sm" />
+                    <Icon icon="mi:delete" class="text-sm" />
                     حذف گروه
                   </button>
                 </div>
@@ -700,8 +702,8 @@
             <button @click="cancelRecording" class="p-2 rounded-lg bg-white text-red-600 hover:bg-red-100 transition">
               <Icon icon="mingcute:close-line" />
             </button>
-            <button @click="sendVoiceMessage" class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
-              <Icon icon="solar:plain-bold" />
+            <button @click="stopRecording" class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
+            <Icon :icon="isSendingVoice ? 'mdi:loading' : 'solar:plain-bold'" :class="isSendingVoice ? 'animate-spin' : ''" />
             </button>
           </div>
         </div>
@@ -730,24 +732,26 @@
         <div ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
 
           <!-- Attachment Menu -->
-          <div v-if="showAttachMenu" class="px-4 pt-3 pb-2 border-b border-primary-100">
-            <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
+          <Transition name="slide-up">
+            <div v-if="showAttachMenu" class="overflow-hidden px-4 pt-3 pb-2 border-b border-primary-100">
+              <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
 
-            <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-              <Icon icon="solar:gallery-linear" class="text-primary-500" />
-              Upload Images
-            </button>
+              <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+                <Icon icon="solar:gallery-linear" class="text-primary-500" />
+                Upload Images
+              </button>
 
-            <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-              <Icon icon="solar:document-linear" class="text-primary-500" />
-              Upload Files
-            </button>
+              <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+                <Icon icon="solar:document-linear" class="text-primary-500" />
+                Upload Files
+              </button>
 
-            <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
-              <Icon icon="mingcute:task-2-line" class="text-primary-500" />
-              Create Task
-            </button>
-          </div>
+              <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
+                <Icon icon="mingcute:task-2-line" class="text-primary-500" />
+                Create Task
+              </button>
+            </div>
+          </Transition>
 
           <!-- Inline Todo Creation -->
           <div v-if="showCreateTodoInline" class="px-4 pt-3 pb-2 border-b border-primary-100 space-y-2">
@@ -1240,6 +1244,8 @@ const emit = defineEmits<{
   'toggle-filter': []
   'open-tasks': []
 }>()
+
+const isSendingVoice = ref(false)
 
 const { authState } = useAuth()
 const currentUser = computed(() => ({
@@ -2054,17 +2060,22 @@ const pendingVoiceMessage = ref<{ blob: Blob; url: string; duration: number } | 
 function sendVoiceMessage(): void {
   if (!pendingVoiceMessage.value) return
   if (!activeGroupId.value) return
-
+  if (isSendingVoice.value) return
   const audioFile = new File(
       [pendingVoiceMessage.value.blob],
      'voice-message.webm',
       { type: 'audio/webm' }
       )
-  apiSendMessageWithFiles(activeGroupId.value, [audioFile], {
-        voice_duration: pendingVoiceMessage.value.duration,
-  })
-  pendingVoiceMessage.value = null
-  scrollToBottom()
+  isSendingVoice.value = true
+  const groupId = activeGroupId.value
+  const duration = pendingVoiceMessage.value.duration
+  pendingVoiceMessage.value = null // فوری UI ضبط رو ببند
+
+  apiSendMessageWithFiles(groupId, [audioFile], { voice_duration: duration })
+      .finally(() => {
+        isSendingVoice.value = false
+        scrollToBottom()
+      })
 }
 
 async function sendMessage(): Promise<void> {
@@ -2262,6 +2273,18 @@ watch(messages, (): void => {
 .dropdown-leave-from {
   opacity: 1;
   transform: translateY(0) scale(1);
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: opacity 0.42s ease, transform 0.42s ease, max-height 0.42s ease;
+  max-height: 300px;
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
+  max-height: 0;
 }
 
 @keyframes fade-in {
