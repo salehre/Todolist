@@ -1415,7 +1415,7 @@ async function selectGroup(id: number): Promise<void> {
   if (!messagesByGroup[id]) {
     await fetchMessages(id)
   }
-  const last = messagesByGroup[id]?.[messagesByGroup[id].length - 1]
+  const last = [...(messagesByGroup[id] ?? [])].reverse().find(m => m.status !== 'pending')
   if (last) apiMarkRead(id, last.id)
 }
 
@@ -2319,7 +2319,7 @@ onUnmounted((): void => {
 watch(messages, (): void => {
   if (isNearBottom.value) {
     scrollToBottom()
-    const last = messages.value[messages.value.length - 1]
+    const last = [...messages.value].reverse().find(m => m.status !== 'pending')
     if (last && activeGroupId.value) apiMarkRead(activeGroupId.value, last.id)
   }
 }, { deep: true })
