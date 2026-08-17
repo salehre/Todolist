@@ -236,11 +236,14 @@
             <div class="h-2.5 w-20 rounded bg-primary-100/70"></div>
           </div>
         </div>
-        <div class="flex-1 px-4 py-4 space-y-4">
-          <div v-for="i in 4" :key="i" :class="['flex gap-2', i % 2 === 0 ? 'flex-row-reverse' : 'flex-row']">
+        <div class="flex-1 min-h-0 flex flex-col justify-between px-4 py-4">
+          <div v-for="i in 9" :key="i" :class="['flex gap-2', i % 2 === 0 ? 'flex-row-reverse' : 'flex-row']">
             <div class="h-8 w-8 shrink-0 rounded-full bg-primary-100"></div>
-            <div :class="['h-10 rounded-2xl bg-primary-100', i % 2 === 0 ? 'w-1/3' : 'w-2/5']"></div>
+            <div :class="['h-10 rounded-2xl bg-primary-100', i % 3 === 0 ? 'w-1/4' : i % 2 === 0 ? 'w-1/3' : 'w-2/5']"></div>
           </div>
+        </div>
+        <div class="shrink-0 px-4 pb-4 pt-2">
+          <div class="h-14 rounded-3xl bg-primary-100 border border-primary-200/60"></div>
         </div>
       </div>
 
@@ -745,9 +748,9 @@
         </Teleport>
 
         <!-- Bottom Area: recording / reply / edit / input -->
-        <div ref="bottomAreaRef" class="absolute inset-x-0 bottom-0 shrink-0 px-4 pb-4 pt-2">
+        <div ref="bottomAreaRef" class="absolute inset-x-0 bottom-0 rounded-full shrink-0 px-4 pb-4 pt-2">
           <!-- Voice Recording UI -->
-          <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-xl border border-red-200 flex items-center gap-3">
+          <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-full border border-red-200 flex items-center gap-3">
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
               <span class="text-sm text-red-600 font-medium">Recording... {{ formatDuration(recordingDuration) }}</span>
@@ -843,12 +846,12 @@
             </div>
 
             <!-- Main Input Row -->
-            <div class="flex items-end gap-1.5 p-2">
+            <div class="flex items-center gap-1.5 p-2">
               <!-- Voice Record Button -->
               <button
                   v-if="!isRecording"
                   @click="startRecording"
-                  :class="['p-2 rounded-full transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
+                  :class="['p-2 rounded-full bg-primary-100 transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
                   v-tooltip="'Record voice message'"
               >
                 <Icon icon="mdi:microphone" class="text-xl" />
@@ -857,13 +860,14 @@
               <!-- Attachment Button -->
               <button
                   @click="showAttachMenu = !showAttachMenu"
-                  :class="['p-2 rounded-full transition-all shrink-0', showAttachMenu ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
+                  :class="['p-2.5 rounded-full bg-primary-100 transition-all shrink-0', showAttachMenu ? 'bg-primary-500 text-white' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
                   v-tooltip="'Attach file or image'"
               >
                 <Icon icon="lucide:paperclip" class="text-lg" />
               </button>
 
               <!-- Text Input -->
+              <div class="flex-1 flex items-center bg-primary-50 rounded-full border border-primary-300 px-3 py-1">
               <textarea
                   ref="inputRef"
                   v-model="inputText"
@@ -872,9 +876,10 @@
                   @keydown.enter.shift.exact="inputText += '\n'"
                   rows="1"
                   placeholder="Type a message..."
-                  class="flex-1 resize-none bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
+                  class="flex-1 resize-none bg-transparent items-center text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
                   style="field-sizing: content"
               />
+              </div>
 
               <!-- Send Button -->
               <button
