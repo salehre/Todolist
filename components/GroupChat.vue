@@ -591,8 +591,7 @@
 
                         <!-- Message Text -->
                         <div>
-                          <span v-if="searchQuery && msg.text.toLowerCase().includes(searchQuery.toLowerCase())" v-html="highlightText(msg.text, searchQuery)"></span>
-                          <span v-else>{{ msg.text }}</span>
+                          <span>{{ msg.text }}</span>
                         </div>
 
                         <!-- Timestamp & Reactions -->
@@ -1869,6 +1868,8 @@ const typingUsers = ref<number[]>([])
 const typingNames = ref<Record<number, string>>({})
 const isNearBottom = ref<boolean>(true)
 const unreadCount = ref<number>(0)
+let isProgrammaticScroll = false
+let programmaticScrollTimeout: number | null = null
 const activeMenuId = ref<number | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
 const bottomAnchor = ref<HTMLElement | null>(null)
@@ -1901,7 +1902,7 @@ const pinnedMessages = computed<Message[]>(() => messages.value.filter(m => m.pi
 
 const filteredMessages = computed<Message[]>(() => {
   if (!searchQuery.value) return messages.value
-  return messages.value.filter(m => m.text.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  return messages.value.filter(m => (m.text ?? '').toLowerCase().includes(searchQuery.value.toLowerCase()))
 })
 
 const groupedMessages = computed<Record<string, Message[]>>(() => {
@@ -1947,11 +1948,6 @@ function getDateLabel(date: Date | string): string {
   if (days === 0) return 'Today'
   if (days === 1) return 'Yesterday'
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
-
-function highlightText(text: string, query: string): string {
-  const regex = new RegExp(`(${query})`, 'gi')
-  return text.replace(regex, '<mark class="bg-yellow-200 rounded px-0.5">$1</mark>')
 }
 
 function hasUserReacted(msgId: number, emoji: string): boolean {
@@ -2268,9 +2264,25 @@ function scrollToBottom(instant: boolean = false): void {
   nextTick(() => {
     const el = messagesContainer.value
     if (!el) return
+
+    isProgrammaticScroll = true
+    if (programmaticScrollTimeout) clearTimeout(programmaticScrollTimeout)
+
     el.scrollTo({ top: el.scrollHeight, behavior: instant ? 'auto' : 'smooth' })
     isNearBottom.value = true
     unreadCount.value = 0
+
+    const finish = () => {
+      isProgrammaticScroll = false
+      el.removeEventListener('scrollend', finish)
+    }
+
+    if ('onscrollend' in el) {
+      el.addEventListener('scrollend', finish, { once: true })
+    } else {
+      // fallback برای مرورگرهایی که scrollend رو ساپورت نمی‌کنن
+      programmaticScrollTimeout = window.setTimeout(finish, instant ? 50 : 500)
+    }
   })
 }
 
@@ -2285,10 +2297,11 @@ function jumpToBottomInstant(): void {
 function onScroll(): void {
   const el = messagesContainer.value
   if (!el) return
+  if (activeMenuId.value) closeActiveMenu()
+  if (isProgrammaticScroll) return // در حین اسکرول خودکار، وضعیت دکمه رو دستکاری نکن
   const threshold = 100
   isNearBottom.value = el.scrollHeight - el.scrollTop - el.clientHeight < threshold
   if (isNearBottom.value) unreadCount.value = 0
-  if (activeMenuId.value) closeActiveMenu()
 }
 
 function handleWindowResize(): void {
