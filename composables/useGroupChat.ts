@@ -335,12 +335,14 @@ export function useGroupChat() {
     async function sendMessageWithFiles(
         groupId: number,
         files: File[],
-        extra: { text?: string; reply_to?: number } = {}
+        extra: { text?: string; reply_to?: number; voice_duration?: number } = {}
     ): Promise<void> {
         const formData = new FormData()
         files.forEach(file => formData.append('attachments[]', file))
         if (extra.text) formData.append('text', extra.text)
         if (extra.reply_to) formData.append('reply_to', String(extra.reply_to))
+        if (extra.voice_duration) formData.append('voice_duration', String(extra.voice_duration))
+
 
         try {
             await api.post(`/groups/${groupId}/messages`, formData, {

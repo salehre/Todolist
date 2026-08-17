@@ -515,7 +515,11 @@
 
                       <!-- ویس -->
                       <div v-for="a in msg.attachments.filter(a => a.type === 'voice')" :key="a.id" class="px-3 mt-1">
-                        <VoicePlayer :url="a.url" :duration="a.voiceDuration ?? 0" />
+                        <VoicePlayer
+                            :url="a.url"
+                            :duration="a.voiceDuration ?? 0"
+                            :variant="msg.senderId === currentUser.id ? 'sent' : 'received'"
+                        />
                       </div>
 
                       <!-- فایل‌های عادی -->
@@ -1172,12 +1176,13 @@
 import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Priority } from '~/types/todoType'
-import PrioritySlider from '~/components/PrioritySlider.vue'
+import PrioritySlider from '~/components/Priorityslider.vue'
 import { useGroupChat, type ApiGroup, type ApiMessage } from '~/composables/useGroupChat'
 import { useAuth } from '~/composables/useAuth'
 import {id} from "postcss-selector-parser";
 import api, { getErrorMessage } from '~/src/services/api'
 import { toast } from 'vue-sonner'
+import VoicePlayer from '~/components/VoicePlayer.vue'
 import { platformInfo } from '~/utils/socialPlatforms'
 import { useNotifications } from '~/composables/useNotifications'
 
