@@ -12,6 +12,7 @@
         @delete-todo="handleDeleteFromList"
         @add-todo="openAddDialog"
         @close-mobile="viewMode = 'chat'"
+        :is-loading="isLoading"
     />
 
     <!-- Right panel: TodoDetail (only in todo mode) -->
@@ -140,6 +141,7 @@ const viewMode = ref<'chat' | 'todo'>('chat')
 const {
   todos,
   selectedTodo,
+  isLoading,
   showDeleteDialog,
   isDialogOpen,
   dialogMode,

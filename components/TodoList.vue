@@ -194,11 +194,33 @@
 
     <!-- Todo List with Scroll -->
     <div class="flex-1 overflow-y-auto p-4 custom-scrollbar min-h-0 pb-24 md:pb-24">
-      <div v-if="filteredTodos.length === 0" class="text-center justify-center flex py-10 text-primary-300 text-sm">
+      <!-- اسکلت لودر: در حال گرفتن اولین دسته از تسک‌ها -->
+      <div v-if="isLoading && todos.length === 0" class="space-y-2">
+        <div
+            v-for="i in 6"
+            :key="i"
+            class="bg-white rounded-md p-3 mb-2 border-s-4 border-s-primary-100 animate-pulse"
+        >
+          <div class="flex items-start gap-2">
+            <div class="shrink-0 pt-0.5 h-4 w-4 rounded bg-primary-100"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3.5 w-3/4 rounded bg-primary-100"></div>
+              <div class="h-2.5 w-1/2 rounded bg-primary-100/70"></div>
+            </div>
+            <div class="flex gap-1 shrink-0">
+              <div class="h-7 w-7 rounded-full bg-primary-100"></div>
+              <div class="h-7 w-7 rounded-full bg-primary-100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="filteredTodos.length === 0" class="text-center justify-center flex py-10 text-primary-300 text-sm">
         <Icon icon="mingcute:empty-box-line" class="text-lg relative bottom-0.5 me-0.5" />
         No tasks yet.
       </div>
       <div
+          v-else
           v-for="todo in filteredTodos"
           :key="todo.id"
           :class="[
@@ -307,8 +329,10 @@ const props = withDefaults(defineProps<{
   selectedTodo: Todo | null
   mobileOpen?: boolean
   hideChatButton?: boolean
+  isLoading?: boolean
 }>(), {
-  hideChatButton: true
+  hideChatButton: true,
+  isLoading: false
 })
 
 // ─── Emits ───────────────────────────────────────────────────────────────────

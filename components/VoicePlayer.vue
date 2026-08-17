@@ -4,7 +4,7 @@
         @click="togglePlay"
         :disabled="!isReady"
         class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition disabled:opacity-40"
-        :class="variant === 'sent' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary-100 hover:bg-primary-200'"
+        :class="isSent ? 'bg-white/20 hover:bg-white/30' : 'bg-primary-100 hover:bg-primary-200'"
     >
       <Icon :icon="isPlaying ? 'solar:pause-bold' : 'solar:play-bold'" class="text-sm" />
     </button>
@@ -22,7 +22,7 @@ import WaveSurfer from 'wavesurfer.js'
 
 const props = defineProps<{
   url: string
-  duration: number // مدت‌زمانی که موقع ضبط ثبت شده، فقط برای نمایش اولیه قبل از لود کامل موج
+  duration: number
   variant?: 'sent' | 'received'
 }>()
 
@@ -33,6 +33,8 @@ const currentTime = ref(0)
 const realDuration = ref(0)
 let wavesurfer: WaveSurfer | null = null
 
+const isSent = computed(() => props.variant === 'sent')
+
 const displayTime = computed(() => {
   const total = realDuration.value || props.duration
   const secondsLeft = isPlaying.value || currentTime.value > 0
@@ -42,8 +44,6 @@ const displayTime = computed(() => {
   const secs = Math.floor(secondsLeft % 60)
   return `${mins}:${secs.toString().padStart(2, '0')}`
 })
-
-const isSent = computed(() => props.variant === 'sent')
 
 onMounted(() => {
   if (!waveformEl.value) return
@@ -60,8 +60,6 @@ onMounted(() => {
     normalize: true,
   })
 
-  // صریح load می‌کنیم (نه از طریق آپشن url تو create) که با هر نسخه‌ای از
-  // wavesurfer.js سازگار باشه، چون این آپشن بین نسخه‌ها فرق می‌کنه
   wavesurfer.load(props.url)
 
   wavesurfer.on('ready', () => {
@@ -76,6 +74,9 @@ onMounted(() => {
   })
   wavesurfer.on('timeupdate', (time: number) => {
     currentTime.value = time
+  })
+  wavesurfer.on('error', (err: unknown) => {
+    console.error('wavesurfer error:', err)
   })
 })
 
