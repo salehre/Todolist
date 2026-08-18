@@ -81,12 +81,12 @@
 
       <!-- Groups List -->
       <div class="w-full flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2 pb-20 space-y-1 custom-scrollbar">
-        <p v-if="!sidebarIconOnly && !(loadingGroups && apiGroups.length === 0)" class="px-2.5 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wide text-primary-300">
+        <p v-if="!sidebarIconOnly" class="px-2.5 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wide text-primary-300">
           {{ groupSearchQuery ? `Results — ${filteredGroups.length}` : 'Chats' }}
         </p>
 
         <!-- اسکلت لودر: در حال گرفتن اولین دسته از گروه‌ها -->
-        <div v-if="loadingGroups && apiGroups.length === 0" class="space-y-1.5 px-0.5 pt-1">
+        <div v-if="loadingGroups && apiGroups.length === 0" class="space-y-1">
           <div
               v-for="i in 6"
               :key="i"
@@ -227,50 +227,24 @@
           isMobile && mobilePane !== 'main' ? 'hidden' : 'flex'
         ]"
     >
-      <!-- اسکلت لودر: در حال گرفتن اولین دسته از گروه‌ها، هنوز گروهی برای نمایش نداریم -->
-      <div v-if="loadingGroups && apiGroups.length === 0" class="flex flex-col h-full animate-pulse">
-        <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm px-5 py-4 flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-primary-100"></div>
-          <div class="flex-1 space-y-2">
-            <div class="h-3 w-32 rounded bg-primary-100"></div>
-            <div class="h-2.5 w-20 rounded bg-primary-100/70"></div>
-          </div>
-        </div>
-        <div class="flex-1 min-h-0 flex flex-col justify-between px-4 py-4">
-          <div v-for="i in 9" :key="i" :class="['flex gap-2', i % 2 === 0 ? 'flex-row-reverse' : 'flex-row']">
-            <div class="h-8 w-8 shrink-0 rounded-full bg-primary-100"></div>
-            <div :class="['h-10 rounded-2xl bg-primary-100', i % 3 === 0 ? 'w-1/4' : i % 2 === 0 ? 'w-1/3' : 'w-2/5']"></div>
-          </div>
-        </div>
-        <div class="shrink-0 px-4 pb-4 pt-2">
-          <div class="h-14 rounded-3xl bg-primary-100 border border-primary-200/60"></div>
-        </div>
-      </div>
-
-      <div
-          v-else-if="!loadingGroups && apiGroups.length === 0"
-          class="flex flex-1 items-center justify-center p-6"
-      >
-        <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
-          <Icon icon="mdi:users-group" class="text-3xl text-primary-700" />
-          <strong class="text-lg font-semibold text-primary-600">هنوز هیچ گروهی نداری</strong>
-          <p class="text-sm text-primary-400">یه گروه بساز و با اعضای تیمت شروع به گفتگو و اشتراک‌گذاری تسک کن</p>
-        </div>
-      </div>
 
       <!-- Header -->
-      <template v-else>
         <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50">
           <div class="px-5 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3 min-w-0 cursor-pointer" @click.stop="showGroupInfoPanel = true; openMenu = null">
               <!-- Group Avatar -->
               <div class="w-10 h-10 rounded-full bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-md shadow-primary-200 z-50 overflow-hidden shrink-0">
                 <img v-if="activeGroup?.avatarUrl" :src="activeGroup.avatarUrl" class="w-full h-full object-cover" alt="" />
-                <Icon v-else icon="solar:users-group-rounded-bold" class="text-white text-xl" />
+                <Icon v-else-if="activeGroup" icon="solar:users-group-rounded-bold" class="text-white text-xl" />
+                <div v-else class="w-full h-full bg-white/30 animate-pulse"></div>
               </div>
-              <div class="min-w-0">
-                <h2 class="text-sm font-bold text-primary-900 truncate">{{ activeGroup?.name }}</h2>
+              <div v-if="activeGroup" class="min-w-0">
+                <h2 class="text-sm font-bold text-primary-900 truncate">{{ activeGroup.name }}</h2>
                 <p class="text-xs text-primary-400">{{ onlineMembers.length }} online · {{ members.length }} members</p>
+              </div>
+              <div v-else class="min-w-0 space-y-1.5">
+                <div class="h-3 w-24 rounded bg-primary-100 animate-pulse"></div>
+                <div class="h-2.5 w-16 rounded bg-primary-100/70 animate-pulse"></div>
               </div>
             </div>
 
@@ -443,13 +417,40 @@
             class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar min-h-0 space-y-1"
             :style="{ paddingBottom: bottomAreaHeight + 'px', opacity: (messagesReady || loadingMessages) ? 1 : 0 }"
         >
-          <!-- اسکلت لودر: در حال گرفتن پیام‌های این گروه -->
-          <div v-if="loadingMessages && messages.length === 0" class="space-y-4 animate-pulse">
-            <div v-for="i in 6" :key="i" :class="['flex gap-2', i % 2 === 0 ? 'flex-row-reverse' : 'flex-row']">
-              <div class="h-8 w-8 shrink-0 rounded-full bg-primary-100"></div>
-              <div :class="['h-10 rounded-2xl bg-primary-100', i % 3 === 0 ? 'w-1/4' : i % 2 === 0 ? 'w-1/3' : 'w-2/5']"></div>
+          <!-- اسکلت لودر: در حال گرفتن اولین دسته از گروه‌ها -->
+          <div v-if="loadingGroups && apiGroups.length === 0" class="flex flex-col gap-2 pb-4 animate-pulse">
+            <div v-for="i in 14" :key="i" :class="['flex gap-2', i % 3 === 0 ? 'flex-row-reverse' : 'flex-row']">
+               <div class="h-8 w-8 shrink-0 rounded-full bg-primary-100"></div>
+              <div :class="['rounded-[10px] bg-primary-100 px-3 py-2.5 space-y-1.5', i % 3 === 0 ? 'w-1/4' : i % 2 === 0 ? 'w-1/3' : 'w-2/5']">
+                <div class="h-3.5 w-full rounded-full bg-primary-200/70"></div>
+                <div :class="['h-3.5 rounded-full bg-primary-200/70', i % 2 === 0 ? 'w-2/3' : 'w-1/2']"></div>
+              </div>
             </div>
           </div>
+
+          <div v-else-if="!activeGroupId" class="flex h-full items-center justify-center">
+            <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
+              <Icon icon="mdi:users-group" class="text-3xl text-primary-700" />
+              <strong class="text-lg font-semibold text-primary-600">یک چت رو انتخاب کن</strong>
+              <p class="text-sm text-primary-400">اگر گروهی نداری، یکی بساز</p>
+            </div>
+          </div>
+
+          <!-- اسکلت لودر: در حال گرفتن پیام‌های این گروه -->
+          <div v-else-if="loadingMessages && messages.length === 0" class="flex flex-col gap-2 pb-4 animate-pulse">
+            <div v-for="i in 14" :key="i" :class="['flex gap-2', i % 3 === 0 ? 'flex-row-reverse' : 'flex-row']">
+              <div class="h-8 w-8 shrink-0 rounded-full bg-primary-100"></div>
+              <div
+                  :class="[
+                    'px-3 py-2 my-px rounded-[20px] space-y-1.5',
+                     i % 3 === 0 ? 'w-1/4 bg-primary-100 shadow-md shadow-primary-100' : 'w-2/5 bg-white shadow-sm border border-primary-100'
+                     ]"
+              >
+                <div class="h-2.5 w-full rounded-full bg-primary-200/70"></div>
+                <div :class="['h-2.5 rounded-full bg-primary-200/70', i % 2 === 0 ? 'w-2/3' : 'w-1/2']"></div>
+              </div>
+            </div>
+            </div>
 
           <div
               v-else-if="!loadingMessages && messages.length === 0"
@@ -898,7 +899,6 @@
             </div>
           </div>
         </div>
-      </template>
 
       <!-- Group Info Panel — stays contained within the chat page itself -->
       <Transition
@@ -2314,11 +2314,7 @@ function handleWindowResize(): void {
 }
 
 onMounted((): void => {
-  fetchGroups().then(() => {
-    if (apiGroups.value.length > 0) {
-      selectGroup(apiGroups.value[0].id)
-    }
-  })
+  fetchGroups()
   window.addEventListener('resize', handleWindowResize)
   document.addEventListener('click', handleDropdownClickOutside)
 
