@@ -1,7 +1,9 @@
 <template>
   <div class="flex h-full w-full flex-1 overflow-hidden">
 
-
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SIDEBAR -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <aside
         :class="[
           'h-full overflow-hidden border-e border-primary-200/60 bg-white/80 backdrop-blur-xl relative',
@@ -85,18 +87,46 @@
           {{ groupSearchQuery ? `Results — ${filteredGroups.length}` : 'Chats' }}
         </p>
 
-        <!-- اسکلت لودر: در حال گرفتن اولین دسته از گروه‌ها -->
-        <div v-if="loadingGroups && apiGroups.length === 0" class="space-y-1">
+        <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+        <!-- ║  SKELETON: Sidebar Groups List                              ║ -->
+        <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+        <div v-if="loadingGroups && apiGroups.length === 0" class="space-y-0.5">
           <div
-              v-for="i in 6"
-              :key="i"
-              :class="['flex items-center gap-3 rounded-xl px-2.5 py-2.5 animate-pulse', sidebarIconOnly ? 'md:justify-center md:px-0' : '']"
+              v-for="i in 8"
+              :key="'sg-' + i"
+              :class="[
+                'flex items-center gap-3 rounded-xl px-2.5 py-2.5 animate-pulse',
+                sidebarIconOnly ? 'md:justify-center md:px-0' : '',
+                i === 1 ? 'bg-primary-50/60' : ''
+              ]"
           >
-            <div class="h-10 w-10 shrink-0 rounded-full bg-primary-100"></div>
+            <!-- Avatar skeleton -->
+            <div
+                :class="[
+                  'shrink-0 rounded-full',
+                  i <= 2 ? 'h-10 w-10 bg-primary-200/60' : 'h-10 w-10 bg-primary-100'
+                ]"
+            ></div>
+
             <div v-if="!sidebarIconOnly" class="flex-1 min-w-0 space-y-2">
-              <div class="h-3 w-2/3 rounded bg-primary-100"></div>
-              <div class="h-2.5 w-1/2 rounded bg-primary-100/70"></div>
+              <!-- Name + time row -->
+              <div class="flex items-center justify-between gap-2">
+                <div
+                    :class="['h-3 rounded-full bg-primary-100', i % 3 === 0 ? 'w-20' : i % 2 === 0 ? 'w-28' : 'w-24']"
+                ></div>
+                <div class="h-2.5 w-8 rounded-full bg-primary-100/60 shrink-0"></div>
+              </div>
+              <!-- Last message preview -->
+              <div
+                  :class="['h-2.5 rounded-full', i % 2 === 0 ? 'w-3/4 bg-primary-100/50' : 'w-1/2 bg-primary-100/40']"
+              ></div>
             </div>
+
+            <!-- Unread badge skeleton (only on a couple) -->
+            <div
+                v-if="!sidebarIconOnly && (i === 2 || i === 5)"
+                class="shrink-0 h-5 w-5 rounded-full bg-primary-200/50"
+            ></div>
           </div>
         </div>
 
@@ -219,7 +249,9 @@
       </Teleport>
     </aside>
 
-
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- MAIN CHAT PANE -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div
         ref="chatPaneRef"
         :class="[
@@ -229,291 +261,483 @@
     >
 
       <!-- Header -->
-        <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50">
-          <div class="px-5 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-3 min-w-0 cursor-pointer" @click.stop="showGroupInfoPanel = true; openMenu = null">
-              <!-- Group Avatar -->
-              <div class="w-10 h-10 rounded-full bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-md shadow-primary-200 z-50 overflow-hidden shrink-0">
-                <img v-if="activeGroup?.avatarUrl" :src="activeGroup.avatarUrl" class="w-full h-full object-cover" alt="" />
-                <Icon v-else-if="activeGroup" icon="solar:users-group-rounded-bold" class="text-white text-xl" />
-                <div v-else class="w-full h-full bg-white/30 animate-pulse"></div>
-              </div>
-              <div v-if="activeGroup" class="min-w-0">
-                <h2 class="text-sm font-bold text-primary-900 truncate">{{ activeGroup.name }}</h2>
-                <p class="text-xs text-primary-400">{{ onlineMembers.length }} online · {{ members.length }} members</p>
-              </div>
-              <div v-else class="min-w-0 space-y-1.5">
-                <div class="h-3 w-24 rounded bg-primary-100 animate-pulse"></div>
-                <div class="h-2.5 w-16 rounded bg-primary-100/70 animate-pulse"></div>
-              </div>
+      <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50">
+        <div class="px-5 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3 min-w-0 cursor-pointer" @click.stop="showGroupInfoPanel = true; openMenu = null">
+            <!-- Group Avatar -->
+            <div class="w-10 h-10 rounded-full bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-md shadow-primary-200 z-50 overflow-hidden shrink-0">
+              <img v-if="activeGroup?.avatarUrl" :src="activeGroup.avatarUrl" class="w-full h-full object-cover" alt="" />
+              <Icon v-else-if="activeGroup" icon="solar:users-group-rounded-bold" class="text-white text-xl" />
+              <div v-else class="w-full h-full bg-white/30 animate-pulse"></div>
             </div>
+            <div v-if="activeGroup" class="min-w-0">
+              <h2 class="text-sm font-bold text-primary-900 truncate">{{ activeGroup.name }}</h2>
+              <p class="text-xs text-primary-400">{{ onlineMembers.length }} online · {{ members.length }} members</p>
+            </div>
+            <div v-else class="min-w-0 space-y-1.5">
+              <div class="h-3 w-24 rounded bg-primary-100 animate-pulse"></div>
+              <div class="h-2.5 w-16 rounded bg-primary-100/70 animate-pulse"></div>
+            </div>
+          </div>
 
-            <div class="flex items-center gap-2 relative">
+          <div class="flex items-center gap-2 relative">
+            <button
+                @click="mobilePane = 'sidebar'"
+                class="md:hidden flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors"
+                v-tooltip="'Chats'"
+            >
+              <Icon icon="solar:hamburger-menu-linear" class="text-lg" />
+            </button>
+
+            <button
+                @click="goToTasks"
+                class="flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors"
+                v-tooltip="'Open Tasks'"
+            >
+              <Icon icon="solar:checklist-minimalistic-linear" class="text-lg" />
+            </button>
+
+            <button
+                @click="showSearch = !showSearch; openMenu = null"
+                :class="['flex items-center gap-2 px-2 py-2 text-sm transition-colors', showSearch ? 'text-primary-600' : 'text-primary-700']"
+            >
+              <Icon icon="boxicons:search" class="text-lg" />
+            </button>
+
+            <!-- More Options Dropdown -->
+            <div class="relative inline-block" data-dropdown="header-menu">
               <button
-                  @click="mobilePane = 'sidebar'"
-                  class="md:hidden flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors"
-                  v-tooltip="'Chats'"
+                  @click.stop="toggleDropdown('header', $event)"
+                  class="p-2 rounded-full text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all"
+                  v-tooltip="'More options'"
               >
-                <Icon icon="solar:hamburger-menu-linear" class="text-lg" />
+                <Icon icon="mage:dots" class="text-xl" />
               </button>
 
-              <button
-                  @click="goToTasks"
-                  class="flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors"
-                  v-tooltip="'Open Tasks'"
-              >
-                <Icon icon="solar:checklist-minimalistic-linear" class="text-lg" />
-              </button>
-
-              <button
-                  @click="showSearch = !showSearch; openMenu = null"
-                  :class="['flex items-center gap-2 px-2 py-2 text-sm transition-colors', showSearch ? 'text-primary-600' : 'text-primary-700']"
-              >
-                <Icon icon="boxicons:search" class="text-lg" />
-              </button>
-
-              <!-- More Options Dropdown -->
-              <div class="relative inline-block" data-dropdown="header-menu">
-                <button
-                    @click.stop="toggleDropdown('header', $event)"
-                    class="p-2 rounded-full text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all"
-                    v-tooltip="'More options'"
-                >
-                  <Icon icon="mage:dots" class="text-xl" />
-                </button>
-
-                <Transition name="dropdown">
-                  <div
-                      v-if="openMenu === 'header'"
-                      data-dropdown="header-menu"
-                      data-dropdown-panel
-                      :class="[
+              <Transition name="dropdown">
+                <div
+                    v-if="openMenu === 'header'"
+                    data-dropdown="header-menu"
+                    data-dropdown-panel
+                    :class="[
                     'absolute top-full mt-1 bg-white/95 backdrop-blur-xl rounded-xl shadow-lg py-2 min-w-45 z-[9999]',
                     menuAlign.header === 'right' ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
                   ]"
-                  >
-                    <button
-                        @click.stop="emit('toggle-filter'); openMenu = null"
-                        class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors"
-                    >
-                      <Icon icon="mi:filter" class="text-sm" />
-                      Filter messages
-                    </button>
-
-                    <button
-                        @click.stop="showGroupInfoPanel = true; openMenu = null"
-                        class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors border-t border-primary-100 mt-1"
-                    >
-                      <Icon icon="mi:circle-information" class="text-sm" />
-                      Group info
-                    </button>
-
-                    <button
-                        v-if="isGroupAdmin"
-                        @click.stop="openMenu = null; confirmDeleteGroup()"
-                        class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-primary-100 mt-1"
-                    >
-                      <Icon icon="mi:delete" class="text-sm" />
-                      حذف گروه
-                    </button>
-                  </div>
-                </Transition>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Search Bar -->
-        <div v-if="showSearch" class="shrink-0 px-3 py-2 bg-white relative z-9999 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div class="flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2.5">
-            <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0" />
-            <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search messages..."
-                class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none"
-                autofocus
-            />
-            <button v-if="searchQuery" @click="searchQuery = ''" class="text-primary-300 hover:text-primary-500 shrink-0">
-              <Icon icon="mingcute:close-line" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Pinned Messages Bar -->
-        <div v-if="pinnedMessages.length > 0" :class="[ 'pb-2 shrink-0 px-5 pt-3 absolute top-18 left-0 right-0 z-30',
-      showSearch ? 'pt-17' : 'pt-3'
-    ]" >
-          <button
-              @click="showPinnedDialog = true"
-              class="w-full mx-auto flex items-center gap-2 px-4 py-2.5 bg-white/90 backdrop-blur-md rounded-2xl border border-primary-200/60 shadow-lg shadow-primary-200/20 hover:shadow-primary-200/40 transition-all group"
-          >
-            <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-sm shrink-0" />
-            <span class="text-sm text-primary-700 flex-1 text-left truncate">
-      {{ pinnedMessages[0].text }}
-    </span>
-            <span class="text-xs text-primary-400 bg-primary-200/50 px-2 py-0.5 rounded-full font-medium shrink-0">
-      {{ pinnedMessages.length }} pinned
-    </span>
-          </button>
-        </div>
-
-        <!-- Pinned Messages Dialog -->
-        <Teleport to="body">
-          <div
-              v-if="showPinnedDialog"
-              class="fixed inset-0 z-50 flex items-center justify-center"
-              @click.self="showPinnedDialog = false"
-          >
-            <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[70vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
-              <!-- Dialog Header -->
-              <div class="flex items-center justify-between px-5 py-4 border-b border-primary-100">
-                <div class="flex items-center gap-2">
-                  <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-lg" />
-                  <h3 class="text-base font-bold text-primary-900">Pinned Messages</h3>
-                  <span class="text-xs text-primary-400 bg-primary-50 px-2 py-0.5 rounded-full">{{ pinnedMessages.length }}</span>
-                </div>
-                <button @click="showPinnedDialog = false" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
-                  <Icon icon="mingcute:close-line" class="text-lg" />
-                </button>
-              </div>
-
-              <!-- Dialog Content -->
-              <div class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
-                <div
-                    v-for="msg in pinnedMessages"
-                    :key="msg.id"
-                    @click="scrollToMessage(msg.id); showPinnedDialog = false"
-                    class="flex items-start gap-3 p-3 rounded-xl hover:bg-primary-50 transition-all cursor-pointer group/item"
                 >
-                  <div class="shrink-0 w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
-                    <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-sm" />
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 mb-0.5">
-                      <span class="text-xs font-medium text-primary-800">{{ getMemberName(msg.senderId) }}</span>
-                      <span class="text-[10px] text-primary-300">{{ formatTime(msg.timestamp) }}</span>
-                    </div>
-                    <p class="text-sm text-primary-600 line-clamp-2">{{ msg.text }}</p>
-                  </div>
                   <button
-                      @click.stop="unpinMessage(msg.id)"
-                      class="shrink-0 p-1.5 rounded-lg bg-primary-100 text-primary-500 opacity-0 transition-all"
-                      v-tooltip="'Unpin'"
+                      @click.stop="emit('toggle-filter'); openMenu = null"
+                      class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors"
                   >
-                    <Icon icon="ri:unpin-fill" class="text-sm -rotate-45" />
+                    <Icon icon="mi:filter" class="text-sm" />
+                    Filter messages
+                  </button>
+
+                  <button
+                      @click.stop="showGroupInfoPanel = true; openMenu = null"
+                      class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors border-t border-primary-100 mt-1"
+                  >
+                    <Icon icon="mi:circle-information" class="text-sm" />
+                    Group info
+                  </button>
+
+                  <button
+                      v-if="isGroupAdmin"
+                      @click.stop="openMenu = null; confirmDeleteGroup()"
+                      class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-primary-100 mt-1"
+                  >
+                    <Icon icon="mi:delete" class="text-sm" />
+                    حذف گروه
                   </button>
                 </div>
-              </div>
+              </Transition>
             </div>
           </div>
-        </Teleport>
+        </div>
+      </div>
 
-        <!-- Messages Area -->
-        <div
-            ref="messagesContainer"
-            @scroll="onScroll"
-            class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar min-h-0 space-y-1"
-            :style="{ paddingBottom: bottomAreaHeight + 'px', opacity: (messagesReady || loadingMessages) ? 1 : 0 }"
+      <!-- Search Bar -->
+      <div v-if="showSearch" class="shrink-0 px-3 py-2 bg-white relative z-[9999] animate-in fade-in slide-in-from-top-2 duration-200">
+        <div class="flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2.5">
+          <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0" />
+          <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search messages..."
+              class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none"
+              autofocus
+          />
+          <button v-if="searchQuery" @click="searchQuery = ''" class="text-primary-300 hover:text-primary-500 shrink-0">
+            <Icon icon="mingcute:close-line" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Pinned Messages Bar -->
+      <div v-if="pinnedMessages.length > 0" :class="[ 'pb-2 shrink-0 px-5 pt-3 absolute top-18 left-0 right-0 z-30',
+      showSearch ? 'pt-17' : 'pt-3'
+    ]" >
+        <button
+            @click="showPinnedDialog = true"
+            class="w-full mx-auto flex items-center gap-2 px-4 py-2.5 bg-white/90 backdrop-blur-md rounded-2xl border border-primary-200/60 shadow-lg shadow-primary-200/20 hover:shadow-primary-200/40 transition-all group"
         >
-          <!-- اسکلت لودر: در حال گرفتن اولین دسته از گروه‌ها -->
-          <div v-if="loadingGroups && apiGroups.length === 0" class="flex flex-col gap-2 pb-4 animate-pulse">
-            <div v-for="i in 14" :key="i" :class="['flex gap-2', i % 3 === 0 ? 'flex-row-reverse' : 'flex-row']">
-               <div class="h-8 w-8 shrink-0 rounded-full bg-primary-100"></div>
-              <div :class="['rounded-[10px] bg-primary-100 px-3 py-2.5 space-y-1.5', i % 3 === 0 ? 'w-1/4' : i % 2 === 0 ? 'w-1/3' : 'w-2/5']">
-                <div class="h-3.5 w-full rounded-full bg-primary-200/70"></div>
-                <div :class="['h-3.5 rounded-full bg-primary-200/70', i % 2 === 0 ? 'w-2/3' : 'w-1/2']"></div>
+          <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-sm shrink-0" />
+          <span class="text-sm text-primary-700 flex-1 text-left truncate">
+      {{ pinnedMessages[0].text }}
+    </span>
+          <span class="text-xs text-primary-400 bg-primary-200/50 px-2 py-0.5 rounded-full font-medium shrink-0">
+      {{ pinnedMessages.length }} pinned
+    </span>
+        </button>
+      </div>
+
+      <!-- Pinned Messages Dialog -->
+      <Teleport to="body">
+        <div
+            v-if="showPinnedDialog"
+            class="fixed inset-0 z-50 flex items-center justify-center"
+            @click.self="showPinnedDialog = false"
+        >
+          <div class="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+          <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[70vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <!-- Dialog Header -->
+            <div class="flex items-center justify-between px-5 py-4 border-b border-primary-100">
+              <div class="flex items-center gap-2">
+                <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-lg" />
+                <h3 class="text-base font-bold text-primary-900">Pinned Messages</h3>
+                <span class="text-xs text-primary-400 bg-primary-50 px-2 py-0.5 rounded-full">{{ pinnedMessages.length }}</span>
+              </div>
+              <button @click="showPinnedDialog = false" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
+                <Icon icon="mingcute:close-line" class="text-lg" />
+              </button>
+            </div>
+
+            <!-- Dialog Content -->
+            <div class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+              <div
+                  v-for="msg in pinnedMessages"
+                  :key="msg.id"
+                  @click="scrollToMessage(msg.id); showPinnedDialog = false"
+                  class="flex items-start gap-3 p-3 rounded-xl hover:bg-primary-50 transition-all cursor-pointer group/item"
+              >
+                <div class="shrink-0 w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-sm" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-0.5">
+                    <span class="text-xs font-medium text-primary-800">{{ getMemberName(msg.senderId) }}</span>
+                    <span class="text-[10px] text-primary-300">{{ formatTime(msg.timestamp) }}</span>
+                  </div>
+                  <p class="text-sm text-primary-600 line-clamp-2">{{ msg.text }}</p>
+                </div>
+                <button
+                    @click.stop="unpinMessage(msg.id)"
+                    class="shrink-0 p-1.5 rounded-lg bg-primary-100 text-primary-500 opacity-0 transition-all"
+                    v-tooltip="'Unpin'"
+                >
+                  <Icon icon="ri:unpin-fill" class="text-sm -rotate-45" />
+                </button>
               </div>
             </div>
           </div>
+        </div>
+      </Teleport>
 
-          <div v-else-if="!activeGroupId" class="flex h-full items-center justify-center">
-            <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
-              <Icon icon="mdi:users-group" class="text-3xl text-primary-700" />
-              <strong class="text-lg font-semibold text-primary-600">یک چت رو انتخاب کن</strong>
-              <p class="text-sm text-primary-400">اگر گروهی نداری، یکی بساز</p>
-            </div>
+      <!-- Floating Date Header -->
+      <Transition name="fade">
+        <div
+            v-if="currentVisibleDate"
+            class="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center"
+        >
+    <span class="rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-xs text-primary-500 shadow-sm">
+      {{ currentVisibleDate }}
+    </span>
+        </div>
+      </Transition>
+
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <!-- Messages Area                                                 -->
+      <!-- ═══════════════════════════════════════════════════════════════ -->
+      <div
+          ref="messagesContainer"
+          @scroll="onScroll"
+          class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar min-h-0 space-y-1"
+          :style="{ paddingBottom: bottomAreaHeight + 'px', opacity: (messagesReady || loadingMessages || loadingInitial) ? 1 : 0 }"
+      >
+
+        <!-- ╔══════════════════════════════════════════════════════════╗ -->
+        <!-- ║  SKELETON: Initial page load (no groups yet)            ║ -->
+        <!-- ║  Full-page chat skeleton with header already visible    ║ -->
+        <!-- ╚══════════════════════════════════════════════════════════╝ -->
+        <div v-if="loadingInitial" class="flex flex-col h-full">
+          <!-- Date separator skeleton -->
+          <div class="flex items-center gap-3 my-4">
+            <div class="flex-1 h-px bg-primary-100"></div>
+            <div class="h-5 w-16 rounded-full bg-primary-50 animate-pulse"></div>
+            <div class="flex-1 h-px bg-primary-100"></div>
           </div>
 
-          <!-- اسکلت لودر: در حال گرفتن پیام‌های این گروه -->
-          <div v-else-if="loadingMessages && messages.length === 0" class="flex flex-col gap-2 pb-4 animate-pulse">
-            <div v-for="i in 14" :key="i" :class="['flex gap-2', i % 3 === 0 ? 'flex-row-reverse' : 'flex-row']">
-              <div class="h-8 w-8 shrink-0 rounded-full bg-primary-100"></div>
+          <div class="flex-1 flex flex-col gap-1.5">
+            <!-- message pattern: realistic chat flow -->
+            <template v-for="(row, i) in initialSkeletonRows" :key="'init-' + i">
+              <!-- System message skeleton -->
+              <div v-if="row.type === 'system'" class="flex items-center gap-3 my-3">
+                <div class="flex-1 h-px bg-primary-100"></div>
+                <div class="h-5 w-32 rounded-full bg-primary-50/80 animate-pulse"></div>
+                <div class="flex-1 h-px bg-primary-100"></div>
+              </div>
+
+              <!-- Regular message skeleton -->
+              <div
+                  v-else
+                  :class="[
+                      'flex gap-2',
+                      row.sent ? 'flex-row-reverse' : 'flex-row',
+                      row.consecutive ? 'mt-0.5' : 'mt-3'
+                    ]"
+              >
+                <!-- Avatar -->
+                <div class="shrink-0 w-8">
+                  <div
+                      v-if="!row.consecutive"
+                      :class="[
+                          'w-8 h-8 rounded-full animate-pulse',
+                          row.sent ? 'bg-primary-200/50' : 'bg-primary-100'
+                        ]"
+                  ></div>
+                </div>
+
+                <!-- Bubble -->
+                <div :class="['max-w-[72%]', row.consecutive ? '' : '']">
+                  <!-- Sender name -->
+                  <div
+                      v-if="!row.consecutive && !row.sent"
+                      class="h-2.5 w-16 rounded-full bg-primary-100/60 mb-1.5 ms-1 animate-pulse"
+                  ></div>
+
+                  <div
+                      :class="[
+                          'rounded-[20px] px-3 py-2 my-px animate-pulse',
+                          row.sent
+                            ? 'bg-primary-200/40 shadow-sm shadow-primary-100'
+                            : 'bg-white shadow-sm border border-primary-100/60'
+                        ]"
+                  >
+                    <!-- Image attachment skeleton -->
+                    <div
+                        v-if="row.hasImage"
+                        :class="[
+                            'rounded-lg mb-2 animate-pulse',
+                            row.sent ? 'bg-primary-300/30' : 'bg-primary-100',
+                            row.imageWide ? 'h-36 w-52' : 'h-40 w-40'
+                          ]"
+                    ></div>
+
+                    <!-- Voice message skeleton -->
+                    <div v-if="row.hasVoice" class="flex items-center gap-2 py-1">
+                      <div :class="['w-7 h-7 rounded-full', row.sent ? 'bg-primary-300/40' : 'bg-primary-200/60']" />
+                      <div class="flex-1 flex items-center gap-0.5">
+                        <div
+                            v-for="bar in 18"
+                            :key="bar"
+                            :class="['rounded-full', row.sent ? 'bg-primary-300/40' : 'bg-primary-200/50']"
+                            :style="{
+                                width: '3px',
+                                height: (8 + Math.sin(bar * 0.8) * 8 + Math.random() * 4) + 'px'
+                              }"
+                        ></div>
+                      </div>
+                      <div :class="['h-2.5 w-7 rounded-full', row.sent ? 'bg-primary-300/30' : 'bg-primary-100/60']"></div>
+                    </div>
+
+                    <!-- Text lines -->
+                    <div v-if="!row.hasVoice" class="space-y-1.5">
+                      <div
+                          v-for="(line, li) in row.lines"
+                          :key="li"
+                          :class="[
+                              'h-2.5 rounded-full',
+                              row.sent ? 'bg-primary-300/30' : 'bg-primary-200/50'
+                            ]"
+                          :style="{ width: line + '%' }"
+                      ></div>
+                    </div>
+
+                    <!-- Timestamp skeleton -->
+                    <div class="flex items-center gap-1 mt-2 pt-0.5" :class="row.sent ? 'justify-end' : 'justify-start'">
+                      <div v-if="row.sent" :class="['w-3 h-3 rounded-full', 'bg-primary-200/40']"></div>
+                      <div :class="['h-2 w-8 rounded-full', row.sent ? 'bg-primary-200/30' : 'bg-primary-100/60']"></div>
+                    </div>
+
+                    <!-- Reactions skeleton (occasional) -->
+                    <div v-if="row.hasReactions" class="flex gap-1 mt-1.5">
+                      <div
+                          v-for="r in row.reactionCount"
+                          :key="r"
+                          :class="[
+                              'h-5 rounded-full animate-pulse',
+                              row.sent ? 'bg-primary-300/20' : 'bg-primary-100/70',
+                              r === 1 ? 'w-10' : 'w-8'
+                            ]"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Typing indicator skeleton -->
+          <div class="flex items-center gap-2 mt-3 ms-10">
+            <div class="flex gap-1 bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-primary-100 animate-pulse">
+              <span class="w-1.5 h-1.5 bg-primary-200 rounded-full"></span>
+              <span class="w-1.5 h-1.5 bg-primary-200 rounded-full"></span>
+              <span class="w-1.5 h-1.5 bg-primary-200 rounded-full"></span>
+            </div>
+            <div class="h-2.5 w-20 rounded-full bg-primary-100/50 animate-pulse"></div>
+          </div>
+        </div>
+
+        <!-- ╔══════════════════════════════════════════════════════════╗ -->
+        <!-- ║  SKELETON: Group selected, loading messages             ║ -->
+        <!-- ╚══════════════════════════════════════════════════════════╝ -->
+        <div v-else-if="loadingMessages && messages.length === 0" class="flex flex-col h-full">
+          <!-- Date separator -->
+          <div class="flex items-center gap-3 my-4">
+            <div class="flex-1 h-px bg-primary-100"></div>
+            <div class="h-5 w-14 rounded-full bg-primary-50 animate-pulse"></div>
+            <div class="flex-1 h-px bg-primary-100"></div>
+          </div>
+
+          <div class="flex-1 flex flex-col gap-1.5">
+            <template v-for="(row, i) in messageSkeletonRows" :key="'msg-' + i">
               <div
                   :class="[
-                    'px-3 py-2 my-px rounded-[20px] space-y-1.5',
-                     i % 3 === 0 ? 'w-1/4 bg-primary-100 shadow-md shadow-primary-100' : 'w-2/5 bg-white shadow-sm border border-primary-100'
-                     ]"
+                      'flex gap-2',
+                      row.sent ? 'flex-row-reverse' : 'flex-row',
+                      row.consecutive ? 'mt-0.5' : 'mt-3'
+                    ]"
               >
-                <div class="h-2.5 w-full rounded-full bg-primary-200/70"></div>
-                <div :class="['h-2.5 rounded-full bg-primary-200/70', i % 2 === 0 ? 'w-2/3' : 'w-1/2']"></div>
-              </div>
-            </div>
-            </div>
+                <div class="shrink-0 w-8">
+                  <div
+                      v-if="!row.consecutive"
+                      :class="[
+                          'w-8 h-8 rounded-full animate-pulse',
+                          row.sent ? 'bg-primary-200/50' : 'bg-primary-100'
+                        ]"
+                  ></div>
+                </div>
 
-          <div
-              v-else-if="!loadingMessages && messages.length === 0"
-              class="flex h-full items-center justify-center"
-          >
-            <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 px-14 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
-              <Icon icon="ep:chat-round" class="text-4xl text-primary-700" />
-              <strong class="text-lg text-primary-600">هنوز پیامی وجود نداره</strong>
-              <p class="text-sm text-primary-400">اولین پیام رو بفرست!</p>
-            </div>
+                <div class="max-w-[72%]">
+                  <div
+                      v-if="!row.consecutive && !row.sent"
+                      class="h-2.5 w-14 rounded-full bg-primary-100/60 mb-1.5 ms-1 animate-pulse"
+                  ></div>
+
+                  <div
+                      :class="[
+                          'rounded-[20px] px-3 py-2 my-px animate-pulse',
+                          row.sent
+                            ? 'bg-primary-200/40 shadow-sm shadow-primary-100'
+                            : 'bg-white shadow-sm border border-primary-100/60'
+                        ]"
+                  >
+                    <div class="space-y-1.5">
+                      <div
+                          v-for="(line, li) in row.lines"
+                          :key="li"
+                          :class="[
+                              'h-2.5 rounded-full',
+                              row.sent ? 'bg-primary-300/30' : 'bg-primary-200/50'
+                            ]"
+                          :style="{ width: line + '%' }"
+                      ></div>
+                    </div>
+                    <div class="flex items-center gap-1 mt-2 pt-0.5" :class="row.sent ? 'justify-end' : 'justify-start'">
+                      <div v-if="row.sent" class="w-3 h-3 rounded-full bg-primary-200/40"></div>
+                      <div :class="['h-2 w-8 rounded-full', row.sent ? 'bg-primary-200/30' : 'bg-primary-100/60']"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
+        </div>
 
-          <template v-else>
-            <template v-for="(group, date) in groupedMessages" :key="date">
-              <div class="flex items-center gap-3 my-4">
-                <div class="flex-1 h-px bg-primary-100"></div>
-                <span class="text-xs text-primary-300 px-2 py-1 bg-white/60 rounded-full">{{ date }}</span>
-                <div class="flex-1 h-px bg-primary-100"></div>
-              </div>
+        <!-- No group selected -->
+        <div v-else-if="!activeGroupId" class="flex h-full items-center justify-center">
+          <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
+            <Icon icon="mdi:users-group" class="text-3xl text-primary-700" />
+            <strong class="text-lg font-semibold text-primary-600">یک چت رو انتخاب کن</strong>
+            <p class="text-sm text-primary-400">اگر گروهی نداری، یکی بساز</p>
+          </div>
+        </div>
 
-              <template v-for="(msg, index) in group" :key="msg.id">
-                <!-- System Message -->
-                <div v-if="msg.type === 'system'" class="flex items-center gap-3 my-4">
-                  <div class="flex-1 h-px bg-primary-100" />
-                  <span class="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/60 px-3 py-1 text-xs text-primary-400">
+        <!-- Empty messages -->
+        <div
+            v-else-if="!loadingMessages && messages.length === 0"
+            class="flex h-full items-center justify-center"
+        >
+          <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 px-14 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
+            <Icon icon="ep:chat-round" class="text-4xl text-primary-700" />
+            <strong class="text-lg text-primary-600">هنوز پیامی وجود نداره</strong>
+            <p class="text-sm text-primary-400">اولین پیام رو بفرست!</p>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- Actual Messages                                           -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <template v-else>
+          <template v-for="(group, date) in groupedMessages" :key="date">
+            <div :ref="el => setDateDividerRef(el, date)" :data-date="date" class="flex items-center gap-3 my-4">
+              <div class="flex-1 h-px bg-primary-100"></div>
+              <span class="text-xs text-primary-300 px-2 py-1 items-center bg-white/60 rounded-full">{{ date }}</span>
+              <div class="flex-1 h-px bg-primary-100"></div>
+            </div>
+
+            <template v-for="(msg, index) in group" :key="msg.id">
+              <!-- System Message -->
+              <div v-if="msg.type === 'system'" class="flex items-center gap-3 my-4">
+                <div class="flex-1 h-px bg-primary-100" />
+                <span class="flex items-center gap-1.5 whitespace-nowrap rounded-full bg-white/60 px-3 py-1 text-xs text-primary-400">
                 <Icon icon="mingcute:check-circle-line" class="text-sm text-primary-400" />
                 {{ msg.text }}
               </span>
-                  <div class="flex-1 h-px bg-primary-100" />
-                </div>
+                <div class="flex-1 h-px bg-primary-100" />
+              </div>
 
-                <!-- Regular Message -->
-                <div
-                    v-else
-                    :id="`message-${msg.id}`"
-                    :class="[
+              <!-- Regular Message -->
+              <div
+                  v-else
+                  :id="`message-${msg.id}`"
+                  :class="[
               'flex gap-2 group relative transition-all duration-500',
               msg.senderId === currentUser.id ? 'flex-row-reverse' : 'flex-row',
               isSameSenderAsPrev(group, index) ? 'mt-0.5' : 'mt-3',
               highlightedMessageId === msg.id ? 'bg-primary-100/50 rounded-xl -mx-2 px-2 py-1' : ''
             ]"
-                >
-                  <div class="shrink-0 w-8">
+              >
+                <div class="shrink-0 w-8">
+                  <div
+                      v-if="!isSameSenderAsPrev(group, index)"
+                      @click="openUserProfile(msg.senderId)"
+                      class="cursor-pointer"
+                  >
+                    <img
+                        v-if="getMemberById(msg.senderId)?.avatarUrl"
+                        :src="getMemberById(msg.senderId)!.avatarUrl!"
+                        class="w-8 h-8 rounded-full object-cover shadow-sm hover:opacity-80 transition"
+                        alt="member profile"/>
                     <div
-                        v-if="!isSameSenderAsPrev(group, index)"
-                        @click="openUserProfile(msg.senderId)"
-                        class="cursor-pointer"
+                        v-else
+                        :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm', colorFor(msg.senderId)]"
                     >
-                      <img
-                          v-if="getMemberById(msg.senderId)?.avatarUrl"
-                          :src="getMemberById(msg.senderId)!.avatarUrl!"
-                          class="w-8 h-8 rounded-full object-cover shadow-sm hover:opacity-80 transition"
-                          alt="member profile"/>
-                      <div
-                          v-else
-                          :class="['w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm', getMemberById(msg.senderId)?.avatarBg ?? 'bg-primary-400']"
-                      >
-                        {{ getMemberName(msg.senderId)[0] }}
-                      </div>
+                      {{ getMemberName(msg.senderId)[0] }}
                     </div>
                   </div>
+                </div>
 
-                  <div class="flex-1 max-w-[72%] relative">
+                <div class="flex-1 max-w-[72%] relative">
               <span
                   v-if="!isSameSenderAsPrev(group, index) && msg.senderId !== currentUser.id"
                   class="text-xs text-primary-500 font-medium mb-1 ml-1 block"
@@ -521,111 +745,107 @@
                 {{ getMemberName(msg.senderId) }}
               </span>
 
-                    <div class="relative group/message">
-                      <!-- Message Bubble -->
-                      <div
-                          :class="[
+                  <div class="relative group/message">
+                    <!-- Message Bubble -->
+                    <div
+                        :class="[
                     'px-3 py-1 my-px rounded-[20px] text-[16px] leading-relaxed',
                     msg.senderId === currentUser.id
                       ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200'
                       : 'bg-white text-primary-800 shadow-sm border border-primary-100'
                   ]"
-                      >
+                    >
 
-                        <!-- Reply Preview -->
-                        <div v-if="msg.replyTo" :class="[
+                      <!-- Reply Preview -->
+                      <div v-if="msg.replyTo" :class="[
                     'text-xs px-3 py-2 rounded-[11px] mb-1.5 mt-2 border-primary-400 bg-primary-50 max-w-full',
                   ]">
-                          <div class="divide-y divide-blue-900 w-full h-px"></div>
-                          <span class="font-medium text-primary-500">{{ getMemberName(getMessageById(msg.replyTo)?.senderId ?? 0) }}</span>
-                          <p class="text-primary-400 truncate">{{ getMessageById(msg.replyTo)?.text }}</p>
+                        <div class="divide-y divide-blue-900 w-full h-px"></div>
+                        <span class="font-medium text-primary-500">{{ getMemberName(getMessageById(msg.replyTo)?.senderId ?? 0) }}</span>
+                        <p class="text-primary-400 truncate">{{ getMessageById(msg.replyTo)?.text }}</p>
+                      </div>
+
+                      <!-- Attachments (album) -->
+                      <div v-if="msg.attachments && msg.attachments.length" class="mb-2 -mx-3 first:mt-0">
+                        <div
+                            v-if="msg.attachments.some(a => a.type === 'image')"
+                            class="flex justify-center px-3"
+                            :class="msg.attachments.filter(a => a.type === 'image').length > 1 ? 'grid grid-cols-2 gap-1' : ''"
+                        >
+                          <img
+                              v-for="a in msg.attachments.filter(a => a.type === 'image')"
+                              :key="a.id"
+                              :src="a.url"
+                              :alt="a.name"
+                              class="rounded-lg max-h-64 w-full object-cover cursor-pointer hover:opacity-90 transition"
+                              @click="previewImage(a.url)"
+                          />
                         </div>
 
-                        <!-- Attachments (album) -->
-                        <div v-if="msg.attachments && msg.attachments.length" class="mb-2 -mx-3 first:mt-0">
-                          <!-- عکس‌ها: گرید وسط‌چین، بدون توجه به padding نامتقارن حباب -->
-                          <div
-                              v-if="msg.attachments.some(a => a.type === 'image')"
-                              class="flex justify-center px-3"
-                              :class="msg.attachments.filter(a => a.type === 'image').length > 1 ? 'grid grid-cols-2 gap-1' : ''"
-                          >
-                            <img
-                                v-for="a in msg.attachments.filter(a => a.type === 'image')"
-                                :key="a.id"
-                                :src="a.url"
-                                :alt="a.name"
-                                class="rounded-lg max-h-64 w-full object-cover cursor-pointer hover:opacity-90 transition"
-                                @click="previewImage(a.url)"
-                            />
-                          </div>
-
-                          <!-- ویس -->
-                          <div v-for="a in msg.attachments.filter(a => a.type === 'voice')" :key="a.id" class="px-3 mt-1">
-                            <VoicePlayer
-                                :url="a.url"
-                                :duration="a.voiceDuration ?? 0"
-                                :variant="msg.senderId === currentUser.id ? 'sent' : 'received'"
-                            />
-                          </div>
-
-                          <!-- فایل‌های عادی -->
-                          <div v-for="a in msg.attachments.filter(a => a.type === 'file')" :key="a.id" class="mx-3 mt-1 flex items-center gap-2 p-2 bg-white/20 rounded-lg">
-                            <Icon :icon="getFileIcon(a.name)" class="text-2xl" />
-                            <div class="flex-1 min-w-0">
-                              <p class="text-xs font-medium truncate">{{ a.name }}</p>
-                              <p class="text-[10px] opacity-70">{{ formatFileSize(a.size) }}</p>
-                            </div>
-                            <a :href="a.url" download class="hover:scale-110 transition">
-                              <Icon icon="solar:download-linear" class="text-sm" />
-                            </a>
-                          </div>
+                        <div v-for="a in msg.attachments.filter(a => a.type === 'voice')" :key="a.id" class="px-3 mt-1">
+                          <VoicePlayer
+                              :url="a.url"
+                              :duration="a.voiceDuration ?? 0"
+                              :variant="msg.senderId === currentUser.id ? 'sent' : 'received'"
+                          />
                         </div>
 
-                        <!-- Todo Reference -->
-                        <div v-if="msg.todoRef" :class="[
+                        <div v-for="a in msg.attachments.filter(a => a.type === 'file')" :key="a.id" class="mx-3 mt-1 flex items-center gap-2 p-2 bg-white/20 rounded-lg">
+                          <Icon :icon="getFileIcon(a.name)" class="text-2xl" />
+                          <div class="flex-1 min-w-0">
+                            <p class="text-xs font-medium truncate">{{ a.name }}</p>
+                            <p class="text-[10px] opacity-70">{{ formatFileSize(a.size) }}</p>
+                          </div>
+                          <a :href="a.url" download class="hover:scale-110 transition">
+                            <Icon icon="solar:download-linear" class="text-sm" />
+                          </a>
+                        </div>
+                      </div>
+
+                      <!-- Todo Reference -->
+                      <div v-if="msg.todoRef" :class="[
                     'flex items-center gap-2 px-3 py-2 rounded-xl mb-1.5 bg-primary-50 border border-primary-200 text-xs text-primary-700 cursor-pointer hover:bg-primary-100 transition-all',
                     msg.senderId === currentUser.id ? 'rounded-tr-sm' : 'rounded-tl-sm'
                   ]" @click="emit('view-todo', msg.todoRef!)">
-                          <Icon icon="mingcute:task-2-line" class="text-primary-500 shrink-0" />
-                          <span class="font-medium">Task: {{ msg.todoRef.text }}</span>
-                          <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[msg.todoRef.priority]]">
+                        <Icon icon="mingcute:task-2-line" class="text-primary-500 shrink-0" />
+                        <span class="font-medium">Task: {{ msg.todoRef.text }}</span>
+                        <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[msg.todoRef.priority]]">
                       {{ msg.todoRef.priority }}
                     </span>
-                        </div>
+                      </div>
 
-                        <!-- Message Text -->
-                        <div>
-                          <span>{{ msg.text }}</span>
-                        </div>
+                      <!-- Message Text -->
+                      <div>
+                        <span>{{ msg.text }}</span>
+                      </div>
 
-                        <!-- Timestamp & Reactions -->
-                        <div class="flex flex-wrap items-center justify-between gap-2 mt-2 pt-1">
-                          <div :class="['flex items-center gap-1', msg.senderId === currentUser.id ? 'justify-end' : 'justify-start']">
+                      <!-- Timestamp & Reactions -->
+                      <div class="flex flex-wrap items-center justify-between gap-2 mt-2 pt-1">
+                        <div :class="['flex items-center gap-1', msg.senderId === currentUser.id ? 'justify-end' : 'justify-start']">
 
-                            <Icon
-                                v-if="msg.senderId === currentUser.id"
-                                :icon="msg.status === 'pending' ? 'mdi:clock-time-four-outline' : msg.failed ? 'mdi:alert-circle-outline' : (msg.readBy.includes(currentUser.id) ? 'solar:check-read-linear' : 'solar:check-linear')"
-                                :class="['text-xs', msg.failed ? 'text-red-400' : (msg.readBy.includes(currentUser.id) ? 'text-emerald-300' : 'text-primary-300')]"
-                            />
-                            <span :class="['text-[12px]', msg.senderId === currentUser.id ? 'text-primary-400' : 'text-primary-300']">
+                          <Icon
+                              v-if="msg.senderId === currentUser.id"
+                              :icon="msg.status === 'pending' ? 'mdi:clock-time-four-outline' : msg.failed ? 'mdi:alert-circle-outline' : (msg.readBy.includes(currentUser.id) ? 'solar:check-read-linear' : 'solar:check-linear')"
+                              :class="['text-xs', msg.failed ? 'text-red-400' : (msg.readBy.includes(currentUser.id) ? 'text-emerald-300' : 'text-primary-300')]"
+                          />
+                          <span :class="['text-[12px]', msg.senderId === currentUser.id ? 'text-primary-400' : 'text-primary-300']">
                         {{ formatTime(msg.timestamp) }}
                       </span>
 
-                            <!-- Pinned Indicator -->
-                            <div v-if="msg.pinned" class="flex items-center gap-1 mb-1">
-                              <Icon icon="iconoir:pin" class="text-primary-600 text-xs" />
-                            </div>
-
-                            <div v-if="msg.edited" class="text-[10px] opacity-70 ml-1"><Icon icon="mdi:edit-outline" class="text-blue-600 text-xs" /></div>
-
+                          <div v-if="msg.pinned" class="flex items-center gap-1 mb-1">
+                            <Icon icon="iconoir:pin" class="text-primary-600 text-xs" />
                           </div>
 
-                          <div v-if="msg.reactions && Object.keys(msg.reactions).length > 0" class="flex flex-wrap gap-1">
-                            <button
-                                v-for="(users, emoji) in msg.reactions"
-                                :key="emoji"
-                                @click="toggleReaction(msg.id, String(emoji))"
-                                :class="[
+                          <div v-if="msg.edited" class="text-[10px] opacity-70 ml-1"><Icon icon="mdi:edit-outline" class="text-blue-600 text-xs" /></div>
+
+                        </div>
+
+                        <div v-if="msg.reactions && Object.keys(msg.reactions).length > 0" class="flex flex-wrap gap-1">
+                          <button
+                              v-for="(users, emoji) in msg.reactions"
+                              :key="emoji"
+                              @click="toggleReaction(msg.id, String(emoji))"
+                              :class="[
                           'flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs transition-all',
                           hasUserReacted(msg.id, String(emoji))
                             ? 'bg-primary-200/80 text-primary-700'
@@ -633,242 +853,263 @@
                             ? 'bg-white/20 text-white/80 hover:bg-white/30'
                             : 'bg-primary-50 text-primary-600 hover:bg-primary-100'
                         ]"
-                            >
-                              {{ emoji }} <span>{{ (users as number[]).length }}</span>
-                            </button>
-                          </div>
+                          >
+                            {{ emoji }} <span>{{ (users as number[]).length }}</span>
+                          </button>
                         </div>
                       </div>
+                    </div>
 
-                      <!-- Message Actions Button -->
-                      <button
-                          @click="toggleMenu(msg.id, $event)"
-                          :class="[
+                    <!-- Message Actions Button -->
+                    <button
+                        @click="toggleMenu(msg.id, $event)"
+                        :class="[
                       'absolute top-1/3 -translate-y-1/2 opacity-0 group-hover/message:opacity-100 transition-all duration-200 hover:scale-110',
                       'p-1.5 rounded-full',
                       msg.senderId === currentUser.id ? '-left-6' : '-right-6'
                     ]"
-                      >
-                        <Icon icon="mage:dots" class="text-primary-500 text-lg" />
-                      </button>
-                    </div>
+                    >
+                      <Icon icon="mage:dots" class="text-primary-500 text-lg" />
+                    </button>
                   </div>
                 </div>
-              </template>
-            </template>
-
-            <!-- Typing Indicator -->
-            <div v-if="typingUsers.length > 0" class="flex items-center gap-2 mt-2 ml-10">
-              <div class="flex gap-1 bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-primary-100">
-                <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
-                <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
-                <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
               </div>
-              <span class="text-xs text-primary-400">{{ typingText }}</span>
-            </div>
-
-            <div ref="bottomAnchor"></div>
+            </template>
           </template>
+
+          <!-- Typing Indicator -->
+          <div v-if="typingUsers.length > 0" class="flex items-center gap-2 mt-2 ml-10">
+            <div class="flex gap-1 bg-white rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm border border-primary-100">
+              <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+              <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+              <span class="w-1.5 h-1.5 bg-primary-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+            </div>
+            <span class="text-xs text-primary-400">{{ typingText }}</span>
+          </div>
+
+          <div ref="bottomAnchor"></div>
+        </template>
+      </div>
+
+      <!-- Message Action Menu -->
+      <Teleport to="body">
+        <div
+            v-if="activeMenuId !== null && activeMenu"
+            ref="menuElRef"
+            @click.stop
+            class="fixed z-[100] bg-white rounded-lg shadow-xl py-1 min-w-40 menu-pop"
+            :style="{ top: menuStyle.top + 'px', left: menuStyle.left + 'px', transformOrigin: menuOrigin }"
+        >
+          <div class="flex gap-1 px-2 py-1.5 border-b max-w-40 overflow-x-auto scrollbar-thin border-primary-100">
+            <button
+                v-for="emoji in quickEmojis"
+                :key="emoji"
+                @click="toggleReaction(activeMenu.id, emoji); activeMenuId = null"
+                class="text-base hover:scale-125 transition-transform px-1 hover:bg-primary-50 rounded"
+            >{{ emoji }}</button>
+          </div>
+
+          <button @click="copyMessage(activeMenu.text); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+            <Icon icon="solar:copy-linear" class="text-primary-500 text-sm" />
+            Copy
+          </button>
+
+          <button @click="replyTo = activeMenu; activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+            <Icon icon="solar:reply-linear" class="text-primary-500 text-sm" />
+            Reply
+          </button>
+
+          <button v-if="activeMenu.senderId === currentUser.id" @click="startEdit(activeMenu); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+            <Icon icon="mi:edit" class="text-primary-500 text-sm" />
+            Edit
+          </button>
+
+          <button @click="togglePin(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+            <Icon :icon="activeMenu.pinned ? 'ri:unpin-line' : 'iconoir:pin'" class="text-primary-500 text-sm" />
+            {{ activeMenu.pinned ? 'Unpin' : 'Pin' }}
+          </button>
+
+          <button v-if="activeMenu.senderId === currentUser.id" @click="deleteMessage(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors">
+            <Icon icon="mingcute:delete-line" class="text-primary-500 text-sm" />
+            Delete
+          </button>
+        </div>
+      </Teleport>
+
+      <!-- Scroll to Bottom Button -->
+      <Transition
+          enter-active-class="transition-opacity duration-100 ease-out"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+          leave-active-class="transition-opacity duration-100 ease-in"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+      >
+        <div v-if="!isNearBottom" class="absolute bottom-24 inset-e-6 z-20">
+          <button
+              @click="scrollToBottom()"
+              class="flex items-center gap-1.5 p-2.5 bg-primary-500 text-white rounded-full text-sm font-medium shadow-lg hover:bg-primary-600 transition-all"
+          >
+            <Icon icon="ep:arrow-down-bold" class="text-lg" />
+            <span v-if="unreadCount > 0">{{ unreadCount }} new</span>
+          </button>
+        </div>
+      </Transition>
+
+      <Teleport to="body">
+        <div v-if="previewImageUrl" class="fixed inset-0 z-[80] bg-black/90 flex items-center justify-center" @click="previewImageUrl = null">
+          <div class="max-w-[95vw] max-h-[95vh]" @click.stop>
+            <img :src="previewImageUrl" class="max-w-[95vw] max-h-[95vh] object-contain rounded-lg" alt="" />
+          </div>
+          <button @click="previewImageUrl = null" class="fixed top-4 inset-e-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition">
+            <Icon icon="mingcute:close-line" class="text-white text-2xl" />
+          </button>
+        </div>
+      </Teleport>
+
+      <!-- Bottom Area: recording / reply / edit / input -->
+      <div ref="bottomAreaRef" class="absolute inset-x-0 bottom-0 rounded-full shrink-0 px-4 pb-4 pt-2">
+        <!-- Voice Recording UI -->
+        <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-full border border-red-200 flex items-center gap-3">
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span class="text-sm text-red-600 font-medium">Recording... {{ formatDuration(recordingDuration) }}</span>
+          </div>
+          <div class="flex-1">
+            <div class="h-1 bg-red-200 rounded-full overflow-hidden">
+              <div class="h-full bg-red-500 rounded-full transition-all duration-1000" :style="{ width: recordingProgress + '%' }"></div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button @click="cancelRecording" class="p-2 rounded-lg bg-white text-red-600 hover:bg-red-100 transition">
+              <Icon icon="mingcute:close-line" />
+            </button>
+            <button @click="stopRecording" class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
+              <Icon :icon="isSendingVoice ? 'mdi:loading' : 'solar:plain-bold'" :class="isSendingVoice ? 'animate-spin' : ''" />
+            </button>
+          </div>
         </div>
 
-        <!-- Message Action Menu -->
-        <Teleport to="body">
+        <!-- Reply Preview -->
+        <div v-if="replyTo" class="mb-2 px-3 py-2 bg-primary-50 rounded-full border border-primary-200 flex items-center gap-2">
+          <div class="flex-1">
+            <p class="text-xs font-medium text-primary-500">Replying to {{ getMemberName(replyTo.senderId) }}</p>
+            <p class="text-xs text-primary-400 truncate">{{ replyTo.text }}</p>
+          </div>
+          <button @click="replyTo = null" class="text-primary-400 hover:text-primary-600">
+            <Icon icon="mingcute:close-line" />
+          </button>
+        </div>
+
+        <!-- Edit Preview -->
+        <div v-if="editingMessage" class="mb-2 px-3 py-2 bg-amber-50 rounded-full border border-amber-200 flex items-center gap-2">
+          <Icon icon="mi:edit" class="text-amber-500 shrink-0" />
+          <p class="text-xs text-amber-600 flex-1 truncate">Editing: {{ editingMessage.text }}</p>
+          <button @click="cancelEdit" class="text-amber-400 hover:text-amber-600">
+            <Icon icon="mingcute:close-line" />
+          </button>
+        </div>
+
+        <!-- Input Area -->
+        <div ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
+
+          <!-- Attachment Menu -->
           <div
-              v-if="activeMenuId !== null && activeMenu"
-              ref="menuElRef"
-              @click.stop
-              class="fixed z-100 bg-white rounded-lg shadow-xl py-1 min-w-40 menu-pop"
-              :style="{ top: menuStyle.top + 'px', left: menuStyle.left + 'px', transformOrigin: menuOrigin }"
+              class="grid transition-[grid-template-rows] duration-300 ease-in-out"
+              :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
           >
-            <!-- Quick Emoji Reactions -->
-            <div class="flex gap-1 px-2 py-1.5 border-b max-w-40 overflow-x-auto scrollbar-thin border-primary-100">
-              <button
-                  v-for="emoji in quickEmojis"
-                  :key="emoji"
-                  @click="toggleReaction(activeMenu.id, emoji); activeMenuId = null"
-                  class="text-base hover:scale-125 transition-transform px-1 hover:bg-primary-50 rounded"
-              >{{ emoji }}</button>
+            <div class="overflow-hidden">
+              <div class="px-4 pt-3 pb-2 border-b border-primary-100">
+                <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
+                <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+                  <Icon icon="solar:gallery-linear" class="text-primary-500" />
+                  Upload Images
+                </button>
+                <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
+                  <Icon icon="solar:document-linear" class="text-primary-500" />
+                  Upload Files
+                </button>
+                <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
+                  <Icon icon="mingcute:task-2-line" class="text-primary-500" />
+                  Create Task
+                </button>
+              </div>
             </div>
-
-            <button @click="copyMessage(activeMenu.text); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-              <Icon icon="solar:copy-linear" class="text-primary-500 text-sm" />
-              Copy
-            </button>
-
-            <button @click="replyTo = activeMenu; activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-              <Icon icon="solar:reply-linear" class="text-primary-500 text-sm" />
-              Reply
-            </button>
-
-            <button v-if="activeMenu.senderId === currentUser.id" @click="startEdit(activeMenu); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-              <Icon icon="mi:edit" class="text-primary-500 text-sm" />
-              Edit
-            </button>
-
-            <button @click="togglePin(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-              <Icon :icon="activeMenu.pinned ? 'ri:unpin-line' : 'iconoir:pin'" class="text-primary-500 text-sm" />
-              {{ activeMenu.pinned ? 'Unpin' : 'Pin' }}
-            </button>
-
-            <button v-if="activeMenu.senderId === currentUser.id" @click="deleteMessage(activeMenu.id); activeMenuId = null" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors">
-              <Icon icon="mingcute:delete-line" class="text-primary-500 text-sm" />
-              Delete
-            </button>
           </div>
-        </Teleport>
 
-        <!-- Scroll to Bottom Button -->
-        <Transition
-            enter-active-class="transition-opacity duration-100 ease-out"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="transition-opacity duration-100 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-        >
-          <div v-if="!isNearBottom" class="absolute bottom-24 inset-e-6 z-20">
-            <button
-                @click="scrollToBottom()"
-                class="flex items-center gap-1.5 p-2.5 bg-primary-500 text-white rounded-full text-sm font-medium shadow-lg hover:bg-primary-600 transition-all"
-            >
-              <Icon icon="ep:arrow-down-bold" class="text-lg" />
-              <span v-if="unreadCount > 0">{{ unreadCount }} new</span>
-            </button>
-          </div>
-        </Transition>
-
-        <Teleport to="body">
-          <div v-if="previewImageUrl" class="fixed inset-0 z-80 bg-black/90 flex items-center justify-center" @click="previewImageUrl = null">
-            <div class="max-w-[95vw] max-h-[95vh]" @click.stop>
-              <img :src="previewImageUrl" class="max-w-[95vw] max-h-[95vh] object-contain rounded-lg" alt="" />
-            </div>
-            <button @click="previewImageUrl = null" class="fixed top-4 inset-e-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition">
-              <Icon icon="mingcute:close-line" class="text-white text-2xl" />
-            </button>
-          </div>
-        </Teleport>
-
-        <!-- Bottom Area: recording / reply / edit / input -->
-        <div ref="bottomAreaRef" class="absolute inset-x-0 bottom-0 rounded-full shrink-0 px-4 pb-4 pt-2">
-          <!-- Voice Recording UI -->
-          <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-full border border-red-200 flex items-center gap-3">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-              <span class="text-sm text-red-600 font-medium">Recording... {{ formatDuration(recordingDuration) }}</span>
-            </div>
-            <div class="flex-1">
-              <div class="h-1 bg-red-200 rounded-full overflow-hidden">
-                <div class="h-full bg-red-500 rounded-full transition-all duration-1000" :style="{ width: recordingProgress + '%' }"></div>
+          <!-- Inline Todo Creation -->
+          <div v-if="showCreateTodoInline" class="px-4 pt-3 pb-2 border-b border-primary-100 space-y-2">
+            <p class="text-xs text-primary-500 font-semibold flex items-center gap-1">
+              <Icon icon="mingcute:task-2-line" /> New Task
+            </p>
+            <input
+                v-model="inlineTodo.title"
+                type="text"
+                placeholder="Task title "
+                class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200"
+            />
+            <textarea
+                v-model="inlineTodo.description"
+                rows="2"
+                placeholder="Description (optional)"
+                class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none"
+            />
+            <PrioritySlider v-model="inlineTodo.priority" />
+            <div>
+              <p class="mb-1.5 text-xs font-medium text-primary-500">Assign to</p>
+              <div class="flex flex-wrap gap-1.5">
+                <button
+                    v-for="m in members"
+                    :key="m.userId"
+                    type="button"
+                    @click="toggleAssignee(m.userId)"
+                    class="flex items-center gap-1.5 rounded-full border px-2 py-1 text-xs transition-colors"
+                    :class="inlineTodo.assignedTo.includes(m.userId)
+                     ? 'border-primary-400 bg-primary-50 text-primary-700'
+                     : 'border-primary-100 text-primary-500 hover:border-primary-200'"
+                >
+                  <img v-if="m.avatarUrl" :src="m.avatarUrl" class="h-4 w-4 rounded-full object-cover" alt="" />
+                  <div v-else :class="['h-4 w-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white', colorFor(m.userId)]">
+                    {{ m.name[0] }}
+                  </div>
+                  {{ m.name }}
+                  <Icon v-if="inlineTodo.assignedTo.includes(m.userId)" icon="mdi:check" class="text-[10px]" />
+                </button>
               </div>
             </div>
             <div class="flex gap-2">
-              <button @click="cancelRecording" class="p-2 rounded-lg bg-white text-red-600 hover:bg-red-100 transition">
+              <button @click="createTodoFromChat"
+                      :disabled="!inlineTodo.title.trim() || inlineTodo.assignedTo.length === 0"
+                      class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50"
+              >
+                Create
+              </button>
+              <button @click="showCreateTodoInline = false" class="px-3 py-2 text-primary-400 hover:text-primary-600">
                 <Icon icon="mingcute:close-line" />
               </button>
-              <button @click="stopRecording" class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
-                <Icon :icon="isSendingVoice ? 'mdi:loading' : 'solar:plain-bold'" :class="isSendingVoice ? 'animate-spin' : ''" />
-              </button>
             </div>
           </div>
 
-          <!-- Reply Preview -->
-          <div v-if="replyTo" class="mb-2 px-3 py-2 bg-primary-50 rounded-full border border-primary-200 flex items-center gap-2">
-            <div class="flex-1">
-              <p class="text-xs font-medium text-primary-500">Replying to {{ getMemberName(replyTo.senderId) }}</p>
-              <p class="text-xs text-primary-400 truncate">{{ replyTo.text }}</p>
-            </div>
-            <button @click="replyTo = null" class="text-primary-400 hover:text-primary-600">
-              <Icon icon="mingcute:close-line" />
-            </button>
-          </div>
-
-          <!-- Edit Preview -->
-          <div v-if="editingMessage" class="mb-2 px-3 py-2 bg-amber-50 rounded-full border border-amber-200 flex items-center gap-2">
-            <Icon icon="mi:edit" class="text-amber-500 shrink-0" />
-            <p class="text-xs text-amber-600 flex-1 truncate">Editing: {{ editingMessage.text }}</p>
-            <button @click="cancelEdit" class="text-amber-400 hover:text-amber-600">
-              <Icon icon="mingcute:close-line" />
-            </button>
-          </div>
-
-          <!-- Input Area -->
-          <div ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
-
-            <!-- Attachment Menu -->
-            <div
-                class="grid transition-[grid-template-rows] duration-300 ease-in-out"
-                :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'"
+          <!-- Main Input Row -->
+          <div class="flex items-center gap-1.5 p-2">
+            <button
+                v-if="!isRecording"
+                @click="startRecording"
+                :class="['p-2 rounded-full bg-primary-100 transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
+                v-tooltip="'Record voice message'"
             >
-              <div class="overflow-hidden">
-                <div class="px-4 pt-3 pb-2 border-b border-primary-100">
-                  <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
-                  <button @click="openFilePicker('image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-                    <Icon icon="solar:gallery-linear" class="text-primary-500" />
-                    Upload Images
-                  </button>
-                  <button @click="openFilePicker('file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-                    <Icon icon="solar:document-linear" class="text-primary-500" />
-                    Upload Files
-                  </button>
-                  <button @click="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
-                    <Icon icon="mingcute:task-2-line" class="text-primary-500" />
-                    Create Task
-                  </button>
-                </div>
-              </div>
-            </div>
+              <Icon icon="mdi:microphone" class="text-xl" />
+            </button>
 
-            <!-- Inline Todo Creation -->
-            <div v-if="showCreateTodoInline" class="px-4 pt-3 pb-2 border-b border-primary-100 space-y-2">
-              <p class="text-xs text-primary-500 font-semibold flex items-center gap-1">
-                <Icon icon="mingcute:task-2-line" /> New Task
-              </p>
-              <input
-                  v-model="inlineTodo.title"
-                  type="text"
-                  placeholder="Task title "
-                  class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200"
-              />
-              <textarea
-                  v-model="inlineTodo.description"
-                  rows="2"
-                  placeholder="Description (optional)"
-                  class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none"
-              />
-              <PrioritySlider v-model="inlineTodo.priority" />
-              <div class="flex gap-2">
-                <button @click="createTodoFromChat" :disabled="!inlineTodo.title.trim()" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50">
-                  Create
-                </button>
-                <button @click="showCreateTodoInline = false" class="px-3 py-2 text-primary-400 hover:text-primary-600">
-                  <Icon icon="mingcute:close-line" />
-                </button>
-              </div>
-            </div>
+            <button
+                @click="showAttachMenu = !showAttachMenu"
+                :class="['p-2.5 rounded-full bg-primary-100 transition-all shrink-0', showAttachMenu ? 'bg-primary-500 text-white' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
+                v-tooltip="'Attach file or image'"
+            >
+              <Icon icon="lucide:paperclip" class="text-lg" />
+            </button>
 
-            <!-- Main Input Row -->
-            <div class="flex items-center gap-1.5 p-2">
-              <!-- Voice Record Button -->
-              <button
-                  v-if="!isRecording"
-                  @click="startRecording"
-                  :class="['p-2 rounded-full bg-primary-100 transition-all shrink-0', isRecording ? 'bg-red-100 text-red-500' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
-                  v-tooltip="'Record voice message'"
-              >
-                <Icon icon="mdi:microphone" class="text-xl" />
-              </button>
-
-              <!-- Attachment Button -->
-              <button
-                  @click="showAttachMenu = !showAttachMenu"
-                  :class="['p-2.5 rounded-full bg-primary-100 transition-all shrink-0', showAttachMenu ? 'bg-primary-500 text-white' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']"
-                  v-tooltip="'Attach file or image'"
-              >
-                <Icon icon="lucide:paperclip" class="text-lg" />
-              </button>
-
-              <!-- Text Input -->
-              <div class="flex-1 flex items-center bg-primary-50 rounded-full border border-primary-300 px-3 py-1">
+            <div class="flex-1 flex items-center bg-primary-50 rounded-full border border-primary-300 px-3 py-1">
               <textarea
                   ref="inputRef"
                   v-model="inputText"
@@ -880,27 +1121,26 @@
                   class="flex-1 resize-none bg-transparent items-center text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
                   style="field-sizing: content"
               />
-              </div>
+            </div>
 
-              <!-- Send Button -->
-              <button
-                  @click="sendMessage"
-                  :disabled="!inputText.trim()"
-                  :class="[
+            <button
+                @click="sendMessage"
+                :disabled="!inputText.trim()"
+                :class="[
               'p-2.5 rounded-full transition-all shrink-0',
               inputText.trim()
                 ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95'
                 : 'bg-primary-100 text-primary-300 cursor-not-allowed'
             ]"
-                  v-tooltip="'Send message'"
-              >
-                <Icon icon="pepicons-pop:send" class="text-xl" />
-              </button>
-            </div>
+                v-tooltip="'Send message'"
+            >
+              <Icon icon="pepicons-pop:send" class="text-xl" />
+            </button>
           </div>
         </div>
+      </div>
 
-      <!-- Group Info Panel — stays contained within the chat page itself -->
+      <!-- Group Info Panel -->
       <Transition
           enter-active-class="transition-opacity duration-300 ease-in-out"
           leave-active-class="transition-opacity duration-300 ease-in-out"
@@ -924,7 +1164,6 @@
             v-if="showGroupInfoPanel"
             class="absolute inset-y-0 inset-e-0 z-40 w-full max-w-sm bg-white shadow-2xl flex flex-col"
         >
-          <!-- Panel Header -->
           <div class="flex items-center justify-between h-16 shrink-0 px-5 border-b border-primary-100">
             <h3 class="text-base font-bold text-primary-900">Group Info</h3>
             <button @click="showGroupInfoPanel = false" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
@@ -933,7 +1172,6 @@
           </div>
 
           <div class="flex-1 overflow-y-auto custom-scrollbar" v-if="activeGroup">
-            <!-- Section 1: Group Info -->
             <div class="p-6 flex flex-col items-center gap-3 border-b border-primary-100">
               <div class="relative">
                 <img v-if="activeGroup.avatarUrl" :src="activeGroup.avatarUrl" class="w-24 h-24 rounded-full object-cover shadow-sm" alt="" />
@@ -971,7 +1209,6 @@
               </div>
             </div>
 
-            <!-- Section 2: Members -->
             <div class="p-4">
               <div class="flex items-center justify-between px-2 pb-2">
                 <p class="text-[11px] font-semibold uppercase tracking-wide text-primary-300">
@@ -1008,7 +1245,6 @@
                     <p class="text-xs text-primary-400">{{ m.role === 'admin' ? 'Admin' : 'Member' }}</p>
                   </div>
 
-                  <!-- مدیر می‌تونه نقش بقیه رو عوض کنه یا حذفشون کنه؛ خودِ فرد هم می‌تونه خودش رو حذف کنه (leave) -->
                   <div v-if="isGroupAdmin && m.userId !== currentUser.id" class="opacity-0 group-hover/member:opacity-100 transition-opacity flex items-center gap-1">
                     <button
                         @click="confirmRoleChange(m)"
@@ -1040,7 +1276,7 @@
           <Teleport to="body">
             <div
                 v-if="showAddMemberDialog"
-                class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-60 p-4"
+                class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
                 @click.self="closeAddMemberDialog"
             >
               <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full max-h-[70vh] flex flex-col">
@@ -1095,18 +1331,16 @@
     <Teleport to="body">
       <div
           v-if="showUserProfileDialog && viewedProfile"
-          class="fixed inset-0 z-70 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          class="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
           @click.self="showUserProfileDialog = false"
       >
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden">
-          <!-- بنر -->
           <div class="h-28 bg-linear-to-l from-primary-500 to-primary-400 relative">
             <img v-if="viewedProfile.coverUrl" :src="viewedProfile.coverUrl" class="w-full h-full object-cover" alt="" />
             <button @click="showUserProfileDialog = false" class="absolute top-3 inset-e-3 p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50">
               <Icon icon="mingcute:close-line" class="text-lg" />
             </button>
           </div>
-          <!-- آواتار روکار -->
           <div class="flex flex-col items-center relative z-50 -mt-12 px-6 pb-6">
             <img
                 v-if="viewedProfile.avatarUrl"
@@ -1139,7 +1373,7 @@
     <Teleport to="body">
       <div
           v-if="showAttachmentPreviewDialog"
-          class="fixed inset-0 z-70 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          class="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
           @click.self="closeAttachmentPreview"
       >
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col">
@@ -1189,7 +1423,7 @@
     <Teleport to="body">
       <div
           v-if="confirmDialog"
-          class="fixed inset-0 z-75 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          class="fixed inset-0 z-[75] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
           @click.self="closeConfirm"
       >
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
@@ -1234,10 +1468,9 @@
 import { ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import type { Todo, Priority } from '~/types/todoType'
-import PrioritySlider from '~/components/Priorityslider.vue'
+import PrioritySlider from '~/components/PrioritySlider.vue'
 import { useGroupChat, type ApiGroup, type ApiMessage } from '~/composables/useGroupChat'
 import { useAuth } from '~/composables/useAuth'
-import {id} from "postcss-selector-parser";
 import api, { getErrorMessage } from '~/src/services/api'
 import { toast } from 'vue-sonner'
 import VoicePlayer from '~/components/VoicePlayer.vue'
@@ -1299,6 +1532,20 @@ interface InlineTodoForm {
   title: string
   description: string
   priority: Priority
+  assignedTo: number[]
+}
+
+// ── Skeleton row type definitions ──────────────────────────────────────────
+interface SkeletonRow {
+  type: 'message' | 'system'
+  sent: boolean
+  consecutive: boolean
+  lines: number[]
+  hasImage: boolean
+  imageWide: boolean
+  hasVoice: boolean
+  hasReactions: boolean
+  reactionCount: number
 }
 
 const props = defineProps<{
@@ -1378,7 +1625,7 @@ const messagesReady = ref<boolean>(false)
 
 function handleTypingInput(): void {
   if (!activeGroupId.value) return
-  if (typingTimeoutId) return // تا وقتی تایمر قبلی تموم نشده، دوباره نفرست
+  if (typingTimeoutId) return
   apiSendTyping(activeGroupId.value)
   typingTimeoutId = window.setTimeout(() => { typingTimeoutId = null }, 2000)
 }
@@ -1470,6 +1717,9 @@ const messages = computed<ApiMessage[]>(() =>
     activeGroupId.value ? (messagesByGroup[activeGroupId.value] ?? []) : []
 )
 
+// ── Computed: is the very first page load still happening? ──────────────────
+const loadingInitial = computed(() => loadingGroups.value && apiGroups.value.length === 0)
+
 const { clearMessageNotice } = useNotifications()
 async function selectGroup(id: number): Promise<void> {
   messagesReady.value = false
@@ -1488,6 +1738,7 @@ async function selectGroup(id: number): Promise<void> {
     jumpToBottomInstant()
     messagesReady.value = true
   })
+  nextTick(updateVisibleDate)
   const last = [...(messagesByGroup[id] ?? [])].reverse().find(m => m.status !== 'pending')
   if (last) apiMarkRead(id, last.id)
 }
@@ -1578,12 +1829,38 @@ async function saveGroupInfo(): Promise<void> {
   if (!activeGroupId.value || !isGroupAdmin.value) return
   const g = activeGroup.value
   if (!g) return
-  if (groupInfoForm.name === g.name && groupInfoForm.description === (g.description || '')) return // چیزی عوض نشده، درخواست الکی نزن
+  if (groupInfoForm.name === g.name && groupInfoForm.description === (g.description || '')) return
 
   await apiUpdateGroup(activeGroupId.value, {
     name: groupInfoForm.name.trim() || g.name,
     description: groupInfoForm.description.trim(),
   })
+}
+
+const dateDividerRefs = ref<Record<string, HTMLElement>>({})
+const currentVisibleDate = ref<string | null>(null)
+
+function setDateDividerRef(el: unknown, date: string): void {
+  if (el) dateDividerRefs.value[date] = el as HTMLElement
+}
+
+function updateVisibleDate(): void {
+  const container = messagesContainer.value
+  if (!container) return
+
+  const containerTop = container.getBoundingClientRect().top
+  let latest: string | null = null
+
+  for (const date of Object.keys(dateDividerRefs.value)) {
+    const el = dateDividerRefs.value[date]
+    if (!el) continue
+    const elTop = el.getBoundingClientRect().top
+    // اگه این هدر از بالای کانتینر رد شده (یا هنوز رسیده بهش)، کاندیدای فعلیه
+    if (elTop <= containerTop + 4) {
+      latest = date
+    }
+  }
+  currentVisibleDate.value = latest
 }
 
 const confirmDialog = ref<{
@@ -1698,7 +1975,7 @@ function handleMemberSearch(): void {
 const addingMemberId = ref<number | null>(null)
 async function handleAddMember(userId: number): Promise<void> {
   if (!activeGroupId.value) return
-  if (addingMemberId.value) return // یه درخواست هم‌زمان کافیه
+  if (addingMemberId.value) return
   addingMemberId.value = userId
   try {
     const ok = await apiInviteMember(activeGroupId.value, userId)
@@ -1720,15 +1997,12 @@ function closeAddMemberDialog(): void {
 
 const { isMobile } = useResponsiveMode()
 
-// ─── Mobile pane focus: on narrow screens only the groups list OR the
-// messages pane is shown at a time (both always show side-by-side on desktop) ──
 const mobilePane = ref<'sidebar' | 'main'>('main')
 
 function goToTasks(): void {
   emit('open-tasks')
 }
 
-// ─── Groups sidebar: search ─────────────────────────────────────────────────
 const groupSearchQuery = ref<string>('')
 const filteredGroups = computed(() => {
   const q = groupSearchQuery.value.trim().toLowerCase()
@@ -1741,7 +2015,6 @@ const filteredGroups = computed(() => {
   return sorted.filter(g => g.name.toLowerCase().includes(q))
 })
 
-// ─── Groups sidebar: collapse (desktop) ─────────────────────────────────────
 const sidebarCollapsed = ref<boolean>(false)
 const sidebarIconOnly = computed<boolean>(() => !isMobile.value && sidebarCollapsed.value)
 
@@ -1758,7 +2031,6 @@ function handleSelectGroup(id: number): void {
   mobilePane.value = 'main'
 }
 
-// ─── Groups sidebar: create group dialog ────────────────────────────────────
 const showCreateGroupDialog = ref<boolean>(false)
 const newGroupForm = ref<{ name: string; description: string; avatarUrl: string | null }>({
   name: '', description: '', avatarUrl: null,
@@ -1807,7 +2079,6 @@ async function handleActiveGroupAvatarSelect(event: Event): Promise<void> {
 const showGroupInfoPanel = ref<boolean>(false)
 const chatPaneRef = ref<HTMLElement | null>(null)
 
-// ─── Header "more options" dropdown (same pattern as TodoList) ───────────────
 type MenuType = 'header' | null
 const openMenu = ref<MenuType>(null)
 const menuAlign = ref<Record<Exclude<MenuType, null>, 'left' | 'right'>>({
@@ -1885,7 +2156,6 @@ const inputRef = ref<HTMLTextAreaElement | null>(null)
 const menuOrigin = ref<string>('top left')
 const inputAreaRef = ref<HTMLElement | null>(null)
 
-// File & Voice states
 const previewImageUrl = ref<string | null>(null)
 const isRecording = ref<boolean>(false)
 const mediaRecorder = ref<MediaRecorder | null>(null)
@@ -1894,7 +2164,7 @@ const recordingDuration = ref<number>(0)
 const recordingInterval = ref<number | null>(null)
 const recordingProgress = ref<number>(0)
 
-const inlineTodo = ref<InlineTodoForm>({ title: '', description: '', priority: 'medium' })
+const inlineTodo = ref<InlineTodoForm>({ title: '', description: '', priority: 'medium', assignedTo: [] })
 
 const quickEmojis = ['👍', '❤️', '😂', '🔥', '👏', '😮', '😭', '😟']
 const priorityColors: Record<Priority, string> = {
@@ -1902,6 +2172,40 @@ const priorityColors: Record<Priority, string> = {
   medium: 'bg-amber-100 text-amber-600',
   low:    'bg-emerald-100 text-emerald-600',
 }
+
+// ── Skeleton data: realistic chat conversation pattern ─────────────────────
+const initialSkeletonRows = computed<SkeletonRow[]>(() => [
+  { type: 'message', sent: false, consecutive: false, lines: [90, 60],       hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: true,  lines: [75],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [85, 50, 30],  hasImage: false, imageWide: false, hasVoice: false, hasReactions: true,  reactionCount: 2 },
+  { type: 'message', sent: false, consecutive: false, lines: [],            hasImage: true,  imageWide: true,  hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: true,  lines: [65],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [95, 70],      hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: true,  lines: [40],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'system',  sent: false, consecutive: false, lines: [],            hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: false, lines: [],            hasImage: false, imageWide: false, hasVoice: true,  hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [80, 55],      hasImage: false, imageWide: false, hasVoice: false, hasReactions: true,  reactionCount: 3 },
+  { type: 'message', sent: false, consecutive: false, lines: [70, 45, 25],  hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: true,  lines: [55],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [],            hasImage: true,  imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: true,  lines: [35],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: false, lines: [88, 62, 40],  hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+])
+
+const messageSkeletonRows = computed<SkeletonRow[]>(() => [
+  { type: 'message', sent: false, consecutive: false, lines: [85, 55],      hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: true,  lines: [70],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [90, 65, 35],  hasImage: false, imageWide: false, hasVoice: false, hasReactions: true,  reactionCount: 2 },
+  { type: 'message', sent: false, consecutive: false, lines: [],            hasImage: false, imageWide: false, hasVoice: true,  hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [50],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: true,  lines: [75, 45],      hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: false, lines: [],            hasImage: true,  imageWide: true,  hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: true,  lines: [60],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [80, 50],      hasImage: false, imageWide: false, hasVoice: false, hasReactions: true,  reactionCount: 1 },
+  { type: 'message', sent: false, consecutive: false, lines: [95, 70, 40],  hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: true,  consecutive: false, lines: [45],          hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+  { type: 'message', sent: false, consecutive: false, lines: [65, 35],      hasImage: false, imageWide: false, hasVoice: false, hasReactions: false, reactionCount: 0 },
+])
 
 const pinnedMessages = computed<Message[]>(() => messages.value.filter(m => m.pinned))
 
@@ -1960,7 +2264,6 @@ function hasUserReacted(msgId: number, emoji: string): boolean {
   return msg?.reactions[emoji]?.includes(currentUser.value.id) ?? false
 }
 
-// --- Floating action menu positioning ---
 const menuElRef = ref<HTMLElement | null>(null)
 const triggerRect = ref<DOMRect | null>(null)
 const menuStyle = ref<{ top: number; left: number }>({ top: -9999, left: -9999 })
@@ -1983,25 +2286,21 @@ function positionMenu(): void {
   const rect = triggerRect.value
   const menuRect = menuElRef.value.getBoundingClientRect()
 
-  // اگه اینپوت پیدا شد، سقف پایین رو همونجا بذار، وگرنه لبه‌ی صفحه
   const inputRect = inputAreaRef.value?.getBoundingClientRect()
   const maxBottom = inputRect
       ? inputRect.top - VIEWPORT_PADDING
       : window.innerHeight - VIEWPORT_PADDING
 
-  // Default: open downward, right under the trigger button
   let top = rect.bottom + MENU_MARGIN
   menuOrigin.value = 'top left'
 
   if (top + menuRect.height > maxBottom) {
-    // فضای پایین (تا اینپوت) کافی نبود -> برو بالای دکمه
     const topAbove = rect.top - menuRect.height - MENU_MARGIN
     top = topAbove < VIEWPORT_PADDING ? VIEWPORT_PADDING : topAbove
     menuOrigin.value = 'bottom left'
   }
 
   if (top + menuRect.height > maxBottom) {
-    // حتی بالا هم جا نشد (منو خیلی بلنده) -> بچسبونش درست بالای اینپوت
     top = maxBottom - menuRect.height
   }
 
@@ -2033,8 +2332,8 @@ function copyMessage(text: string): void {
 }
 
 function unpinMessage(msgId: number): void {
-  const msg = messages.value.find(m => m.id === msgId)
-  if (msg) msg.pinned = false
+  if (!activeGroupId.value) return
+  apiTogglePin(activeGroupId.value, msgId)
 }
 
 function getFileIcon(filename: string): string {
@@ -2147,7 +2446,7 @@ function sendVoiceMessage(): void {
   isSendingVoice.value = true
   const groupId = activeGroupId.value
   const duration = pendingVoiceMessage.value.duration
-  pendingVoiceMessage.value = null // فوری UI ضبط رو ببند
+  pendingVoiceMessage.value = null
 
   apiSendMessageWithFiles(groupId, [audioFile], { voice_duration: duration })
       .finally(() => {
@@ -2224,29 +2523,29 @@ function toggleReaction(msgId: number, emoji: string): void {
   apiToggleReaction(activeGroupId.value, msgId, emoji)
 }
 
-function createTodoFromChat(): void {
+async function createTodoFromChat(): Promise<void> {
   const title = inlineTodo.value.title.trim()
-  if (!title) return
-
-  emit('create-todo', title, inlineTodo.value.description.trim(), inlineTodo.value.priority)
-
-  messages.value.push({
-    id:        Date.now(),
-    senderId:  currentUser.value.id,
-    text:      `✅ Task created: "${title}"`,
-    timestamp: new Date(),
-    type:      'system',
-    read:      true,
-    pinned:    false,
-    edited:    false,
-    replyTo:   null,
-    reactions: {},
-    todoRef:   { id: Date.now(), text: title, priority: inlineTodo.value.priority },
-  })
-
-  inlineTodo.value = { title: '', description: '', priority: 'medium' }
+  if (!title || !activeGroupId.value || inlineTodo.value.assignedTo.length === 0) return
+  try {
+    await api.post(`/groups/${activeGroupId.value}/tasks`, {
+          title,
+          description: inlineTodo.value.description.trim() || null,
+          priority: inlineTodo.value.priority,
+          assigned_to: inlineTodo.value.assignedTo,
+    })
+    toast.success('تسک ساخته شد')
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, 'ساخت تسک ناموفق بود'))
+    return
+  }
+  inlineTodo.value = { title: '', description: '', priority: 'medium', assignedTo: [] }
   showCreateTodoInline.value = false
-  scrollToBottom()
+}
+
+function toggleAssignee(userId: number): void {
+  const idx = inlineTodo.value.assignedTo.indexOf(userId)
+  if (idx > -1) inlineTodo.value.assignedTo.splice(idx, 1)
+  else inlineTodo.value.assignedTo.push(userId)
 }
 
 async function scrollToMessage(msgId: number): Promise<void> {
@@ -2258,7 +2557,6 @@ async function scrollToMessage(msgId: number): Promise<void> {
   if (messageElement) {
     messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
-    // Highlight animation
     setTimeout(() => {
       highlightedMessageId.value = null
     }, 3000)
@@ -2285,7 +2583,6 @@ function scrollToBottom(instant: boolean = false): void {
     if ('onscrollend' in el) {
       el.addEventListener('scrollend', finish, { once: true })
     } else {
-      // fallback برای مرورگرهایی که scrollend رو ساپورت نمی‌کنن
       programmaticScrollTimeout = window.setTimeout(finish, instant ? 50 : 500)
     }
   })
@@ -2303,10 +2600,11 @@ function onScroll(): void {
   const el = messagesContainer.value
   if (!el) return
   if (activeMenuId.value) closeActiveMenu()
-  if (isProgrammaticScroll) return // در حین اسکرول خودکار، وضعیت دکمه رو دستکاری نکن
+  if (isProgrammaticScroll) return
   const threshold = 100
   isNearBottom.value = el.scrollHeight - el.scrollTop - el.clientHeight < threshold
   if (isNearBottom.value) unreadCount.value = 0
+  updateVisibleDate()
 }
 
 function handleWindowResize(): void {
@@ -2355,6 +2653,7 @@ watch(messages, (): void => {
     const last = [...messages.value].reverse().find(m => m.status !== 'pending')
     if (last && activeGroupId.value) apiMarkRead(activeGroupId.value, last.id)
   }
+  nextTick(updateVisibleDate)
 }, { deep: true })
 
 watch(bottomAreaHeight, () => {
@@ -2368,7 +2667,6 @@ watch(bottomAreaHeight, () => {
 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(219, 39, 119, 0.2); border-radius: 10px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(219, 39, 119, 0.4); }
 
-/* دراپ‌داون هدر - همون انیمیشن دراپ‌داون‌های TodoList */
 .dropdown-enter-active {
   transition: opacity 0.16s ease-out, transform 0.16s ease-out;
 }
@@ -2415,5 +2713,14 @@ watch(bottomAreaHeight, () => {
 .menu-pop {
   animation: menu-pop 0.25s ease-out;
   transform-origin: top left;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
