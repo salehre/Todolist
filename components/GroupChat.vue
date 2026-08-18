@@ -1724,6 +1724,7 @@ const { clearMessageNotice } = useNotifications()
 async function selectGroup(id: number): Promise<void> {
   messagesReady.value = false
   activeGroupId.value = id
+  previousMessageCount = 0
   subscribeToGroup(id)
   clearMessageNotice(id)
   if (!membersByGroup[id]) {
@@ -2145,6 +2146,8 @@ const typingNames = ref<Record<number, string>>({})
 const isNearBottom = ref<boolean>(true)
 const unreadCount = ref<number>(0)
 let isProgrammaticScroll = false
+let previousMessageCount = 0
+let isProgrammaticScroll = false
 let programmaticScrollTimeout: number | null = null
 const activeMenuId = ref<number | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
@@ -2498,8 +2501,15 @@ async function sendMessage(): Promise<void> {
 }
 
 function deleteMessage(id: number): void {
-  if (!activeGroupId.value) return
-  apiDeleteMessage(activeGroupId.value, id)
+  openConfirm({
+        title: 'حذف پیام',
+        message: 'مطمئنی می‌خوای این پیام رو حذف کنی؟',
+        confirmLabel: 'حذف',
+        danger: true,
+        onConfirm: () => {
+          if (activeGroupId.value) apiDeleteMessage(activeGroupId.value, id)
+        },
+  })
 }
 
 function startEdit(msg: Message): void {
@@ -2647,11 +2657,20 @@ onUnmounted((): void => {
   if (recordingInterval.value) clearInterval(recordingInterval.value)
 })
 
-watch(messages, (): void => {
+let previousMessageCount = 0
+watch(messages, (newMessages): void => {
+  const isNewMessage = newMessages.length > previousMessageCount
+  previousMessageCount = newMessages.length
+
   if (isNearBottom.value) {
     scrollToBottom()
-    const last = [...messages.value].reverse().find(m => m.status !== 'pending')
+    const last = [...newMessages].reverse().find(m => m.status !== 'pending')
     if (last && activeGroupId.value) apiMarkRead(activeGroupId.value, last.id)
+  } else if (isNewMessage) {
+    const lastMsg = newMessages[newMessages.length - 1]
+    if (lastMsg && lastMsg.senderId !== currentUser.value.id) {
+      unreadCount.value++
+    }
   }
   nextTick(updateVisibleDate)
 }, { deep: true })
