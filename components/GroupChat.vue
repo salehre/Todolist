@@ -2147,7 +2147,6 @@ const isNearBottom = ref<boolean>(true)
 const unreadCount = ref<number>(0)
 let isProgrammaticScroll = false
 let previousMessageCount = 0
-let isProgrammaticScroll = false
 let programmaticScrollTimeout: number | null = null
 const activeMenuId = ref<number | null>(null)
 const messagesContainer = ref<HTMLElement | null>(null)
@@ -2657,7 +2656,6 @@ onUnmounted((): void => {
   if (recordingInterval.value) clearInterval(recordingInterval.value)
 })
 
-let previousMessageCount = 0
 watch(messages, (newMessages): void => {
   const isNewMessage = newMessages.length > previousMessageCount
   previousMessageCount = newMessages.length

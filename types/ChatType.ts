@@ -1,49 +1,102 @@
-import type { Todo, Priority } from '~/types/todoType'
+import type { Priority } from '~/types/todoType'
 
-// ─── Members ──────────────────────────────────────────────────────────────────
-export interface Member {
+export interface MessageAttachment {
     id: number
     name: string
-    avatarBg: string
-    online: boolean
+    size: number
+    type: 'image' | 'file' | 'voice'
+    url: string
+    voiceDuration: number | null
 }
 
-// ─── Messages ─────────────────────────────────────────────────────────────────
-export type MessageType = 'text' | 'system'
+export interface TodoRef {
+    id: number
+    text: string
+    priority: Priority
+}
 
-/** key = emoji string، value = آرایه id کسایی که ری‌اکت کردن */
-export type Reactions = Record<string, number[]>
-
-export type TodoRef = Pick<Todo, 'id' | 'text' | 'priority'>
-
-export interface Message {
+export interface ApiMessage {
     id: number
     senderId: number
-    text: string
-    timestamp: Date
-    type: MessageType
-    read: boolean
+    text: string | null
+    timestamp: string
+    type: 'text' | 'system'
     pinned: boolean
     edited: boolean
-    replyTo: number | null       // id پیام reply شده
-    reactions: Reactions
+    replyTo: number | null
+    reactions: Record<string, number[]>
+    readBy: number[]
+    mentions: number[]
     todoRef: TodoRef | null
+    attachments: MessageAttachment[]
+    status?: 'pending' | 'sent'
+    failed?: boolean
 }
 
-// ─── Forms ────────────────────────────────────────────────────────────────────
+export interface ApiGroup {
+    id: number
+    name: string
+    description: string | null
+    avatarUrl: string | null
+    membersCount: number
+    lastMessageAt: string | null
+    createdAt: string
+}
+
+export interface GroupMember {
+    userId: number
+    name: string
+    username: string
+    avatarUrl: string | null
+    role: 'admin' | 'member'
+}
+
+export interface UserSearchResult {
+    id: number
+    name: string
+    username: string
+    avatarUrl: string | null
+}
+
+export interface UserProfile {
+    id: number
+    name: string
+    username: string
+    avatarUrl: string | null
+    coverUrl: string | null
+    bio: string | null
+    social_links: { platform: string; url: string }[]
+}
+
+export interface PendingFile {
+    file: File
+    previewUrl: string
+    isImage: boolean
+}
+
 export interface InlineTodoForm {
     title: string
     description: string
     priority: Priority
+    assignedTo: number[]
 }
 
-// ─── Emits shared between sub-components ─────────────────────────────────────
-/** رویدادهایی که MessageItem به بالا emit می‌کنه */
-export interface MessageActions {
-    reply: (msg: Message) => void
-    pin: (id: number) => void
-    edit: (msg: Message) => void
-    delete: (id: number) => void
-    react: (msgId: number, emoji: string) => void
-    viewTodo: (ref: TodoRef) => void
+export interface SkeletonRow {
+    type: 'message' | 'system'
+    sent: boolean
+    consecutive: boolean
+    lines: number[]
+    hasImage: boolean
+    imageWide: boolean
+    hasVoice: boolean
+    hasReactions: boolean
+    reactionCount: number
+}
+
+export interface ConfirmDialogOptions {
+    title: string
+    message: string
+    confirmLabel: string
+    danger?: boolean
+    onConfirm: () => void | Promise<void>
 }
