@@ -1,14 +1,4 @@
-<script setup lang="ts">
-
-</script>
-
 <template>
-
-</template>
-
-<style scoped>
-
-</style><template>
   <Teleport to="body">
     <div v-if="open" class="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="emit('close')">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col">

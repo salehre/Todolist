@@ -1,5 +1,6 @@
 <template>
   <div>
+    <ConfirmDialog />
     <Toaster rich-colors position="bottom-left" :dir="direction" />
     <NuxtLayout>
       <NuxtPage />

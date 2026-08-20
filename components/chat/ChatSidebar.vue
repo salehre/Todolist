@@ -183,7 +183,7 @@
 import { ref, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { colorFor } from '~/utils/avatarColor'
-import type { ApiGroup, ApiMessage } from '~/types/chatType'
+import type { ApiGroup, ApiMessage } from '~/types/ChatType'
 
 const props = defineProps<{
   groups: ApiGroup[]
