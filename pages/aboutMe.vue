@@ -134,11 +134,7 @@
         target="_blank"
         class="fixed bottom-6 left-6 z-50 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary-500 to-primary-600 px-5 py-3 text-white shadow-lg shadow-primary-300/50 transition-transform hover:scale-105 lg:hidden"
     >
-      <span class="relative flex h-2 w-2">
-        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-white/70"></span>
-        <span class="relative inline-flex h-2 w-2 rounded-full bg-white"></span>
-      </span>
-      <Icon icon="mdi:heart-outline" class="text-base"></Icon>
+      <Icon icon="tabler:coffee" class="text-base"></Icon>
       <span class="text-sm font-medium">حمایت</span>
     </a>
   </div>

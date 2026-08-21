@@ -22,8 +22,16 @@
       </h1>
     </div>
 
-    <div class="flex items-center gap-1.5">
-      <div class="hidden items-center gap-1.5 md:flex">
+    <div class="pe-5 items-center gap-1.5">
+      <NuxtLink
+          v-if="!authState.isLoggedIn"
+          to="/auth/login"
+          class="hidden md:flex items-center gap-1.5 rounded-xl bg-linear-to-r from-primary-500 to-primary-600 px-6.5 py-2 text-sm font-medium text-white shadow-md shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700"
+      >
+<!--        <Icon icon="mdi:login" class="text-base" />-->
+        ورود
+      </NuxtLink>
+      <div v-if="authState.isLoggedIn" class="hidden items-center gap-1.5 md:flex">
         <!-- جستجو -->
         <button
             v-tooltip="isRtl ? 'English' : 'فارسی'"
@@ -119,6 +127,7 @@
       </div>
 
       <button
+          v-if="authState.isLoggedIn"
           ref="moreButtonRef"
           @click="toggleMobileMenu"
           class="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 md:hidden"
@@ -162,7 +171,7 @@
             @click="toggleDark(); mobileMenuOpen = false"
             class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
         >
-          <Icon :icon="isDark ? 'mdi:weather-sunny' : 'mdi:weather-night'" class="text-lg text-slate-400" />
+          <MorphIcon :icon="isDark ? heroMoon : heroSun" spring="smooth" class="text-lg text-slate-400" :size="18" />
           تغییر تم
         </button>
         <button

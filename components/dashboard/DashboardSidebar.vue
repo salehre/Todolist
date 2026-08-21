@@ -43,7 +43,7 @@
             :class="showLabels ? 'w-auto opacity-100' : 'w-0 opacity-0'"
         >
           <p class="truncate whitespace-nowrap text-[13px] font-bold text-slate-800">
-            {{ authState.user?.name || 'کاربر' }}
+            {{ authState.user?.name || 'کاربر مهمان' }}
           </p>
           <p class="truncate whitespace-nowrap text-[11px] text-slate-400 text-center">
             {{ authState.user?.username }}
@@ -52,7 +52,7 @@
       </NuxtLink>
 
       <button
-          v-if="showLabels"
+          v-if="showLabels && authState.isLoggedIn"
           v-tooltip="'خروج از حساب'"
           @click="showLogoutDialog = true"
           class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
@@ -104,6 +104,16 @@
         >
           {{ item.label }}
         </span>
+      </NuxtLink>
+
+      <!-- دکمه‌ی ورود، فقط وقتی لاگین نیستی و فقط تو نمای موبایل -->
+      <NuxtLink
+          v-if="!authState.isLoggedIn"
+          to="/auth/login"
+          class="mx-1.5 mt-4 flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-primary-500 to-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700 md:hidden"
+      >
+        <Icon icon="mdi:login" class="text-base" />
+        ورود به حساب
       </NuxtLink>
     </nav>
 
@@ -175,7 +185,7 @@ const router = useRouter()
 
 const userInitial = computed(() => {
   const name = authState.user?.name || authState.user?.username || ''
-  return name.trim().charAt(0).toUpperCase() || '?'
+  return name.trim().charAt(0).toUpperCase() || ''
 })
 
 function handleLogout(): void {
