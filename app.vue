@@ -2,6 +2,9 @@
   <div>
     <ConfirmDialog />
     <Toaster rich-colors position="bottom-left" :dir="direction" />
+    <ClientOnly>
+      <VitePwaManifest />
+    </ClientOnly>
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
