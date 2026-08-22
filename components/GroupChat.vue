@@ -15,6 +15,7 @@
 
     <div :class="['relative flex flex-col h-full w-full bg-white/30 backdrop-blur-sm flex-1 min-w-0 overflow-hidden', isMobile && mobilePane !== 'main' ? 'hidden' : 'flex']">
       <ChatHeader
+          v-if="activeGroupId"
           :group="activeGroup"
           :online-count="onlineMembers.length"
           :member-count="members.length"
@@ -28,7 +29,7 @@
           @delete-group="confirmDeleteGroup"
       />
 
-      <div v-if="showSearch" class="shrink-0 px-3 py-2 bg-white relative z-[9999]">
+      <div v-if="activeGroupId && showSearch" class="shrink-0 px-3 py-2 bg-white relative z-[9999]">
         <div class="flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2.5">
           <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0" />
           <input v-model="searchQuery" type="text" placeholder="Search messages..." class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none" autofocus />
@@ -36,11 +37,11 @@
         </div>
       </div>
 
-      <ChatPinnedBar :messages="pinnedMessages" :offset-for-search="showSearch" @open="showPinnedDialog = true" />
+      <ChatPinnedBar v-if="activeGroupId" :messages="pinnedMessages" :offset-for-search="showSearch" @open="showPinnedDialog = true" />
       <ChatPinnedDialog :open="showPinnedDialog" :messages="pinnedMessages" :members="members" @close="showPinnedDialog = false" @unpin="unpinMessage" @go-to-message="scrollToMessage" />
 
       <Transition name="fade">
-        <div v-if="currentVisibleDate" :key="currentVisibleDate" class="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center">
+        <div v-if="activeGroupId && currentVisibleDate" :key="currentVisibleDate" class="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center">
           <span class="rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-xs text-primary-500 shadow-sm">{{ currentVisibleDate }}</span>
         </div>
       </Transition>
@@ -99,6 +100,7 @@
       </Teleport>
 
       <ChatMessageInput
+          v-if="activeGroupId"
           ref="messageInputRef"
           v-model="inputText"
           :members="members"
@@ -115,7 +117,7 @@
           @cancel-reply="replyTo = null"
           @cancel-edit="cancelEdit"
           @toggle-attach-menu="showAttachMenu = !showAttachMenu"
-          @toggle-create-task="showCreateTodoInline = !showCreateTodoInline"
+          @toggle-create-task="showCreateTodoInline = !showCreateTodoInline; showAttachMenu = false"
           @pick-files="openFilePicker"
           @start-recording="voice.startRecording"
           @stop-recording="voice.stopRecording"

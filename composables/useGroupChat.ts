@@ -69,6 +69,7 @@ export function useGroupChat() {
             avatarUrl: g.avatar_url,
             membersCount: g.members_count,
             lastMessageAt: g.last_message_at ?? null,
+            lastMessagePreview: g.last_message_preview ?? null,
             createdAt: g.created_at,
         }
     }
@@ -190,11 +191,11 @@ export function useGroupChat() {
         if (!messagesByGroup[groupId]) messagesByGroup[groupId] = []
         if (messagesByGroup[groupId].some(m => m.id === message.id)) return
         messagesByGroup[groupId].push(message)
-        bumpGroupLastMessage(groupId, message.timestamp)
+        bumpGroupLastMessage(groupId, message.timestamp, message.text || (message.attachments.length ? '📎 File' : null))
     }
-    function bumpGroupLastMessage(groupId: number, timestamp: string): void {
+    function bumpGroupLastMessage(groupId: number, timestamp: string, previewText: string | null): void {
         const g = groups.value.find(g => g.id === groupId)
-        if (g) g.lastMessageAt = timestamp
+        if (g) { g.lastMessageAt = timestamp; g.lastMessagePreview = previewText }
     }
 
     const membersByGroup = reactive<Record<number, GroupMember[]>>({})
@@ -258,7 +259,7 @@ export function useGroupChat() {
     function addOptimisticMessage(groupId: number, message: ApiMessage): void {
         if (!messagesByGroup[groupId]) messagesByGroup[groupId] = []
         messagesByGroup[groupId].push(message)
-        bumpGroupLastMessage(groupId, message.timestamp)
+        bumpGroupLastMessage(groupId, message.timestamp, message.text || (message.attachments.length ? '📎 File' : null))
     }
 
     function replaceMessage(groupId: number, tempId: number, real: ApiMessage): void {
@@ -297,6 +298,7 @@ export function useGroupChat() {
         const arr = messagesByGroup[groupId]
         const last = arr && arr.length ? arr[arr.length - 1] : null
         g.lastMessageAt = last ? last.timestamp : null
+        g.lastMessagePreview = last ? (last.text || (last.attachments.length ? '📎 File' : null)) : null
     }
 
     async function updateGroup(groupId: number, data: { name?: string; description?: string }): Promise<boolean> {

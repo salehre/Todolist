@@ -39,6 +39,7 @@ export interface ApiGroup {
     description: string | null
     avatarUrl: string | null
     membersCount: number
+    lastMessagePreview: string | null
     lastMessageAt: string | null
     createdAt: string
 }

@@ -106,9 +106,9 @@
         <div v-if="!sidebarIconOnly" class="flex-1 min-w-0 overflow-hidden">
           <div class="flex items-center justify-between gap-1">
             <span class="text-sm font-semibold truncate">{{ g.name }}</span>
-            <span v-if="lastMessage(g.id)" class="text-[10px] text-primary-300 shrink-0">{{ formatTime(lastMessage(g.id)!.timestamp) }}</span>
+            <span v-if="g.lastMessageAt" class="text-[10px] text-primary-300 shrink-0">{{ formatTime(g.lastMessageAt) }}</span>
           </div>
-          <p class="text-xs text-primary-400 truncate">{{ lastMessage(g.id)?.text || g.description || 'No messages yet' }}</p>
+          <p class="text-xs text-primary-400 truncate">{{ g.lastMessagePreview || g.description || 'No messages yet' }}</p>
         </div>
       </button>
 
@@ -226,11 +226,6 @@ const filteredGroups = computed(() => {
   if (!q) return sorted
   return sorted.filter(g => g.name.toLowerCase().includes(q))
 })
-
-function lastMessage(groupId: number): ApiMessage | undefined {
-  const arr = props.messagesByGroup[groupId]
-  return arr && arr.length ? arr[arr.length - 1] : undefined
-}
 
 function formatTime(date: Date | string): string {
   return new Date(date).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })

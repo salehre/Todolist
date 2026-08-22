@@ -60,7 +60,7 @@
     </div>
 
     <!-- SKELETON: switching to a group -->
-    <div v-else-if="loadingMessages && messages.length === 0" class="flex flex-col h-full">
+    <div v-else-if="activeGroupId && loadingMessages && messages.length === 0" class="flex flex-col h-full">
       <div class="flex items-center gap-3 my-4">
         <div class="flex-1 h-px bg-primary-100"></div>
         <div class="h-5 w-14 rounded-full bg-primary-50 animate-pulse"></div>
