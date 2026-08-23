@@ -247,6 +247,13 @@
             <p :class="['text-sm font-medium line-clamp-1 wrap-break-word', todo.completed ? 'line-through text-primary-300' : 'text-purple-950']">
               {{ todo.text }}
             </p>
+            <span
+                v-if="todo.groupName"
+                class="inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-[10px] font-medium text-primary-600"
+            >
+              <Icon icon="solar:users-group-rounded-linear" class="text-[10px]" />
+              {{ todo.groupName }}
+            </span>
             <p v-if="todo.description" class="text-xs text-primary-400 mt-1 line-clamp-2 wrap-break-word">
               {{ todo.description }}
             </p>

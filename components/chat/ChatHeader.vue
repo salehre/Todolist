@@ -21,8 +21,11 @@
         <button @click="emit('open-sidebar')" class="md:hidden flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="'Chats'">
           <Icon icon="solar:hamburger-menu-linear" class="text-lg" />
         </button>
-        <button @click="emit('go-to-tasks')" class="flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="'Open Tasks'">
+        <button @click="emit('go-to-tasks')" class="flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="'My Tasks (all)'">
           <Icon icon="solar:checklist-minimalistic-linear" class="text-lg" />
+        </button>
+        <button @click="emit('open-group-tasks')" class="flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="'Group tasks'">
+          <Icon icon="solar:clipboard-list-linear" class="text-lg" />
         </button>
         <button @click="emit('toggle-search')" :class="['flex items-center gap-2 px-2 py-2 text-sm transition-colors', showSearch ? 'text-primary-600' : 'text-primary-700']">
           <Icon icon="boxicons:search" class="text-lg" />
@@ -75,6 +78,7 @@ const emit = defineEmits<{
   'go-to-tasks': []
   'toggle-search': []
   'toggle-filter': []
+  'open-group-tasks': []
   'open-info': []
   'delete-group': []
 }>()

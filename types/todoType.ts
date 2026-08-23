@@ -22,6 +22,7 @@ export interface Todo {
   priority: Priority
   steps: Step[]
   createdAt: string
+  groupName?: string | null
 }
 
 export interface StatusFilterOption {

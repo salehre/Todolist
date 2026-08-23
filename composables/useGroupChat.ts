@@ -55,8 +55,8 @@ export interface UserProfile {
     social_links: { platform: string; url: string }[]
 }
 
+const groups = ref<ApiGroup[]>([])
 export function useGroupChat() {
-    const groups = ref<ApiGroup[]>([])
     const messagesByGroup = reactive<Record<number, ApiMessage[]>>({})
     const loadingGroups = ref(false)
     const loadingMessages = ref(false)
@@ -193,6 +193,7 @@ export function useGroupChat() {
         messagesByGroup[groupId].push(message)
         bumpGroupLastMessage(groupId, message.timestamp, message.text || (message.attachments.length ? '📎 File' : null))
     }
+
     function bumpGroupLastMessage(groupId: number, timestamp: string, previewText: string | null): void {
         const g = groups.value.find(g => g.id === groupId)
         if (g) { g.lastMessageAt = timestamp; g.lastMessagePreview = previewText }

@@ -1,5 +1,5 @@
 <template>
-  <div ref="bottomAreaRef" class="absolute inset-x-0 bottom-0 rounded-full shrink-0 px-4 pb-4 pt-2">
+  <div ref="bottomAreaRef" class="shrink-0 px-4 pb-4 pt-2">
     <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-full border border-red-200 flex items-center gap-3">
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import PrioritySlider from '~/components/Priorityslider.vue'
 import { colorFor } from '~/utils/avatarColor'
@@ -144,7 +144,6 @@ const emit = defineEmits<{
   'stop-recording': []
   'cancel-recording': []
   'create-todo': [form: InlineTodoForm]
-  'height-change': [height: number]
 }>()
 
 const replyToSenderName = computed(() => props.members.find(m => m.userId === props.replyTo?.senderId)?.name ?? 'Unknown')
@@ -173,20 +172,8 @@ function submitTodo(): void {
   todoForm.title = ''; todoForm.description = ''; todoForm.priority = 'medium'; todoForm.assignedTo = []
 }
 
-const bottomAreaRef = ref<HTMLElement | null>(null)
 const inputAreaRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLTextAreaElement | null>(null)
-let resizeObserver: ResizeObserver | null = null
-
-onMounted(() => {
-  if (bottomAreaRef.value) {
-    resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) emit('height-change', entry.contentRect.height + 16)
-    })
-    resizeObserver.observe(bottomAreaRef.value)
-  }
-})
-onUnmounted(() => resizeObserver?.disconnect())
 
 defineExpose({ inputAreaRef, focusInput: () => inputRef.value?.focus() })
 </script>

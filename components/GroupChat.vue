@@ -23,6 +23,7 @@
           :show-search="showSearch"
           @open-sidebar="mobilePane = 'sidebar'"
           @go-to-tasks="emit('open-tasks')"
+          @open-group-tasks="openGroupTasks"
           @toggle-search="showSearch = !showSearch"
           @toggle-filter="emit('toggle-filter')"
           @open-info="showGroupInfoPanel = true"
@@ -54,8 +55,7 @@
           :active-group-id="activeGroupId"
           :loading-initial="loadingInitial"
           :loading-messages="loadingMessages"
-          :ready="messagesReady || loadingMessages || loadingInitial"
-          :bottom-padding="bottomAreaHeight"
+          :ready="!activeGroupId || messagesReady || loadingMessages || loadingInitial"
           :highlighted-message-id="highlightedMessageId"
           :typing-users="chatEcho.typingUsers.value"
           :typing-names="chatEcho.typingNames.value"
@@ -123,7 +123,6 @@
           @stop-recording="voice.stopRecording"
           @cancel-recording="voice.cancelRecording"
           @create-todo="createTodoFromChat"
-          @height-change="bottomAreaHeight = $event"
       />
 
       <ChatGroupInfoPanel
@@ -165,6 +164,14 @@
         @update:caption="attachmentCaption = $event"
         @send="confirmSendAttachments"
     />
+
+    <ChatGroupTasksPanel
+        :open="showGroupTasksPanel"
+        :tasks="groupTasks"
+        :loading="loadingGroupTasks"
+        @close="showGroupTasksPanel = false"
+        @open-task="openTaskFromPanel"
+    />
   </div>
 </template>
 
@@ -195,6 +202,7 @@ import ChatGroupInfoPanel from '~/components/chat/ChatGroupInfoPanel.vue'
 import ChatAddMemberDialog from '~/components/chat/ChatAddMemberDialog.vue'
 import ChatUserProfileDialog from '~/components/chat/ChatUserProfileDialog.vue'
 import ChatAttachmentPreviewDialog from '~/components/chat/ChatAttachmentPreviewDialog.vue'
+import ChatGroupTasksPanel from '~/components/chat/ChatGroupTasksPanel.vue'
 
 defineProps<{ todos?: Todo[] }>()
 const emit = defineEmits<{
@@ -243,10 +251,33 @@ const dateDivider = useDateDivider(containerRef)
 const currentVisibleDate = dateDivider.currentVisibleDate
 
 const messagesReady = ref(false)
-const bottomAreaHeight = ref(80)
 const messageInputRef = ref<InstanceType<typeof ChatMessageInput> | null>(null)
 
 let previousMessageCount = 0
+
+const showGroupTasksPanel = ref(false)
+const groupTasks = ref<any[]>([])
+const loadingGroupTasks = ref(false)
+
+async function openGroupTasks(): Promise<void> {
+  if (!activeGroupId.value) return
+  showGroupTasksPanel.value = true
+  loadingGroupTasks.value = true
+  try {
+    const res = await api.get(`/groups/${activeGroupId.value}/tasks`)
+    groupTasks.value = res.data
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, 'گرفتن تسک‌های گروه ناموفق بود'))
+  } finally {
+    loadingGroupTasks.value = false
+  }
+}
+
+function openTaskFromPanel(task: any): void {
+  // فعلاً فقط منتشرش می‌کنیم بیرون؛ اگه می‌خوای همینجا (با TodoDetail) باز بشه بگو تا وصلش کنیم
+  emit('view-todo', { id: task.id, text: task.title, priority: task.priority })
+  showGroupTasksPanel.value = false
+}
 
 async function selectGroup(id: number): Promise<void> {
   messagesReady.value = false
@@ -524,7 +555,6 @@ watch(messages, (newMessages) => {
   nextTick(dateDivider.update)
 }, { deep: true })
 
-watch(bottomAreaHeight, () => { if (isNearBottom.value) scrollToBottom() })
 </script>
 
 <style scoped>

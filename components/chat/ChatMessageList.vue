@@ -2,8 +2,8 @@
   <div
       ref="containerRef"
       @scroll="emit('scroll')"
-      class="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar min-h-0 space-y-1"
-      :style="{ paddingBottom: bottomPadding + 'px', opacity: ready ? 1 : 0 }"
+      class="flex-1 overflow-y-auto px-4 pt-4 pb-[5px] custom-scrollbar min-h-0 space-y-1"
+      :style="{ opacity: ready ? 1 : 0 }"
   >
     <!-- SKELETON: initial page load -->
     <div v-if="loadingInitial" class="flex flex-col h-full">
@@ -161,7 +161,6 @@ const props = defineProps<{
   loadingInitial: boolean
   loadingMessages: boolean
   ready: boolean
-  bottomPadding: number
   highlightedMessageId: number | null
   typingUsers: number[]
   typingNames: Record<number, string>
