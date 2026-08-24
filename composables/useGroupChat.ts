@@ -56,10 +56,13 @@ export interface UserProfile {
 }
 
 const groups = ref<ApiGroup[]>([])
+const messagesByGroup = reactive<Record<number, ApiMessage[]>>({})
+const membersByGroup = reactive<Record<number, GroupMember[]>>({})
+const profileCache = reactive<Record<number, UserProfile>>({})
+const loadingGroups = ref(false)
+const loadingMessages = ref(false)
+
 export function useGroupChat() {
-    const messagesByGroup = reactive<Record<number, ApiMessage[]>>({})
-    const loadingGroups = ref(false)
-    const loadingMessages = ref(false)
 
     function mapGroup(g: any): ApiGroup {
         return {
@@ -198,8 +201,6 @@ export function useGroupChat() {
         const g = groups.value.find(g => g.id === groupId)
         if (g) { g.lastMessageAt = timestamp; g.lastMessagePreview = previewText }
     }
-
-    const membersByGroup = reactive<Record<number, GroupMember[]>>({})
 
     async function fetchMembers(groupId: number): Promise<void> {
         try {
@@ -356,8 +357,6 @@ export function useGroupChat() {
             toast.error(getErrorMessage(e, 'ارسال فایل ناموفق بود'))
         }
     }
-
-    const profileCache = reactive<Record<number, UserProfile>>({})
 
     async function fetchUserProfile(userId: number): Promise<UserProfile | null> {
         if (profileCache[userId]) return profileCache[userId]
