@@ -8,6 +8,7 @@ export function mapTodoFromApi(apiTodo: any): Todo {
         completed: apiTodo.is_completed,
         priority: apiTodo.priority,
         steps: (apiTodo.steps || []).map(mapStepFromApi),
+        stepsUnordered: apiTodo.steps_unordered ?? false,
         createdAt: apiTodo.created_at,
         groupName: apiTodo.group_name ?? null,
     }

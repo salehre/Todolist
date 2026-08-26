@@ -21,6 +21,7 @@ export interface Todo {
   completed: boolean
   priority: Priority
   steps: Step[]
+  stepsUnordered: boolean
   createdAt: string
   groupName?: string | null
 }

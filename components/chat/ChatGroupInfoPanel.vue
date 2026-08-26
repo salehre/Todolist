@@ -54,7 +54,7 @@
               </div>
 
               <div v-if="isAdmin && m.userId !== currentUserId" class="opacity-0 group-hover/member:opacity-100 transition-opacity flex items-center gap-1">
-                <button @v-if="isOwner && m.role !== 'owner'" @click="emit('change-role', m)" v-tooltip="m.role === 'admin' ? 'Make member' : 'Make admin'" class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600">
+                <button v-if="isOwner && m.role !== 'owner'" @click="emit('change-role', m)" v-tooltip="m.role === 'admin' ? 'Make member' : 'Make admin'" class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600">
                   <Icon icon="mingcute:vip-2-line" class="text-sm" />
                 </button>
                 <button v-if="isOwner || m.role === 'member'" @click="emit('remove-member', m)" v-tooltip="'Remove from group'" class="p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500">

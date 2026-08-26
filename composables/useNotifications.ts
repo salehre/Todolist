@@ -15,6 +15,7 @@ export interface MessageNotice {
     groupId: number
     groupName: string
     createdAt: string
+    count: number
 }
 
 export interface RemovalNotice {
@@ -72,7 +73,13 @@ export function useNotifications() {
     }
 
     function addMessageNotice(groupId: number, groupName: string): void {
-        messageNotices[groupId] = { groupId, groupName, createdAt: new Date().toISOString() }
+        const existing = messageNotices[groupId]
+        messageNotices[groupId] = {
+            groupId,
+                groupName,
+                createdAt: new Date().toISOString(),
+                count: (existing?.count ?? 0) + 1,
+        }
     }
 
     function clearMessageNotice(groupId: number): void {

@@ -3,6 +3,7 @@
     <ChatSidebar
         :groups="apiGroups"
         :messages-by-group="messagesByGroup"
+        :unread-counts="unreadCounts"
         :active-group-id="activeGroupId"
         :loading-groups="loadingGroups"
         :is-mobile="isMobile"
@@ -226,7 +227,7 @@ const {
   removeMember: apiRemoveMember, updateMemberRole: apiUpdateMemberRole,
   updateGroup: apiUpdateGroup, uploadGroupAvatar: apiUploadGroupAvatar,
   sendMessageWithFiles: apiSendMessageWithFiles, deleteGroup: apiDeleteGroup,
-  fetchUserProfile, addOptimisticMessage, replaceMessage, markMessageFailed,
+  fetchUserProfile, addOptimisticMessage, replaceMessage, markMessageFailed, unreadCounts, setChatContext,
 } = useGroupChat()
 
 const { clearMessageNotice } = useNotifications()
@@ -285,6 +286,7 @@ function openTaskFromPanel(task: any): void {
 async function selectGroup(id: number): Promise<void> {
   messagesReady.value = false
   activeGroupId.value = id
+  setChatContext(id, currentUser.value.id)
   previousMessageCount = 0
   chatEcho.subscribe(id, currentUser.value.id)
   clearMessageNotice(id)
@@ -540,7 +542,10 @@ function handleScroll(): void {
 }
 
 // ── Lifecycle ───────────────────────────────────────────────────────────
-onMounted(() => { fetchGroups() })
+onMounted(() => {
+  fetchGroups()
+  setChatContext(null, currentUser.value.id)
+})
 onUnmounted(() => { chatEcho.unsubscribe() })
 
 watch(messages, (newMessages) => {

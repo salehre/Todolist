@@ -61,8 +61,18 @@ const membersByGroup = reactive<Record<number, GroupMember[]>>({})
 const profileCache = reactive<Record<number, UserProfile>>({})
 const loadingGroups = ref(false)
 const loadingMessages = ref(false)
+const unreadCounts = reactive<Record<number, number>>({})
+let trackedActiveGroupId: number | null = null
+let trackedUserId = 0
 
 export function useGroupChat() {
+
+
+    function setChatContext(activeGroupId: number | null, currentUserId: number): void {
+        trackedActiveGroupId = activeGroupId
+        trackedUserId = currentUserId
+        if (activeGroupId !== null) unreadCounts[activeGroupId] = 0
+    }
 
     function mapGroup(g: any): ApiGroup {
         return {
@@ -195,6 +205,9 @@ export function useGroupChat() {
         if (messagesByGroup[groupId].some(m => m.id === message.id)) return
         messagesByGroup[groupId].push(message)
         bumpGroupLastMessage(groupId, message.timestamp, message.text || (message.attachments.length ? '📎 File' : null))
+        if (message.senderId !== trackedUserId && groupId !== trackedActiveGroupId) {
+            unreadCounts[groupId] = (unreadCounts[groupId] || 0) + 1
+        }
     }
 
     function bumpGroupLastMessage(groupId: number, timestamp: string, previewText: string | null): void {
@@ -303,6 +316,11 @@ export function useGroupChat() {
         g.lastMessagePreview = last ? (last.text || (last.attachments.length ? '📎 File' : null)) : null
     }
 
+    function bumpUnreadFromNotification(groupId: number): void {
+          if (groupId === trackedActiveGroupId) return
+          unreadCounts[groupId] = (unreadCounts[groupId] || 0) + 1
+            }
+
     async function updateGroup(groupId: number, data: { name?: string; description?: string }): Promise<boolean> {
         try {
             await api.put(`/groups/${groupId}`, data)
@@ -380,9 +398,12 @@ export function useGroupChat() {
         createGroup,
         sendMessage,
         pushIncomingMessage,
+        unreadCounts,
+        setChatContext,
         toggleReaction,
         togglePin,
         deleteMessage,
+        bumpUnreadFromNotification
         editMessage,
         updateIncomingMessage,
         removeIncomingMessage,

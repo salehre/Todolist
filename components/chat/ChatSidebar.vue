@@ -108,7 +108,15 @@
             <span class="text-sm font-semibold truncate">{{ g.name }}</span>
             <span v-if="g.lastMessageAt" class="text-[10px] text-primary-300 shrink-0">{{ formatTime(g.lastMessageAt) }}</span>
           </div>
-          <p class="text-xs text-primary-400 truncate">{{ g.lastMessagePreview || g.description || 'No messages yet' }}</p>
+          <div class="flex items-center justify-between gap-1">
+            <p class="text-xs text-primary-400 truncate">{{ g.lastMessagePreview || g.description || 'No messages yet' }}</p>
+            <span
+                v-if="unreadCounts[g.id] > 0"
+                class="shrink-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white"
+            >
+              {{ unreadCounts[g.id] > 99 ? '99+' : unreadCounts[g.id] }}
+            </span>
+          </div>
         </div>
       </button>
 
@@ -188,6 +196,7 @@ import type { ApiGroup, ApiMessage } from '~/types/ChatType'
 const props = defineProps<{
   groups: ApiGroup[]
   messagesByGroup: Record<number, ApiMessage[]>
+  unreadCounts: Record<number, number>
   activeGroupId: number | null
   loadingGroups: boolean
   isMobile: boolean
