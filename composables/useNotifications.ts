@@ -17,8 +17,15 @@ export interface MessageNotice {
     createdAt: string
 }
 
+export interface RemovalNotice {
+    id: string
+    groupName: string
+    createdAt: string
+}
+
 const invites = ref<Invite[]>([])
 const messageNotices = reactive<Record<number, MessageNotice>>({}) // keyed by groupId — همیشه فقط آخرین یکی نگه داشته می‌شه
+const removalNotices = ref<RemovalNotice[]>([])
 
 export function useNotifications() {
     async function fetchInvites(): Promise<void> {
@@ -28,6 +35,14 @@ export function useNotifications() {
         } catch (e: any) {
             toast.error(getErrorMessage(e, 'گرفتن دعوت‌نامه‌ها ناموفق بود'))
         }
+    }
+
+
+    function addRemovalNotice(groupName: string): void {
+        removalNotices.value.unshift({ id: `${groupName}-${Date.now()}`, groupName, createdAt: new Date().toISOString() })
+    }
+    function dismissRemovalNotice(id: string): void {
+        removalNotices.value = removalNotices.value.filter(n => n.id !== id)
     }
 
     async function acceptInvite(inviteId: number): Promise<number | null> {
@@ -64,16 +79,19 @@ export function useNotifications() {
         delete messageNotices[groupId]
     }
 
-    const hasUnread = () => invites.value.length > 0 || Object.keys(messageNotices).length > 0
+    const hasUnread = () => invites.value.length > 0 || Object.keys(messageNotices).length > 0 || removalNotices.value.length > 0
 
     return {
         invites,
         messageNotices,
+        removalNotices,
         fetchInvites,
         acceptInvite,
         declineInvite,
         addInviteFromEcho,
         addMessageNotice,
+        addRemovalNotice,
+        dismissRemovalNotice,
         clearMessageNotice,
         hasUnread,
     }

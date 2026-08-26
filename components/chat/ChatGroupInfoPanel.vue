@@ -50,14 +50,14 @@
               </div>
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-primary-800 truncate">{{ m.name }}<span v-if="m.userId === currentUserId" class="text-primary-400 font-normal"> (you)</span></p>
-                <p class="text-xs text-primary-400">{{ m.role === 'admin' ? 'Admin' : 'Member' }}</p>
+                <p class="text-xs text-primary-400">{{ m.role === 'owner' ? 'Owner' : m.role === 'admin' ? 'Admin' : 'Member' }}</p>
               </div>
 
               <div v-if="isAdmin && m.userId !== currentUserId" class="opacity-0 group-hover/member:opacity-100 transition-opacity flex items-center gap-1">
-                <button @click="emit('change-role', m)" v-tooltip="m.role === 'admin' ? 'Make member' : 'Make admin'" class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600">
+                <button @v-if="isOwner && m.role !== 'owner'" @click="emit('change-role', m)" v-tooltip="m.role === 'admin' ? 'Make member' : 'Make admin'" class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600">
                   <Icon icon="mingcute:vip-2-line" class="text-sm" />
                 </button>
-                <button @click="emit('remove-member', m)" v-tooltip="'Remove from group'" class="p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500">
+                <button v-if="isOwner || m.role === 'member'" @click="emit('remove-member', m)" v-tooltip="'Remove from group'" class="p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500">
                   <Icon icon="mingcute:user-remove-line" class="text-sm" />
                 </button>
               </div>
@@ -84,6 +84,7 @@ const props = defineProps<{
   members: GroupMember[]
   onlineUserIds: number[]
   isAdmin: boolean
+  isOwner: boolean
   currentUserId: number
 }>()
 

@@ -20,6 +20,7 @@ export function useTodos() {
     const dialogMode = ref<DialogMode>('add')
     const dialogForm = ref<DialogForm>({ title: '', description: '', priority: 'medium' })
     const editingId = ref<number | null>(null)
+    const isSubmittingDialog = ref<boolean>(false)
 
     // ─── Fetch ───────────────────────────────────────────────────────────────
     async function fetchTodos(): Promise<void> {
@@ -161,8 +162,6 @@ export function useTodos() {
         }
     }
 
-    // هندلر مشترک برای رویداد delete-todo لیست: اگه آرایه بود حذف گروهی
-    // بدون تأیید، اگه تک آیدی بود دیالوگ تأیید باز می‌شه
     function handleDeleteFromList(idOrIds: number | number[]): void {
         if (Array.isArray(idOrIds)) {
             deleteMultiple(idOrIds)
@@ -215,8 +214,9 @@ export function useTodos() {
 
     async function submitDialog(): Promise<void> {
         const title = dialogForm.value.title.trim()
-        if (!title) return
+        if (!title || isSubmittingDialog.value) return
 
+        isSubmittingDialog.value = true
         try {
             if (dialogMode.value === 'add') {
                 const response = await api.post('/tasks/create', {
@@ -250,6 +250,7 @@ export function useTodos() {
             console.error('خطا در ذخیره task:', error)
             toast.error('ذخیره تسک ناموفق بود')
         } finally {
+            isSubmittingDialog.value = false
             closeDialog()
         }
     }
@@ -266,6 +267,7 @@ export function useTodos() {
         dialogMode,
         dialogForm,
         editingId,
+        isSubmittingDialog,
         // methods
         fetchTodos,
         toggleComplete,

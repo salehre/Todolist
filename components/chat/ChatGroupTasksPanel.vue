@@ -25,7 +25,14 @@
             class="w-full text-start p-3 rounded-xl border border-primary-100 hover:bg-primary-50 transition-colors"
         >
           <div class="flex items-center justify-between gap-2">
-            <p class="text-sm font-semibold text-primary-800 truncate" :class="task.is_completed ? 'line-through text-primary-400' : ''">{{ task.title }}</p>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <p class="text-sm font-semibold text-primary-800 truncate" :class="task.is_completed ? 'line-through text-primary-400' : ''">{{ task.title }}</p>
+              <span
+                  v-if="task.assignees.some(a => a.id === currentUserId)"
+                  class="shrink-0 rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-medium text-primary-600"
+              >برای من
+              </span>
+            </div>
             <span :class="['shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-medium', priorityColors[task.priority]]">{{ task.priority }}</span>
           </div>
           <div class="mt-1.5 flex items-center -space-x-1.5 rtl:space-x-reverse">
@@ -53,7 +60,7 @@ interface GroupTask {
   assignees: { id: number; name: string; username: string; avatarUrl: string | null }[]
 }
 
-defineProps<{ open: boolean; tasks: GroupTask[]; loading: boolean }>()
+const props = defineProps<{ open: boolean; tasks: GroupTask[]; loading: boolean; currentUserId: number }>()
 const emit = defineEmits<{ close: []; 'open-task': [task: GroupTask] }>()
 
 const priorityColors: Record<Priority, string> = {

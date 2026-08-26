@@ -49,7 +49,7 @@ export interface GroupMember {
     name: string
     username: string
     avatarUrl: string | null
-    role: 'admin' | 'member'
+    role: 'owner' | 'admin' | 'member'
 }
 
 export interface UserSearchResult {

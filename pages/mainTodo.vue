@@ -68,7 +68,7 @@
         @click.self="closeDialog"
     >
       <div
-          class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+          class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
       >
         <div
             class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10"

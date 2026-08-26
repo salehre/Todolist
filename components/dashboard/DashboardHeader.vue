@@ -1,6 +1,6 @@
 <template>
   <header
-      class="flex h-16 shrink-0 items-center justify-between rounded-2xl border border-slate-200/70 bg-white/80 px-5 shadow-lg shadow-slate-200/50 backdrop-blur-xl"
+      class="flex h-16 shrink-0 items-center justify-between rounded-2xl border border-primary-200/70 px-5 backdrop-blur-xl"
   >
     <div class="flex items-center gap-2 overflow-hidden">
       <button
@@ -113,6 +113,19 @@
                   <p class="text-[11px] text-primary-500">پیام جدید</p>
                 </div>
               </button>
+
+              <!-- اعلان حذف از گروه -->
+              <div v-for="notice in removalNotices" :key="notice.id" class="flex items-start gap-2.5 border-b border-slate-100 p-3">
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500">
+                  <Icon icon="mdi:account-remove-outline" class="text-base" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-semibold text-slate-800">از گروه «{{ notice.groupName }}» حذف شدی</p>
+                </div>
+                <button @click="dismissRemovalNotice(notice.id)" class="shrink-0 text-slate-300 hover:text-slate-500">
+                  <Icon icon="mingcute:close-line" class="text-sm" />
+                </button>
+              </div>
             </div>
           </Transition>
         </Teleport>
@@ -261,9 +274,12 @@ const {
   messageNotices,
   fetchInvites,
   acceptInvite,
+  removalNotices,
   declineInvite,
   addInviteFromEcho,
   addMessageNotice,
+  addRemovalNotice,
+  dismissRemovalNotice,
   clearMessageNotice,
   hasUnread,
 } = useNotifications()
@@ -352,6 +368,9 @@ onMounted(() => {
         .listen('.invite.sent', (e: any) => addInviteFromEcho(e))
         .listen('.message.notification', (e: { groupId: number; groupName: string }) => {
           addMessageNotice(e.groupId, e.groupName)
+        })
+        .listen('.group.removed', (e: { groupName: string }) => {
+          addRemovalNotice(e.groupName)
         })
   }
 })

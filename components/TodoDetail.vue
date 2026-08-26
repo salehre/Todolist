@@ -1,6 +1,6 @@
 <template>
   <div :class="[
-    'md:rounded-ss-none rounded-2xl border border-primary-200/50 bg-linear-to-br from-white via-primary-50/40 to-primary-100/40 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-hidden',
+    'md:rounded-ss-none rounded-2xl border border-primary-200/50 bg-primary-50/40 shadow-lg shadow-primary-200/40 backdrop-blur-sm flex flex-col h-full overflow-hidden',
     'w-full md:flex-1 md:w-0',
     !modelValue && isMobile ? 'hidden' : 'flex'
   ]">
@@ -274,7 +274,7 @@
         </div>
 
         <!-- Steps List -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-3">
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
           <div v-for="(step, index) in stepsDraft" :key="step.id" class="flex items-center gap-2">
             <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-bold text-primary-600 shrink-0">
               {{ index + 1 }}
@@ -438,13 +438,10 @@ function confirmClearSteps(): void {
   showClearStepsDialog.value = false
 }
 
-// ─── Responsive ───────────────────────────────────────────────────────────────
-
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar       { width: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: rgba(236, 72, 153, 0.08); border-radius: 8px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(219, 39, 119, 0.3);  border-radius: 10px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(219, 39, 119, 0.5); }
+.a{
+  owerflow: hidden
+}
 </style>

@@ -131,6 +131,7 @@
           :members="members"
           :online-user-ids="chatEcho.onlineUserIds.value"
           :is-admin="isGroupAdmin"
+          :is-owner="isGroupOwner"
           :current-user-id="currentUser.id"
           @close="showGroupInfoPanel = false"
           @avatar-select="handleActiveGroupAvatarSelect"
@@ -168,6 +169,7 @@
     <ChatGroupTasksPanel
         :open="showGroupTasksPanel"
         :tasks="groupTasks"
+        :current-user-id="currentUser.id"
         :loading="loadingGroupTasks"
         @close="showGroupTasksPanel = false"
         @open-task="openTaskFromPanel"
@@ -235,7 +237,8 @@ const activeGroupId = ref<number | null>(null)
 const activeGroup = computed<ApiGroup | undefined>(() => apiGroups.value.find(g => g.id === activeGroupId.value))
 const members = computed<GroupMember[]>(() => activeGroupId.value ? (membersByGroup[activeGroupId.value] ?? []) : [])
 const myRole = computed(() => members.value.find(m => m.userId === currentUser.value.id)?.role ?? null)
-const isGroupAdmin = computed(() => myRole.value === 'admin')
+const isGroupAdmin = computed(() => myRole.value === 'admin' || myRole.value === 'owner')
+const isGroupOwner = computed(() => myRole.value === 'owner')
 const messages = computed<ApiMessage[]>(() => activeGroupId.value ? (messagesByGroup[activeGroupId.value] ?? []) : [])
 const loadingInitial = computed(() => loadingGroups.value && apiGroups.value.length === 0)
 const pinnedMessages = computed(() => messages.value.filter(m => m.pinned))

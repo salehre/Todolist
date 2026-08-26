@@ -9,13 +9,13 @@
       <div
           v-if="isMobile && mobileOpen"
           @click="mobileOpen = false"
-          class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-[1px] md:hidden"
+          class="fixed inset-0 z-40 backdrop-blur-[1px] md:hidden"
       />
     </Transition>
   </Teleport>
 
   <aside
-      class="flex h-full shrink-0 flex-col overflow-hidden sm:rounded-2xl border border-slate-200/70 bg-white/80 shadow-lg shadow-slate-200/50 backdrop-blur-xl transition-[width] duration-300 ease-in-out"
+      class="flex h-full shrink-0 flex-col overflow-hidden sm:rounded-2xl border border-primary-200/70 backdrop-blur-xl transition-[width] duration-300 ease-in-out"
       :class="asideClasses"
   >
     <div
@@ -34,7 +34,7 @@
          alt="avatar profile"/>
         <div
             v-else
-            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-600 to-primary-700 text-xs font-bold text-white shadow-lg shadow-primary-200/60"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
         >
           {{ userInitial }}
         </div>

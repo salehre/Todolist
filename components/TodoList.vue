@@ -2,7 +2,7 @@
   <!-- Collapsed Bar (desktop only) -->
   <div
       v-if="isCollapsed"
-      :class="['hidden sm:flex flex-col rounded-2xl items-center w-14 h-full border border-primary-200/50 bg-white/30 shadow-lg shadow-primary-200/40 backdrop-blur-sm shrink-0 pt-5 gap-3',
+      :class="['hidden sm:flex flex-col rounded-2xl items-center w-14 h-full border border-primary-200/50 backdrop-blur-sm shrink-0 pt-5 gap-3',
        isWorkplan ? 'rounded-se-2xl' : 'md:rounded-se-none'
       ]">
     <button
@@ -568,11 +568,6 @@ onUnmounted((): void => {
 </script>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar       { width: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: rgba(236, 72, 153, 0.08); border-radius: 8px; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(219, 39, 119, 0.3);  border-radius: 10px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(219, 39, 119, 0.5); }
-
 /* انیمیشن مشترک برای هر سه دراپ‌داون (Status / Sort / Priority) */
 .dropdown-enter-active {
   transition: opacity 0.16s ease-out, transform 0.16s ease-out;
