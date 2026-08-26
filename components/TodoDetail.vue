@@ -273,6 +273,18 @@
           </div>
         </div>
 
+        <!-- Ordered toggle -->
+        <div class="px-6 pt-4">
+          <label class="flex items-center gap-2 text-sm text-primary-700 cursor-pointer">
+            <input
+                type="checkbox"
+                v-model="unorderedSteps"
+                class="w-4 h-4 accent-primary-600 rounded"
+            />
+            می‌خوام استپ‌ها رو بدون رعایت ترتیب کامل کنم
+          </label>
+        </div>
+
         <!-- Steps List -->
         <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-3">
           <div v-for="(step, index) in stepsDraft" :key="step.id" class="flex items-center gap-2">
@@ -344,6 +356,7 @@ const emit = defineEmits<{
 
 // ─── Local State ──────────────────────────────────────────────────────────────
 const showClearStepsDialog = ref<boolean>(false)
+const unorderedSteps       = ref(false)
 const showStepsDialog      = ref<boolean>(false)
 const stepsDraft           = ref<StepDraft[]>([])
 const { isMobile }         = useResponsiveMode()
@@ -393,6 +406,7 @@ function openStepsDialog(): void {
   stepsDraft.value = props.modelValue.steps?.length
       ? props.modelValue.steps.map((s: { id: any; text: any; }) => ({ id: s.id, text: s.text }))
       : [{ id: Date.now(), text: '' }]
+  unorderedSteps.value = !(props.modelValue?.orderedSteps ?? true)
   showStepsDialog.value = true
 }
 

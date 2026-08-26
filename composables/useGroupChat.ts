@@ -403,7 +403,7 @@ export function useGroupChat() {
         toggleReaction,
         togglePin,
         deleteMessage,
-        bumpUnreadFromNotification
+        bumpUnreadFromNotification,
         editMessage,
         updateIncomingMessage,
         removeIncomingMessage,

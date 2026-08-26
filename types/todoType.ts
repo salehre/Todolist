@@ -24,6 +24,7 @@ export interface Todo {
   stepsUnordered: boolean
   createdAt: string
   groupName?: string | null
+  orderedSteps: boolean
 }
 
 export interface StatusFilterOption {

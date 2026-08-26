@@ -93,7 +93,7 @@ export function useTodos() {
 
         todo.steps[idx].completed = !todo.steps[idx].completed
 
-        if (!todo.steps[idx].completed) {
+        if (todo.orderedSteps && !todo.steps[idx].completed) {
             for (let i = idx + 1; i < todo.steps.length; i++) {
                 todo.steps[i].completed = false
             }
