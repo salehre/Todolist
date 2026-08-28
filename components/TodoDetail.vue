@@ -182,7 +182,7 @@
                           </div>
                           <div class="flex items-center gap-2 shrink-0">
                             <button
-                                v-if="canUndoStep(modelValue, index)"
+                                v-if="canUndoStep(modelValue, index) && !pendingStepIds.has(step.id)"
                                 @click="handleUndoStep(step.id)"
                                 class="px-2 md:px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg text-xs hover:bg-orange-100 transition-all flex items-center gap-1"
                             >
@@ -193,7 +193,7 @@
                                 type="checkbox"
                                 :checked="step.completed"
                                 @change="handleCompleteStep(step.id)"
-                                :disabled="!canCompleteStep(modelValue, index)"
+                                :disabled="!canCompleteStep(modelValue, index) || pendingStepIds.has(step.id)"
                                 class="w-4 h-4 md:w-5 md:h-5 accent-primary-600 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                             />
                           </div>
@@ -357,6 +357,7 @@ const stepsDraft           = ref<StepDraft[]>([])
 const unorderedSteps       = ref<boolean>(false)
 const { isMobile }         = useResponsiveMode()
 const { t } = useLocale()
+const { pendingStepIds } = useTodos()
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(dateString: string): string {
@@ -378,12 +379,14 @@ function getStepsProgress(todo: Todo): number {
 
 function canCompleteStep(todo: Todo, index: number): boolean {
   if (!todo.steps.length) return false
+  if (!todo.orderedSteps) return !todo.steps[index].completed
   if (index === 0) return !todo.steps[index].completed
   return todo.steps[index - 1].completed && !todo.steps[index].completed
 }
 
-function canUndoStep(todo: { steps: string | any[]; }, index: number) {
+function canUndoStep(todo: Todo, index: number) {
   if (!todo.steps?.length) return false
+  if (!todo.orderedSteps) return todo.steps[index].completed
   return todo.steps[index].completed &&
       (index === todo.steps.length - 1 || !todo.steps[index + 1]?.completed)
 }

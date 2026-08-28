@@ -85,11 +85,15 @@ export function useTodos() {
         }
     }
 
+    const pendingStepIds = ref<Set<number>>(new Set())
+
     async function completeStep(todoId: number, stepId: number): Promise<void> {
         const todo = todos.value.find(t => t.id === todoId)
         if (!todo) return
+        if (pendingStepIds.value.has(stepId)) return
+        pendingStepIds.value.add(stepId)
         const idx = todo.steps.findIndex((s: Step) => s.id === stepId)
-        if (idx === -1) return
+        if (idx === -1) { pendingStepIds.value.delete(stepId); return }
 
         todo.steps[idx].completed = !todo.steps[idx].completed
 
@@ -101,8 +105,12 @@ export function useTodos() {
 
         todo.completed = todo.steps.every((s: Step) => s.completed) && todo.steps.length > 0
 
-        const synced = await syncSteps(todoId, todo.steps)
-        todo.steps = synced
+        try {
+            const synced = await syncSteps(todoId, todo.steps)
+            todo.steps = synced
+        } finally {
+            pendingStepIds.value.delete(stepId)
+        }
 
         if (selectedTodo.value?.id === todoId) selectedTodo.value = { ...todo }
     }
@@ -110,19 +118,25 @@ export function useTodos() {
     async function undoStep(todoId: number, stepId: number): Promise<void> {
         const todo = todos.value.find(t => t.id === todoId)
         if (!todo) return
+        if (pendingStepIds.value.has(stepId)) return
+        pendingStepIds.value.add(stepId)
         const idx = todo.steps.findIndex((s: Step) => s.id === stepId)
-        if (idx === -1) return
+        if (idx === -1) { pendingStepIds.value.delete(stepId); return }
 
         todo.steps[idx].completed = false
         todo.completed = false
 
-        const synced = await syncSteps(todoId, todo.steps)
-        todo.steps = synced
+        try {
+            const synced = await syncSteps(todoId, todo.steps)
+            todo.steps = synced
+        } finally {
+            pendingStepIds.value.delete(stepId)
+        }
 
         if (selectedTodo.value?.id === todoId) selectedTodo.value = { ...todo }
     }
 
-    async function updateSteps(todoId: number, newSteps: Step[]): Promise<void> {
+    async function updateSteps(todoId: number, newSteps: Step[], orderedSteps?: boolean): Promise<void> {
         const todo = todos.value.find(t => t.id === todoId)
         if (!todo) return
 
@@ -132,6 +146,11 @@ export function useTodos() {
         if (!synced.length) {
             await api.put('/tasks/updateTask', { id: todoId, is_completed: false })
             todo.completed = false
+        }
+
+        if (orderedSteps !== undefined && orderedSteps !== todo.orderedSteps) {
+            await api.put('/tasks/updateTask', { id: todoId, ordered_steps: orderedSteps })
+            todo.orderedSteps = orderedSteps
         }
 
         if (selectedTodo.value?.id === todoId) selectedTodo.value = { ...todo }
@@ -277,6 +296,7 @@ export function useTodos() {
         updateSteps,
         openDeleteConfirm,
         closeDeleteDialog,
+        pendingStepIds,
         deleteMultiple,
         handleDeleteFromList,
         confirmDelete,
