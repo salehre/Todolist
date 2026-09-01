@@ -182,7 +182,7 @@
                           </div>
                           <div class="flex items-center gap-2 shrink-0">
                             <button
-                                v-if="canUndoStep(modelValue, index) && !pendingStepIds.has(step.id)"
+                                v-if="canUndoStep(modelValue, index) && !props.pendingStepIds.has(step.id)"
                                 @click="handleUndoStep(step.id)"
                                 class="px-2 md:px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg text-xs hover:bg-orange-100 transition-all flex items-center gap-1"
                             >
@@ -193,7 +193,7 @@
                                 type="checkbox"
                                 :checked="step.completed"
                                 @change="handleCompleteStep(step.id)"
-                                :disabled="!canCompleteStep(modelValue, index) || pendingStepIds.has(step.id)"
+                                :disabled="!canCompleteStep(modelValue, index) || props.pendingStepIds.has(step.id)"
                                 class="w-4 h-4 md:w-5 md:h-5 accent-primary-600 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                             />
                           </div>
@@ -328,14 +328,9 @@ import { useLocale } from '~/composables/useLocale'
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: null
-  },
-  showBackButton: {
-    type: Boolean,
-    default: false
-  }
+  modelValue: { type: Object, default: null },
+  showBackButton: { type: Boolean, default: false },
+  pendingStepIds: { type: Object as () => Set<number>, default: () => new Set() }
 })
 
 // ─── Emits ───────────────────────────────────────────────────────────────────
@@ -357,7 +352,6 @@ const stepsDraft           = ref<StepDraft[]>([])
 const unorderedSteps       = ref<boolean>(false)
 const { isMobile }         = useResponsiveMode()
 const { t } = useLocale()
-const { pendingStepIds } = useTodos()
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(dateString: string): string {

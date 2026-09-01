@@ -11,11 +11,19 @@
             <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0 text-sm" />
             <input
                 :value="query"
-                @input="emit('update:query', ($event.target as HTMLInputElement).value)"
+                @input="localQuery = ($event.target as HTMLInputElement).value"
+                @keyup.enter="emit('search', localQuery)"
                 type="text" placeholder="Search by username or name..."
                 class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none"
                 autofocus
             />
+            <button
+                @click="emit('search', localQuery)"
+                class="shrink-0 text-primary-400 hover:text-primary-600"
+                v-tooltip="'Search'"
+            >
+              <Icon icon="mdi:magnify" class="text-sm" />
+            </button>
           </div>
         </div>
         <div class="flex-1 overflow-y-auto px-3 pb-3 space-y-1">
@@ -43,8 +51,11 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
 import { colorFor } from '~/utils/avatarColor'
-import type { UserSearchResult } from '~/types/chatType'
+import type { UserSearchResult } from '~/types/ChatType.ts'
+import { ref, watch } from 'vue'
 
-defineProps<{ open: boolean; query: string; results: UserSearchResult[]; addingId: number | null }>()
-const emit = defineEmits<{ close: []; 'update:query': [value: string]; add: [userId: number] }>()
+const props = defineProps<{ open: boolean; query: string; results: UserSearchResult[]; addingId: number | null }>()
+const emit = defineEmits<{ close: []; 'update:query': [value: string]; search: [value: string]; add: [userId: number] }>()
+const localQuery = ref(props.query)
+watch(() => props.query, (v) => { localQuery.value = v })
 </script>

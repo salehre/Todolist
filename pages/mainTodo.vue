@@ -6,6 +6,7 @@
         :todos="todos"
         :selected-todo="selectedTodo"
         :mobile-open="!selectedTodo"
+        :pending-step-ids="pendingStepIds"
         @select-todo="selectedTodo = $event"
         @toggle-complete="toggleComplete"
         @edit-todo="openEditDialog"
@@ -170,6 +171,7 @@ const {
   isDialogOpen,
   dialogMode,
   dialogForm,
+  pendingStepIds,
   fetchTodos,
   toggleComplete,
   completeStep,

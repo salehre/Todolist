@@ -149,7 +149,7 @@
           :results="memberSearchResults"
           :adding-id="addingMemberId"
           @close="closeAddMemberDialog"
-          @update:query="handleMemberSearch"
+          @search="handleMemberSearch"
           @add="handleAddMember"
       />
 
@@ -476,14 +476,18 @@ async function handleActiveGroupAvatarSelect(event: Event): Promise<void> {
 }
 
 const showAddMemberDialog = ref(false)
-const memberSearchQuery = ref('')
 const memberSearchResults = ref<{ id: number; name: string; username: string; avatarUrl: string | null }[]>([])
-let memberSearchDebounce: number | null = null
-function handleMemberSearch(query: string): void {
+
+const memberSearchQuery = ref('')
+async function handleMemberSearch(query: string): Promise<void> {
   memberSearchQuery.value = query
-  if (memberSearchDebounce) clearTimeout(memberSearchDebounce)
-  memberSearchDebounce = window.setTimeout(async () => { memberSearchResults.value = await searchUsers(query) }, 300)
+  if (query.trim().length < 2) {
+    memberSearchResults.value = []
+    return
+  }
+  memberSearchResults.value = await searchUsers(query)
 }
+
 const addingMemberId = ref<number | null>(null)
 async function handleAddMember(userId: number): Promise<void> {
   if (!activeGroupId.value || addingMemberId.value) return

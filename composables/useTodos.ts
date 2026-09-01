@@ -287,6 +287,7 @@ export function useTodos() {
         dialogForm,
         editingId,
         isSubmittingDialog,
+        pendingStepIds,
         // methods
         fetchTodos,
         toggleComplete,
@@ -296,7 +297,6 @@ export function useTodos() {
         updateSteps,
         openDeleteConfirm,
         closeDeleteDialog,
-        pendingStepIds,
         deleteMultiple,
         handleDeleteFromList,
         confirmDelete,

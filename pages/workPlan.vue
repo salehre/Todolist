@@ -21,6 +21,7 @@
         <TodoDetail
             v-if="selectedTodo"
             :key="'detail-' + selectedTodo.id"
+            :pending-step-ids="pendingStepIds"
             v-model="selectedTodo"
             :show-back-button="true"
             @toggle-complete="toggleComplete"
@@ -125,7 +126,7 @@ import { Icon } from '@iconify/vue'
 import TodoList   from '~/components/TodoList.vue'
 import TodoDetail from '~/components/TodoDetail.vue'
 import GroupChat  from '~/components/GroupChat.vue'
-import PrioritySlider from '~/components/PrioritySlider.vue'
+import PrioritySlider from '~/components/Priorityslider.vue'
 import type { Todo, Priority } from '~/types/todoType'
 import api from '~/src/services/api'
 import { mapTodoFromApi } from '~/src/services/todoMapper'
@@ -147,6 +148,7 @@ const {
   dialogMode,
   dialogForm,
   fetchTodos,
+  pendingStepIds,
   toggleComplete,
   completeStep,
   undoStep,
