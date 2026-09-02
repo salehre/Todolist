@@ -12,6 +12,7 @@
   "dependencies": {
     "axios": "^1.18.0",
     "bcryptjs": "^2.4.3",
+    "echarts": "^6.1.0",
     "heroicons": "^2.2.0",
     "i18n": "^0.15.3",
     "jsonwebtoken": "^9.0.2",
@@ -20,17 +21,18 @@
     "nuxt": "^4.4.6",
     "pusher-js": "^8.6.0",
     "vue": "^3.5.34",
+    "vue-echarts": "^8.2.0",
     "vue-router": "^5.0.7",
     "vue-scrollto": "^2.20.0",
     "vue-sonner": "^2.0.9",
     "wavesurfer.js": "^7.12.11"
   },
   "devDependencies": {
-    "@vite-pwa/nuxt": "^1.0.4",
     "@iconify/vue": "^5.0.1",
     "@tailwindcss/vite": "^4.3.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
+    "@vite-pwa/nuxt": "^1.0.4",
     "tailwindcss": "^4.3.0"
   }
 }

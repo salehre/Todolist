@@ -119,6 +119,9 @@
           <InfoRow icon="mdi:biography" label="بیوگرافی" :value="authState.user?.bio" />
           <InfoRow icon="streamline-ultimate:corporate-social-media" label="فضای مجازی" :value="socialLinksLabel" />
         </div>
+
+          <ActivityChart />
+
         </div>
 
         <!-- ─── کارت تم رنگی ───────────────────────────────────────────────── -->
@@ -324,6 +327,7 @@ import { ref, reactive, computed, h, defineComponent, onMounted, onUnmounted } f
 import { useTheme } from '~/composables/useTheme'
 import { useAuth } from '~/composables/useAuth'
 import { socialPlatforms, platformInfo } from '~/utils/socialPlatforms'
+import ActivityChart from '~/components/ActivityChart.vue'
 
 useHead(() => ({
   titleTemplate: `%s - Setting`
