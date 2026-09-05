@@ -43,12 +43,12 @@
 
           <div class="space-y-1">
             <div v-for="m in members" :key="m.userId" class="group/member relative flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-primary-50 transition-colors">
-              <div class="relative shrink-0">
+              <div class="relative shrink-0 cursor-pointer" @click="emit('open-profile', m.userId)">
                 <img v-if="m.avatarUrl" :src="m.avatarUrl" class="w-10 h-10 rounded-full object-cover" alt="" />
                 <div v-else :class="['w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm', colorFor(m.userId)]">{{ m.name[0] }}</div>
                 <span class="absolute bottom-0 inset-e-0 w-2.5 h-2.5 rounded-full ring-2 ring-white" :class="onlineUserIds.includes(m.userId) ? 'bg-emerald-500' : 'bg-primary-200'" />
               </div>
-              <div class="flex-1 min-w-0">
+              <div class="flex-1 min-w-0 cursor-pointer" @click="emit('open-profile', m.userId)">
                 <p class="text-sm font-medium text-primary-800 truncate">{{ m.name }}<span v-if="m.userId === currentUserId" class="text-primary-400 font-normal"> (you)</span></p>
                 <p class="text-xs text-primary-400">{{ m.role === 'owner' ? 'Owner' : m.role === 'admin' ? 'Admin' : 'Member' }}</p>
               </div>
@@ -93,6 +93,7 @@ const emit = defineEmits<{
   'avatar-select': [event: Event]
   'save-info': [{ name: string; description: string }]
   'open-add-member': []
+  'open-profile': [userId: number]
   'change-role': [member: GroupMember]
   'remove-member': [member: GroupMember]
   'leave-group': []

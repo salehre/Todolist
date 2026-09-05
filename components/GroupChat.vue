@@ -138,6 +138,7 @@
           @avatar-select="handleActiveGroupAvatarSelect"
           @save-info="saveGroupInfo"
           @open-add-member="showAddMemberDialog = true"
+          @open-profile="openUserProfile"
           @change-role="confirmRoleChange"
           @remove-member="confirmRemoveMember"
           @leave-group="confirmLeaveGroup"
