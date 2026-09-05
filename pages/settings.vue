@@ -119,10 +119,9 @@
           <InfoRow icon="mdi:biography" label="بیوگرافی" :value="authState.user?.bio" />
           <InfoRow icon="streamline-ultimate:corporate-social-media" label="فضای مجازی" :value="socialLinksLabel" />
         </div>
-
-          <ActivityChart />
-
         </div>
+
+        <ActivityChart />
 
         <!-- ─── کارت تم رنگی ───────────────────────────────────────────────── -->
         <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">

@@ -8,7 +8,9 @@
       هنوز فعالیتی ثبت نشده
     </div>
 
-    <VChart v-else class="mt-4 h-64 w-full" :option="chartOption" autoresize />
+    <div v-else class="mt-4 w-full" style="height: 260px;">
+      <VChart class="h-full w-full" :option="chartOption" :autoresize="true" />
+    </div>
   </div>
 </template>
 
