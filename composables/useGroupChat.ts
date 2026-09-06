@@ -65,6 +65,10 @@ const unreadCounts = reactive<Record<number, number>>({})
 let trackedActiveGroupId: number | null = null
 let trackedUserId = 0
 
+function getActiveGroupId(): number | null {
+    return trackedActiveGroupId
+}
+
 export function useGroupChat() {
 
 
@@ -410,6 +414,7 @@ export function useGroupChat() {
         sendTyping,
         markRead,
         membersByGroup,
+        getActiveGroupId,
         fetchMembers,
         searchUsers,
         inviteMember,

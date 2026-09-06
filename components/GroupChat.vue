@@ -75,6 +75,7 @@
           :trigger-rect="menuTriggerRect"
           :input-area-rect="messageInputRef?.inputAreaRef?.getBoundingClientRect()"
           :current-user-id="currentUser.id"
+          :can-delete-message="canDeleteMessage"
           @close="activeMenuId = null"
           @copy="copyMessage"
           @reply="msg => replyTo = msg"
@@ -303,7 +304,7 @@ async function selectGroup(id: number): Promise<void> {
 
 async function handleCreateGroup(input: { name: string; description: string }): Promise<void> {
   const group = await apiCreateGroup({ name: input.name, description: input.description || undefined })
-  if (group) { activeGroupId.value = group.id; chatEcho.subscribe(group.id, currentUser.value.id) }
+  if (group) { await selectGroup(group.id) }
 }
 
 // ── Typing / input text ──────────────────────────────────────────────
@@ -435,6 +436,15 @@ const voice = useVoiceRecorder((blob, duration) => {
     isSendingVoice.value = false
     scrollToBottom()
   })
+})
+
+const canDeleteMessage = computed(() => {
+  const msg = activeMenuMessage.value
+  if (!msg) return false
+  if (msg.senderId === currentUser.value.id) return true
+  if (!isGroupAdmin.value) return false
+  const senderRole = members.value.find(m => m.userId === msg.senderId)?.role
+  return !(senderRole === 'admin' || senderRole === 'owner') || isGroupOwner.value
 })
 
 // ── Inline task creation ─────────────────────────────────────────────

@@ -16,13 +16,15 @@ export function useChatEcho() {
 
     let currentChannel: string | null = null
     let currentPresenceChannel: string | null = null
-
+    const typingTimeouts: Record<number, number> = {}
     function addTypingUser(userId: number, userName: string, currentUserId: number): void {
         if (userId === currentUserId) return
         typingNames.value[userId] = userName
         if (!typingUsers.value.includes(userId)) typingUsers.value.push(userId)
-        setTimeout(() => {
+        if (typingTimeouts[userId]) clearTimeout(typingTimeouts[userId])
+        typingTimeouts[userId] = window.setTimeout(() => {
             typingUsers.value = typingUsers.value.filter(id => id !== userId)
+            delete typingTimeouts[userId]
         }, 3000)
     }
 

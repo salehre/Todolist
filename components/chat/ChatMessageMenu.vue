@@ -29,7 +29,7 @@
         <Icon :icon="message.pinned ? 'ri:unpin-line' : 'iconoir:pin'" class="text-primary-500 text-sm" />
         {{ message.pinned ? 'Unpin' : 'Pin' }}
       </button>
-      <button v-if="message.senderId === currentUserId" @click="emit('delete', message.id); emit('close')" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors">
+      <button v-if="canDeleteMessage" @click="emit('delete', message.id); emit('close')" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors">
         <Icon icon="mingcute:delete-line" class="text-primary-500 text-sm" /> Delete
       </button>
     </div>
@@ -46,6 +46,7 @@ const props = defineProps<{
   triggerRect: DOMRect | null
   inputAreaRect: DOMRectReadOnly | undefined
   currentUserId: number
+  canDeleteMessage: boolean
 }>()
 
 const emit = defineEmits<{
