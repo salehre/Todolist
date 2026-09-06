@@ -14,7 +14,7 @@
         @create-group="handleCreateGroup"
     />
 
-    <div :class="['relative flex flex-col h-full w-full bg-white/30 backdrop-blur-sm flex-1 min-w-0 overflow-hidden', isMobile && mobilePane !== 'main' ? 'hidden' : 'flex']">
+    <div :class="['relative flex flex-col h-full w-full bg-white/30 backdrop-blur-sm flex-1 min-w-0 overflow-hidden', isMobile && mobilePane === 'sidebar' ? 'hidden' : 'flex', isMobile && mobilePane === 'tasks' ? 'hidden' : '']">
       <ChatHeader
           v-if="activeGroupId"
           :group="activeGroup"
@@ -174,7 +174,8 @@
         :tasks="groupTasks"
         :current-user-id="currentUser.id"
         :loading="loadingGroupTasks"
-        @close="showGroupTasksPanel = false"
+        :is-mobile="isMobile"
+        @close="showGroupTasksPanel = false; if (isMobile) mobilePane.value = 'main'"
         @open-task="openTaskFromPanel"
     />
   </div>
@@ -267,6 +268,7 @@ const loadingGroupTasks = ref(false)
 
 async function openGroupTasks(): Promise<void> {
   if (!activeGroupId.value) return
+  if (isMobile.value) mobilePane.value = 'tasks'
   showGroupTasksPanel.value = true
   loadingGroupTasks.value = true
   try {
@@ -548,7 +550,7 @@ function confirmLeaveGroup(): void {
 
 // ── Sidebar layout state ─────────────────────────────────────────────
 const sidebarCollapsed = ref(false)
-const mobilePane = ref<'sidebar' | 'main'>('sidebar')
+const mobilePane = ref<'sidebar' | 'main' | 'tasks'>('sidebar')
 
 // ── Scroll handling ────────────────────────────────────────────────────
 function handleScroll(): void {

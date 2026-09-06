@@ -1,10 +1,11 @@
 <template>
-  <Transition enter-active-class="transition-opacity duration-300 ease-in-out" leave-active-class="transition-opacity duration-300 ease-in-out" enter-from-class="opacity-0" leave-to-class="opacity-0">
-    <div v-if="open" @click="emit('close')" class="absolute inset-0 z-40 bg-slate-900/40 backdrop-blur-[1px]" />
-  </Transition>
-
-  <Transition enter-active-class="transition-transform duration-300 ease-in-out" leave-active-class="transition-transform duration-300 ease-in-out" enter-from-class="translate-x-full rtl:-translate-x-full" leave-to-class="translate-x-full rtl:-translate-x-full">
-    <aside v-if="open" class="absolute inset-y-0 inset-e-0 z-40 w-full max-w-md bg-white shadow-2xl flex flex-col">
+  <aside
+      v-if="open"
+      :class="[
+        'h-full overflow-hidden border-s border-primary-200/60 bg-white/80 backdrop-blur-xl flex flex-col shrink-0 transition-[width] duration-300 ease-in-out',
+        isMobile ? 'w-full' : 'w-80'
+      ]"
+  >
       <div class="flex items-center justify-between h-16 shrink-0 px-5 border-b border-primary-100">
         <h3 class="text-base font-bold text-primary-900">Group Tasks — {{ tasks.length }}</h3>
         <button @click="emit('close')" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
@@ -44,7 +45,6 @@
         </button>
       </div>
     </aside>
-  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -60,7 +60,7 @@ interface GroupTask {
   assignees: { id: number; name: string; username: string; avatarUrl: string | null }[]
 }
 
-const props = defineProps<{ open: boolean; tasks: GroupTask[]; loading: boolean; currentUserId: number }>()
+const props = defineProps<{ open: boolean; tasks: GroupTask[]; loading: boolean; currentUserId: number; isMobile: boolean }>()
 const emit = defineEmits<{ close: []; 'open-task': [task: GroupTask] }>()
 
 const priorityColors: Record<Priority, string> = {
