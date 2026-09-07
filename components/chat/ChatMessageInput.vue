@@ -72,7 +72,7 @@
           </div>
         </div>
         <div class="flex gap-2">
-          <button @click="submitTodo" :disabled="!todoForm.title.trim() || todoForm.assignedTo.length === 0" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50">Create</button>
+          <button @click="submitTodo" :disabled="!todoForm.title.trim() || todoForm.assignedTo.length === 0 || isCreatingTodo" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50"> <Icon v-if="isCreatingTodo" icon="mdi:loading" class="animate-spin" /> <span v-else>Create</span></button>
           <button @click="emit('toggle-create-task')" class="px-3 py-2 text-primary-400 hover:text-primary-600"><Icon icon="mingcute:close-line" /></button>
         </div>
       </div>
@@ -81,7 +81,7 @@
         <button v-if="!isRecording" @click="emit('start-recording')" class="p-2 rounded-full bg-primary-100 text-primary-400 hover:bg-primary-50 hover:text-primary-500 transition-all shrink-0" v-tooltip="'Record voice message'">
           <Icon icon="mdi:microphone" class="text-xl" />
         </button>
-        <button @click="emit('toggle-attach-menu')" :class="['p-2.5 rounded-full bg-primary-100 transition-all shrink-0', showAttachMenu ? 'bg-primary-500 text-white' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']" v-tooltip="'Attach file or image'">
+        <button @click="emit('toggle-attach-menu')" :disabled="isCreatingTodo" :class="['p-2.5 rounded-full bg-primary-100 transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed', showAttachMenu ? 'bg-primary-500 text-white' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']" v-tooltip="'Attach file or image'">
           <Icon icon="lucide:paperclip" class="text-lg" />
         </button>
 
@@ -127,6 +127,7 @@ const props = defineProps<{
   showCreateTodo: boolean
   isRecording: boolean
   isSendingVoice: boolean
+  isCreatingTodo: boolean
   recordingDuration: number
   recordingProgress: number
 }>()

@@ -112,6 +112,7 @@
           :show-create-todo="showCreateTodoInline"
           :is-recording="voice.isRecording.value"
           :is-sending-voice="isSendingVoice"
+          :is-creating-todo="isCreatingTodo"
           :recording-duration="voice.recordingDuration.value"
           :recording-progress="voice.recordingProgress.value"
           @typing="handleTypingInput"
@@ -178,6 +179,12 @@
         @close="showGroupTasksPanel = false; if (isMobile) mobilePane.value = 'main'"
         @open-task="openTaskFromPanel"
     />
+
+    <ChatTaskDetailDialog
+        :task="viewedTask"
+        @close="viewedTask = null"
+        @toggle-step="toggleGroupTaskStep"
+    />
   </div>
 </template>
 
@@ -209,6 +216,7 @@ import ChatAddMemberDialog from '~/components/chat/ChatAddMemberDialog.vue'
 import ChatUserProfileDialog from '~/components/chat/ChatUserProfileDialog.vue'
 import ChatAttachmentPreviewDialog from '~/components/chat/ChatAttachmentPreviewDialog.vue'
 import ChatGroupTasksPanel from '~/components/chat/ChatGroupTasksPanel.vue'
+import ChatTaskDetailDialog, { type GroupTaskDetail } from '~/components/chat/ChatTaskDetailDialog.vue'
 
 defineProps<{ todos?: Todo[] }>()
 const emit = defineEmits<{
@@ -281,12 +289,27 @@ async function openGroupTasks(): Promise<void> {
   }
 }
 
-function openTaskFromPanel(task: any): void {
-  // فعلاً فقط منتشرش می‌کنیم بیرون؛ اگه می‌خوای همینجا (با TodoDetail) باز بشه بگو تا وصلش کنیم
-  emit('view-todo', { id: task.id, text: task.title, priority: task.priority })
-  showGroupTasksPanel.value = false
+const viewedTask = ref<GroupTaskDetail | null>(null)
+
+function openTaskFromPanel(task: GroupTaskDetail): void {
+  viewedTask.value = task
 }
 
+async function toggleGroupTaskStep(taskId: number, stepId: number): Promise<void> {
+  const task = groupTasks.value.find((t: GroupTaskDetail) => t.id === taskId)
+  if (!task) return
+  const step = task.steps.find(s => s.id === stepId)
+  if (!step) return
+
+  const updatedSteps = task.steps.map(s => s.id === stepId ? { ...s, completed: !s.completed } : s)
+  try {
+    const res = await api.put('/tasks/updateStep', { task_id: taskId, steps: updatedSteps })
+    task.steps = res.data
+    if (viewedTask.value?.id === taskId) viewedTask.value = { ...task }
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
+  }
+}
 async function selectGroup(id: number): Promise<void> {
   messagesReady.value = false
   activeGroupId.value = id
@@ -451,14 +474,18 @@ const canDeleteMessage = computed(() => {
 
 // ── Inline task creation ─────────────────────────────────────────────
 const showCreateTodoInline = ref(false)
+const isCreatingTodo = ref(false)
 async function createTodoFromChat(form: InlineTodoForm): Promise<void> {
   if (!form.title.trim() || !activeGroupId.value || form.assignedTo.length === 0) return
+  isCreatingTodo.value = true
   try {
     await api.post(`/groups/${activeGroupId.value}/tasks`, { title: form.title, description: form.description.trim() || null, priority: form.priority, assigned_to: form.assignedTo })
     toast.success('تسک ساخته شد')
     showCreateTodoInline.value = false
   } catch (e: any) {
     toast.error(getErrorMessage(e, 'ساخت تسک ناموفق بود'))
+  } finally {
+    isCreatingTodo.value = false
   }
 }
 
