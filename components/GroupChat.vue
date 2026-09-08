@@ -180,10 +180,13 @@
         @open-task="openTaskFromPanel"
     />
 
-    <ChatTaskDetailDialog
-        :task="viewedTask"
-        @close="viewedTask = null"
-        @toggle-step="toggleGroupTaskStep"
+    <ChatGroupTaskDetailDialog
+        :task="viewedGroupTask"
+        :pending-step-ids="groupTaskPendingStepIds"
+        @close="viewedGroupTask = null"
+        @complete-step="completeGroupTaskStep"
+        @undo-step="undoGroupTaskStep"
+        @update-steps="updateGroupTaskSteps"
     />
   </div>
 </template>
@@ -202,7 +205,7 @@ import { useDateDivider } from '~/composables/useDateDivider'
 import { useConfirmDialog } from '~/composables/useConfirmDialog'
 import { useNotifications } from '~/composables/useNotifications'
 import type { ApiMessage, ApiGroup, GroupMember, InlineTodoForm, PendingFile, UserProfile } from '~/types/ChatType'
-import type { Todo, Priority } from '~/types/todoType'
+import type { Todo, Priority, Step } from '~/types/todoType'
 
 import ChatSidebar from '~/components/chat/ChatSidebar.vue'
 import ChatHeader from '~/components/chat/ChatHeader.vue'
@@ -216,7 +219,8 @@ import ChatAddMemberDialog from '~/components/chat/ChatAddMemberDialog.vue'
 import ChatUserProfileDialog from '~/components/chat/ChatUserProfileDialog.vue'
 import ChatAttachmentPreviewDialog from '~/components/chat/ChatAttachmentPreviewDialog.vue'
 import ChatGroupTasksPanel from '~/components/chat/ChatGroupTasksPanel.vue'
-import ChatTaskDetailDialog, { type GroupTaskDetail } from '~/components/chat/ChatTaskDetailDialog.vue'
+import ChatGroupTaskDetailDialog from '~/components/chat/ChatGroupTaskDetailDialog.vue'
+import { mapTodoFromApi } from '~/src/services/todoMapper'
 
 defineProps<{ todos?: Todo[] }>()
 const emit = defineEmits<{
@@ -289,25 +293,73 @@ async function openGroupTasks(): Promise<void> {
   }
 }
 
-const viewedTask = ref<GroupTaskDetail | null>(null)
+const viewedGroupTask = ref<Todo | null>(null)
+const groupTaskPendingStepIds = ref<Set<number>>(new Set())
 
-function openTaskFromPanel(task: GroupTaskDetail): void {
-  viewedTask.value = task
+function openTaskFromPanel(task: any): void {
+  viewedGroupTask.value = mapTodoFromApi(task)
 }
 
-async function toggleGroupTaskStep(taskId: number, stepId: number): Promise<void> {
-  const task = groupTasks.value.find((t: GroupTaskDetail) => t.id === taskId)
-  if (!task) return
-  const step = task.steps.find(s => s.id === stepId)
-  if (!step) return
+async function completeGroupTaskStep(todoId: number, stepId: number): Promise<void> {
+  if (groupTaskPendingStepIds.value.has(stepId)) return
+    groupTaskPendingStepIds.value.add(stepId)
+    const todo = viewedGroupTask.value
+        if (!todo || todo.id !== todoId) { groupTaskPendingStepIds.value.delete(stepId); return }
 
-  const updatedSteps = task.steps.map(s => s.id === stepId ? { ...s, completed: !s.completed } : s)
+  const idx = todo.steps.findIndex(s => s.id === stepId)
+  if (idx === -1) { groupTaskPendingStepIds.value.delete(stepId); return }
+  todo.steps[idx].completed = !todo.steps[idx].completed
+  if (todo.orderedSteps && !todo.steps[idx].completed) {
+    for (let i = idx + 1; i < todo.steps.length; i++) todo.steps[i].completed = false
+  }
+  todo.completed = todo.steps.every(s => s.completed) && todo.steps.length > 0
   try {
-    const res = await api.put('/tasks/updateStep', { task_id: taskId, steps: updatedSteps })
-    task.steps = res.data
-    if (viewedTask.value?.id === taskId) viewedTask.value = { ...task }
+    const res = await api.put('/tasks/updateStep', { task_id: todoId, steps: todo.steps })
+    todo.steps = res.data
+    viewedGroupTask.value = { ...todo }
   } catch (e: any) {
     toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
+  } finally {
+    groupTaskPendingStepIds.value.delete(stepId)
+  }
+}
+
+async function undoGroupTaskStep(todoId: number, stepId: number): Promise<void> {
+  if (groupTaskPendingStepIds.value.has(stepId)) return
+  groupTaskPendingStepIds.value.add(stepId)
+  const todo = viewedGroupTask.value
+  if (!todo || todo.id !== todoId) { groupTaskPendingStepIds.value.delete(stepId); return }
+
+  const idx = todo.steps.findIndex(s => s.id === stepId)
+  if (idx === -1) { groupTaskPendingStepIds.value.delete(stepId); return }
+
+  todo.steps[idx].completed = false
+  todo.completed = false
+
+  try {
+    const res = await api.put('/tasks/updateStep', { task_id: todoId, steps: todo.steps })
+    todo.steps = res.data
+    viewedGroupTask.value = { ...todo }
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
+  } finally {
+    groupTaskPendingStepIds.value.delete(stepId)
+  }
+}
+
+async function updateGroupTaskSteps(todoId: number, steps: Step[], orderedSteps?: boolean): Promise<void> {
+  const todo = viewedGroupTask.value
+  if (!todo || todo.id !== todoId) return
+  try {
+    const res = await api.put('/tasks/updateStep', { task_id: todoId, steps })
+    todo.steps = res.data
+    if (orderedSteps !== undefined && orderedSteps !== todo.orderedSteps) {
+      await api.put('/tasks/updateTask', { id: todoId, ordered_steps: orderedSteps })
+      todo.orderedSteps = orderedSteps
+    }
+    viewedGroupTask.value = { ...todo }
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, 'ذخیره استپ‌ها ناموفق بود'))
   }
 }
 async function selectGroup(id: number): Promise<void> {

@@ -51,10 +51,17 @@
 import { Icon } from '@iconify/vue'
 import { colorFor } from '~/utils/avatarColor'
 import type { Priority } from '~/types/todoType'
-import type { GroupTaskDetail } from './ChatTaskDetailDialog.vue'
 
-defineProps<{ open: boolean; tasks: GroupTaskDetail[]; loading: boolean; currentUserId: number; isMobile: boolean }>()
-const emit = defineEmits<{ close: []; 'open-task': [task: GroupTaskDetail] }>()
+interface GroupTask {
+  id: number
+  title: string
+  priority: Priority
+  is_completed: boolean
+  assignees: { id: number; name: string; username: string; avatarUrl: string | null }[]
+}
+
+defineProps<{ open: boolean; tasks: GroupTask[]; loading: boolean; currentUserId: number; isMobile: boolean }>()
+const emit = defineEmits<{ close: []; 'open-task': [task: GroupTask] }>()
 
 const priorityColors: Record<Priority, string> = {
   high: 'bg-red-100 text-red-600',
