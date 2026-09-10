@@ -1,7 +1,7 @@
 <template>
   <aside
       :class="[
-        'h-full overflow-hidden border-e border-primary-200/60 bg-white/80 backdrop-blur-xl relative',
+        'h-full overflow-hidden border-e rounded-s-2xl border-primary-200/60 bg-white/80 backdrop-blur-xl relative',
         isMobile ? 'w-full' : ['shrink-0 transition-[width] duration-300 ease-in-out', sidebarIconOnly ? 'w-19' : 'w-72'],
         isMobile && mobilePane !== 'sidebar' ? 'hidden' : 'flex flex-col'
       ]"

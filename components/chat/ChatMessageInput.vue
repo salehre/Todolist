@@ -1,5 +1,5 @@
 <template>
-  <div ref="bottomAreaRef" class="shrink-0 px-4 pb-4 pt-2">
+  <div ref="footerRef" class="relative z-30 shrink-0 px-4 pb-4 pt-2">
     <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-full border border-red-200 flex items-center gap-3">
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
@@ -173,8 +173,9 @@ function submitTodo(): void {
   todoForm.title = ''; todoForm.description = ''; todoForm.priority = 'medium'; todoForm.assignedTo = []
 }
 
+const footerRef = ref<HTMLElement | null>(null)
 const inputAreaRef = ref<HTMLElement | null>(null)
 const inputRef = ref<HTMLTextAreaElement | null>(null)
 
-defineExpose({ inputAreaRef, focusInput: () => inputRef.value?.focus() })
+defineExpose({ footerRef, inputAreaRef, focusInput: () => inputRef.value?.focus() })
 </script>

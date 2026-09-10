@@ -32,32 +32,36 @@
         </button>
 
         <div class="relative inline-block" data-dropdown="header-menu">
-          <button @click.stop="toggleMenu" class="p-2 rounded-full text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="'More options'">
+          <button ref="menuButtonRef" @click.stop="toggleMenu" class="p-2 rounded-full text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="'More options'">
             <Icon icon="mage:dots" class="text-xl" />
           </button>
-
-          <Transition name="dropdown">
-            <div
-                v-if="menuOpen"
-                ref="menuPanelRef"
-                data-dropdown="header-menu"
-                :class="['absolute top-full mt-1 bg-white/95 backdrop-blur-xl rounded-xl shadow-lg py-2 min-w-45 z-[9999]', menuAlign === 'right' ? 'left-0 origin-top-left' : 'right-0 origin-top-right']"
-            >
-              <button @click.stop="emit('toggle-filter'); menuOpen = false" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-                <Icon icon="mi:filter" class="text-sm" /> Filter messages
-              </button>
-              <button @click.stop="emit('open-info'); menuOpen = false" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors border-t border-primary-100 mt-1">
-                <Icon icon="mi:circle-information" class="text-sm" /> Group info
-              </button>
-              <button v-if="isAdmin" @click.stop="menuOpen = false; emit('delete-group')" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-primary-100 mt-1">
-                <Icon icon="mi:delete" class="text-sm" /> حذف گروه
-              </button>
-            </div>
-          </Transition>
         </div>
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <Transition name="dropdown">
+      <div
+          v-if="menuOpen"
+          ref="menuPanelRef"
+          data-dropdown="header-menu"
+          class="fixed bg-white/95 backdrop-blur-xl rounded-xl shadow-lg py-2 min-w-45 z-9999"
+          :style="{ top: menuTop + 'px', left: menuLeft + 'px', transformOrigin: menuAlign === 'right' ? 'top right' : 'top left' }"
+          @click.stop
+      >
+        <button @click.stop="emit('toggle-filter'); menuOpen = false" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
+          <Icon icon="mi:filter" class="text-sm" /> Filter messages
+        </button>
+        <button @click.stop="emit('open-info'); menuOpen = false" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors border-t border-primary-100 mt-1">
+          <Icon icon="mi:circle-information" class="text-sm" /> Group info
+        </button>
+        <button v-if="isAdmin" @click.stop="menuOpen = false; emit('delete-group')" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-primary-100 mt-1">
+          <Icon icon="mi:delete" class="text-sm" /> حذف گروه
+        </button>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -85,7 +89,10 @@ const emit = defineEmits<{
 
 const menuOpen = ref(false)
 const menuAlign = ref<'left' | 'right'>('right')
+const menuButtonRef = ref<HTMLElement | null>(null)
 const menuPanelRef = ref<HTMLElement | null>(null)
+const menuTop = ref(0)
+const menuLeft = ref(0)
 
 function computeAlign(triggerEl: HTMLElement): 'left' | 'right' {
   const wrapper = triggerEl.closest('[data-dropdown]') as HTMLElement | null
@@ -109,8 +116,24 @@ function toggleMenu(event: MouseEvent): void {
   if (menuOpen.value) {
     const target = event.currentTarget as HTMLElement
     menuAlign.value = computeAlign(target)
-    nextTick(() => { menuAlign.value = computeAlign(target) })
+    positionMenu()
+    nextTick(() => {
+      menuAlign.value = computeAlign(target)
+      positionMenu()
+    })
   }
+}
+
+function positionMenu(): void {
+  if (!menuButtonRef.value) return
+  const rect = menuButtonRef.value.getBoundingClientRect()
+  const margin = 8
+  const menuWidth = menuPanelRef.value?.offsetWidth || 180
+  const preferredLeft = menuAlign.value === 'right' ? rect.right - menuWidth : rect.left
+  const left = Math.min(Math.max(preferredLeft, margin), window.innerWidth - menuWidth - margin)
+
+  menuTop.value = rect.bottom + margin
+  menuLeft.value = left
 }
 
 function handleClickOutside(e: MouseEvent): void {

@@ -12,6 +12,7 @@ export function mapTodoFromApi(apiTodo: any): Todo {
         createdAt: apiTodo.created_at,
         groupName: apiTodo.group_name ?? null,
         orderedSteps: apiTodo.ordered_steps ?? true,
+        lastEditedBy: apiTodo.last_edited_by ?? null,
     }
 }
 

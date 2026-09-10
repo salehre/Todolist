@@ -2,7 +2,7 @@
   <aside
       v-if="open"
       :class="[
-        'h-full overflow-hidden border-s border-primary-200/60 bg-white/80 backdrop-blur-xl flex flex-col shrink-0 transition-[width] duration-300 ease-in-out',
+        'h-full overflow-hidden border-s rounded-e-2xl border-primary-200/60 bg-white/80 backdrop-blur-xl flex flex-col shrink-0 transition-[width] duration-300 ease-in-out',
         isMobile ? 'w-full' : 'w-80'
       ]"
   >
@@ -34,7 +34,7 @@
               >برای من
               </span>
             </div>
-            <span :class="['shrink-0 px-1.5 py-0.5 rounded-full text-[10px] font-medium', priorityColors[task.priority]]">{{ task.priority }}</span>
+            <span :class="['shrink-0 px-1.5 py-0.5 rounded-[5px] text-[10px] font-medium', priorityColors[task.priority]]">{{ task.priority }}</span>
           </div>
           <div class="mt-1.5 flex items-center -space-x-1.5 rtl:space-x-reverse">
             <div v-for="a in task.assignees" :key="a.id" v-tooltip="a.name" class="w-6 h-6 rounded-full ring-2 ring-white overflow-hidden">

@@ -86,7 +86,7 @@
       />
 
       <Transition enter-active-class="transition-opacity duration-100 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition-opacity duration-100 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="!isNearBottom" class="absolute bottom-24 inset-e-6 z-20">
+        <div v-if="!isNearBottom" class="absolute inset-e-6 z-20 transition-[bottom] duration-300 ease-out" :style="{ bottom: `${96 + footerMenuOffset}px` }">
           <button @click="scrollToBottom()" class="flex items-center gap-1.5 p-2.5 bg-primary-500 text-white rounded-full text-sm font-medium shadow-lg hover:bg-primary-600 transition-all">
             <Icon icon="ep:arrow-down-bold" class="text-lg" />
             <span v-if="unreadCount > 0">{{ unreadCount }} new</span>
@@ -271,6 +271,31 @@ const currentVisibleDate = dateDivider.currentVisibleDate
 
 const messagesReady = ref(false)
 const messageInputRef = ref<InstanceType<typeof ChatMessageInput> | null>(null)
+const footerMenuOffset = ref(0)
+let footerBaseHeight: number | null = null
+let footerResizeObserver: ResizeObserver | null = null
+
+function observeFooter(): void {
+  footerResizeObserver?.disconnect()
+  footerResizeObserver = null
+  footerBaseHeight = null
+  footerMenuOffset.value = 0
+
+  const footer = messageInputRef.value?.footerRef
+  if (!footer) return
+
+  const updateFooterOffset = () => {
+    const height = footer.getBoundingClientRect().height
+    if (footerBaseHeight === null) footerBaseHeight = height
+    footerMenuOffset.value = Math.max(0, height - footerBaseHeight)
+  }
+
+  footerResizeObserver = new ResizeObserver(updateFooterOffset)
+  footerResizeObserver.observe(footer)
+  updateFooterOffset()
+}
+
+watch(() => messageInputRef.value?.footerRef, observeFooter, { flush: 'post' })
 
 let previousMessageCount = 0
 
@@ -642,7 +667,10 @@ onMounted(() => {
   fetchGroups()
   setChatContext(null, currentUser.value.id)
 })
-onUnmounted(() => { chatEcho.unsubscribe() })
+onUnmounted(() => {
+  footerResizeObserver?.disconnect()
+  chatEcho.unsubscribe()
+})
 
 watch(messages, (newMessages) => {
   const isNewMessage = newMessages.length > previousMessageCount

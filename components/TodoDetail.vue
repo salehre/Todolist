@@ -316,6 +316,12 @@
         </div>
 
       </div>
+      <div v-if="modelValue.lastEditedBy" class="flex justify-center pb-3">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-xs text-primary-500">
+          <Icon icon="mdi:pencil-outline" class="text-xs" />
+          آخرین ویرایش توسط {{ modelValue.lastEditedBy.name }}
+        </span>
+      </div>
     </div>
   </div>
 </template>
