@@ -50,10 +50,15 @@ export function useTodos() {
             })
             const updated = mapTodoFromApi(response.data)
             todo.completed = updated.completed
+            todo.lastEditedBy = updated.lastEditedBy
 
             if (todo.completed) {
                 todo.steps.forEach((s: Step) => (s.completed = true))
-                if (todo.steps.length > 0) await syncSteps(id, todo.steps)
+                if (todo.steps.length > 0) {
+                    const synced = await syncSteps(id, todo.steps)
+                    todo.steps = synced.steps
+                    todo.lastEditedBy = synced.lastEditedBy
+                }
             }
 
             if (selectedTodo.value?.id === id) selectedTodo.value = { ...todo }
@@ -63,7 +68,10 @@ export function useTodos() {
     }
 
     // ─── Step sync (یک API برای همه‌ی عملیات step) ─────────────────────────
-    async function syncSteps(todoId: number, steps: Step[]): Promise<Step[]> {
+    async function syncSteps(
+        todoId: number,
+        steps: Step[]
+    ): Promise<{ steps: Step[]; lastEditedBy: { id: number; name: string } | null }> {
         try {
             const payload = {
                 task_id: todoId,
@@ -74,14 +82,17 @@ export function useTodos() {
                 })),
             }
             const response = await api.put('/tasks/updateStep', payload)
-            return response.data.map((s: any) => ({
-                id: s.id,
-                text: s.text,
-                completed: s.completed,
-            }))
+            return {
+                steps: response.data.steps.map((s: any) => ({
+                    id: s.id,
+                    text: s.text,
+                    completed: s.completed,
+                })),
+                lastEditedBy: response.data.last_edited_by ?? null,
+            }
         } catch (error) {
             console.error('خطا در sync کردن step ها:', error)
-            return steps
+            return { steps, lastEditedBy: null }
         }
     }
 
@@ -107,7 +118,8 @@ export function useTodos() {
 
         try {
             const synced = await syncSteps(todoId, todo.steps)
-            todo.steps = synced
+            todo.steps = synced.steps
+            todo.lastEditedBy = synced.lastEditedBy
         } finally {
             pendingStepIds.value.delete(stepId)
         }
@@ -128,7 +140,8 @@ export function useTodos() {
 
         try {
             const synced = await syncSteps(todoId, todo.steps)
-            todo.steps = synced
+            todo.steps = synced.steps
+            todo.lastEditedBy = synced.lastEditedBy
         } finally {
             pendingStepIds.value.delete(stepId)
         }
@@ -141,16 +154,19 @@ export function useTodos() {
         if (!todo) return
 
         const synced = await syncSteps(todoId, newSteps)
-        todo.steps = synced
+        todo.steps = synced.steps
+        todo.lastEditedBy = synced.lastEditedBy
 
-        if (!synced.length) {
+        if (!synced.steps.length) {
             await api.put('/tasks/updateTask', { id: todoId, is_completed: false })
             todo.completed = false
         }
 
         if (orderedSteps !== undefined && orderedSteps !== todo.orderedSteps) {
-            await api.put('/tasks/updateTask', { id: todoId, ordered_steps: orderedSteps })
+            const res = await api.put('/tasks/updateTask', { id: todoId, ordered_steps: orderedSteps })
+            const updated = mapTodoFromApi(res.data)
             todo.orderedSteps = orderedSteps
+            todo.lastEditedBy = updated.lastEditedBy
         }
 
         if (selectedTodo.value?.id === todoId) selectedTodo.value = { ...todo }
@@ -259,6 +275,7 @@ export function useTodos() {
                     todo.text = updated.text
                     todo.description = updated.description
                     todo.priority = updated.priority
+                    todo.lastEditedBy = updated.lastEditedBy
                     if (selectedTodo.value?.id === editingId.value) {
                         selectedTodo.value = { ...todo }
                     }

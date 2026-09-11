@@ -2,7 +2,7 @@
   <!-- System Message -->
   <div v-if="message.type === 'system'" class="flex items-center gap-3 my-4">
     <div class="flex-1 h-px bg-primary-100" />
-    <span class="max-w-64 truncate text-xs text-primary-400">{{ message.text }}</span>
+    <span class="whitespace-nowrap text-xs text-primary-400">{{ message.text }}</span>
     <div class="flex-1 h-px bg-primary-100" />
   </div>
 
