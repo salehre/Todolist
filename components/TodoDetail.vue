@@ -230,6 +230,7 @@
     </div>
 
     <!-- Clear Steps Dialog -->
+    <Teleport to="body">
     <div v-if="showClearStepsDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="showClearStepsDialog = false">
       <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
         <div class="p-6 flex flex-col items-center text-center">
@@ -243,6 +244,7 @@
         </div>
       </div>
     </div>
+    </Teleport>
 
     <!-- Steps Management Dialog -->
     <div v-if="showStepsDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeStepsDialog">

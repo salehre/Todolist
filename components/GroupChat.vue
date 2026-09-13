@@ -340,7 +340,8 @@ async function completeGroupTaskStep(todoId: number, stepId: number): Promise<vo
   todo.completed = todo.steps.every(s => s.completed) && todo.steps.length > 0
   try {
     const res = await api.put('/tasks/updateStep', { task_id: todoId, steps: todo.steps })
-    todo.steps = res.data
+    todo.steps = res.data.steps
+    todo.lastEditedBy = res.data.last_edited_by ?? null
     viewedGroupTask.value = { ...todo }
   } catch (e: any) {
     toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
@@ -377,10 +378,12 @@ async function updateGroupTaskSteps(todoId: number, steps: Step[], orderedSteps?
   if (!todo || todo.id !== todoId) return
   try {
     const res = await api.put('/tasks/updateStep', { task_id: todoId, steps })
-    todo.steps = res.data
+    todo.steps = res.data.steps
+    todo.lastEditedBy = res.data.last_edited_by ?? null
     if (orderedSteps !== undefined && orderedSteps !== todo.orderedSteps) {
-      await api.put('/tasks/updateTask', { id: todoId, ordered_steps: orderedSteps })
+      const taskRes = await api.put('/tasks/updateTask', { id: todoId, ordered_steps: orderedSteps })
       todo.orderedSteps = orderedSteps
+      todo.lastEditedBy = taskRes.data.last_edited_by ?? null
     }
     viewedGroupTask.value = { ...todo }
   } catch (e: any) {
