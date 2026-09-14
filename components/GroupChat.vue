@@ -157,6 +157,15 @@
       />
 
       <div v-if="activeMenuId" class="fixed inset-0 z-10" @click="activeMenuId = null"></div>
+
+      <ChatGroupTaskDetailDialog
+          :task="viewedGroupTask"
+          :pending-step-ids="groupTaskPendingStepIds"
+          @close="viewedGroupTask = null"
+          @complete-step="completeGroupTaskStep"
+          @undo-step="undoGroupTaskStep"
+          @update-steps="updateGroupTaskSteps"
+      />
     </div>
 
     <ChatUserProfileDialog :profile="viewedProfile" @close="showUserProfileDialog = false; viewedProfile = null" />
@@ -178,15 +187,6 @@
         :is-mobile="isMobile"
         @close="showGroupTasksPanel = false; if (isMobile) mobilePane.value = 'main'"
         @open-task="openTaskFromPanel"
-    />
-
-    <ChatGroupTaskDetailDialog
-        :task="viewedGroupTask"
-        :pending-step-ids="groupTaskPendingStepIds"
-        @close="viewedGroupTask = null"
-        @complete-step="completeGroupTaskStep"
-        @undo-step="undoGroupTaskStep"
-        @update-steps="updateGroupTaskSteps"
     />
   </div>
 </template>
@@ -303,13 +303,10 @@ const showGroupTasksPanel = ref(false)
 const groupTasks = ref<any[]>([])
 const loadingGroupTasks = ref(false)
 
-async function openGroupTasks(): Promise<void> {
-  if (!activeGroupId.value) return
-  if (isMobile.value) mobilePane.value = 'tasks'
-  showGroupTasksPanel.value = true
+async function fetchGroupTasks(id: number): Promise<void> {
   loadingGroupTasks.value = true
   try {
-    const res = await api.get(`/groups/${activeGroupId.value}/tasks`)
+    const res = await api.get(`/groups/${id}/tasks`)
     groupTasks.value = res.data
   } catch (e: any) {
     toast.error(getErrorMessage(e, 'گرفتن تسک‌های گروه ناموفق بود'))
@@ -318,6 +315,12 @@ async function openGroupTasks(): Promise<void> {
   }
 }
 
+async function openGroupTasks(): Promise<void> {
+  if (!activeGroupId.value) return
+  if (isMobile.value) mobilePane.value = 'tasks'
+  showGroupTasksPanel.value = true
+  await fetchGroupTasks(activeGroupId.value)
+}
 const viewedGroupTask = ref<Todo | null>(null)
 const groupTaskPendingStepIds = ref<Set<number>>(new Set())
 
@@ -391,6 +394,8 @@ async function updateGroupTaskSteps(todoId: number, steps: Step[], orderedSteps?
   }
 }
 async function selectGroup(id: number): Promise<void> {
+  viewedGroupTask.value = null
+  groupTaskPendingStepIds.value.clear()
   messagesReady.value = false
   activeGroupId.value = id
   setChatContext(id, currentUser.value.id)
@@ -399,6 +404,7 @@ async function selectGroup(id: number): Promise<void> {
   clearMessageNotice(id)
   if (!membersByGroup[id]) await fetchMembers(id)
   if (!messagesByGroup[id]) await fetchMessages(id)
+  if (showGroupTasksPanel.value) fetchGroupTasks(id)
   await nextTick()
   jumpToBottomInstant()
   requestAnimationFrame(() => { jumpToBottomInstant(); messagesReady.value = true })
