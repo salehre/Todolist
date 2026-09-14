@@ -5,6 +5,8 @@
         :show-back-button="true"
         :pending-step-ids="pendingStepIds"
         @back="emit('close')"
+        @edit-todo="emit('edit-todo', $event)"
+        @delete-todo="emit('delete-todo', $event)"
         @toggle-complete="emit('toggle-complete', $event)"
         @update-steps="(id, steps, ordered) => emit('update-steps', id, steps, ordered)"
         @complete-step="(id, stepId) => emit('complete-step', id, stepId)"
@@ -20,6 +22,8 @@ import type { Todo, Step } from '~/types/todoType'
 defineProps<{ task: Todo | null; pendingStepIds: Set<number> }>()
 const emit = defineEmits<{
   close: []
+  'edit-todo': [todoId: number]
+  'delete-todo': [todoId: number]
   'toggle-complete': [todoId: number]
   'update-steps': [todoId: number, steps: Step[], orderedSteps?: boolean]
   'complete-step': [todoId: number, stepId: number]

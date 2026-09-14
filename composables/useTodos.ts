@@ -230,7 +230,9 @@ export function useTodos() {
     }
 
     function openEditDialog(id: number): void {
+        console.log('openEditDialog called with id:', id)
         const todo = todos.value.find(t => t.id === id)
+        console.log('found todo:', todo)
         if (!todo || todo.completed) return
         dialogMode.value = 'edit'
         dialogForm.value = {

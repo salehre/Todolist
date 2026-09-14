@@ -162,10 +162,38 @@
           :task="viewedGroupTask"
           :pending-step-ids="groupTaskPendingStepIds"
           @close="viewedGroupTask = null"
+          @edit-todo="openEditGroupTaskDialog"
+          @delete-todo="confirmDeleteGroupTask"
           @complete-step="completeGroupTaskStep"
           @undo-step="undoGroupTaskStep"
           @update-steps="updateGroupTaskSteps"
       />
+
+      <div v-if="showEditGroupTaskDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4" @click.self="closeEditGroupTaskDialog">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
+            <h3 class="text-xl font-bold text-primary-900">✏️ Edit Task</h3>
+            <button @click="closeEditGroupTaskDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-primary-700 mb-2">Title <span class="text-primary-600">*</span></label>
+              <input v-model="editGroupTaskForm.title" type="text" placeholder="Enter task title..." class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all" @keyup.enter="submitEditGroupTask" />
+            </div>
+            <div>
+            <label class="block text-sm font-medium text-primary-700 mb-2">Description</label>
+            <textarea v-model="editGroupTaskForm.description" rows="4" placeholder="Enter task description (optional)..." class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"></textarea>
+            </div>
+            <div>
+              <PrioritySlider v-model="editGroupTaskForm.priority" />
+            </div>
+          </div>
+          <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
+            <button @click="closeEditGroupTaskDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
+            <button @click="submitEditGroupTask" :disabled="!editGroupTaskForm.title.trim()" class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Save Changes</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <ChatUserProfileDialog :profile="viewedProfile" @close="showUserProfileDialog = false; viewedProfile = null" />
@@ -221,6 +249,7 @@ import ChatAttachmentPreviewDialog from '~/components/chat/ChatAttachmentPreview
 import ChatGroupTasksPanel from '~/components/chat/ChatGroupTasksPanel.vue'
 import ChatGroupTaskDetailDialog from '~/components/chat/ChatGroupTaskDetailDialog.vue'
 import { mapTodoFromApi } from '~/src/services/todoMapper'
+import PrioritySlider from '~/components/Priorityslider.vue'
 
 defineProps<{ todos?: Todo[] }>()
 const emit = defineEmits<{
@@ -328,6 +357,51 @@ function openTaskFromPanel(task: any): void {
   viewedGroupTask.value = mapTodoFromApi(task)
 }
 
+// ── Edit group task dialog ──────────────────────────────────────────────
+const showEditGroupTaskDialog = ref(false)
+const editGroupTaskForm = ref<{ title: string; description: string; priority: Priority }>({ title: '', description: '', priority: 'medium' })
+const editingGroupTaskId = ref<number | null>(null)
+const isSubmittingGroupTaskEdit = ref(false)
+
+function openEditGroupTaskDialog(id: number): void {
+  const todo = viewedGroupTask.value
+  if (!todo || todo.id !== id) return
+  editGroupTaskForm.value = { title: todo.text, description: todo.description ?? '', priority: todo.priority }
+  editingGroupTaskId.value = id
+  showEditGroupTaskDialog.value = true
+}
+
+function closeEditGroupTaskDialog(): void {
+  showEditGroupTaskDialog.value = false
+  editingGroupTaskId.value = null
+}
+
+async function submitEditGroupTask(): Promise<void> {
+  const title = editGroupTaskForm.value.title.trim()
+  if (!title || isSubmittingGroupTaskEdit.value || editingGroupTaskId.value === null) return
+  isSubmittingGroupTaskEdit.value = true
+  try {
+    const res = await api.put('/tasks/updateTask', {
+          id: editingGroupTaskId.value,
+          title,
+          description: editGroupTaskForm.value.description.trim() || null,
+          priority: editGroupTaskForm.value.priority,
+        })
+    const updated = mapTodoFromApi(res.data)
+    if (viewedGroupTask.value?.id === editingGroupTaskId.value) {
+      viewedGroupTask.value = { ...viewedGroupTask.value, text: updated.text, description: updated.description, priority: updated.priority, lastEditedBy: updated.lastEditedBy }
+    }
+    const idx = groupTasks.value.findIndex((t: any) => t.id === editingGroupTaskId.value)
+    if (idx !== -1) groupTasks.value[idx] = res.data
+    toast.success('تسک ویرایش شد')
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, 'ذخیره تسک ناموفق بود'))
+  } finally {
+    isSubmittingGroupTaskEdit.value = false
+    closeEditGroupTaskDialog()
+  }
+}
+
 async function completeGroupTaskStep(todoId: number, stepId: number): Promise<void> {
   if (groupTaskPendingStepIds.value.has(stepId)) return
     groupTaskPendingStepIds.value.add(stepId)
@@ -346,6 +420,8 @@ async function completeGroupTaskStep(todoId: number, stepId: number): Promise<vo
     todo.steps = res.data.steps
     todo.lastEditedBy = res.data.last_edited_by ?? null
     viewedGroupTask.value = { ...todo }
+    const idx2 = groupTasks.value.findIndex((t: any) => t.id === todoId)
+    if (idx2 !== -1) groupTasks.value[idx2] = { ...groupTasks.value[idx2], is_completed: todo.completed }
   } catch (e: any) {
     toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
   } finally {
@@ -367,8 +443,11 @@ async function undoGroupTaskStep(todoId: number, stepId: number): Promise<void> 
 
   try {
     const res = await api.put('/tasks/updateStep', { task_id: todoId, steps: todo.steps })
-    todo.steps = res.data
+    todo.steps = res.data.steps
+    todo.lastEditedBy = res.data.last_edited_by ?? null
     viewedGroupTask.value = { ...todo }
+    const idx2 = groupTasks.value.findIndex((t: any) => t.id === todoId)
+    if (idx2 !== -1) groupTasks.value[idx2] = { ...groupTasks.value[idx2], is_completed: false }
   } catch (e: any) {
     toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
   } finally {
@@ -639,6 +718,26 @@ function confirmDeleteGroup(): void {
     },
   })
 }
+
+function confirmDeleteGroupTask(id: number): void {
+  openConfirm({
+        title: 'حذف تسک',
+        message: 'مطمئنی می‌خوای این تسک رو حذف کنی؟ این کار غیرقابل بازگشته.',
+        confirmLabel: 'حذف',
+        danger: true,
+        onConfirm: async () => {
+          try {
+            await api.delete('/tasks/delete', { data: { id } })
+            groupTasks.value = groupTasks.value.filter((t: any) => t.id !== id)
+            if (viewedGroupTask.value?.id === id) viewedGroupTask.value = null
+            toast.success('تسک حذف شد')
+          } catch (e: any) {
+            toast.error(getErrorMessage(e, 'حذف تسک ناموفق بود'))
+          }
+          },
+  })
+}
+
 function confirmRoleChange(m: GroupMember): void {
   const makeAdmin = m.role !== 'admin'
   openConfirm({ title: makeAdmin ? 'ارتقا به مدیر' : 'تنزل به عضو عادی', message: `${m.name} ${makeAdmin ? 'مدیر گروه بشه' : 'از مدیریت خارج بشه'}؟`, confirmLabel: 'تأیید', onConfirm: () => apiUpdateMemberRole(activeGroupId.value!, m.userId, makeAdmin ? 'admin' : 'member') })
