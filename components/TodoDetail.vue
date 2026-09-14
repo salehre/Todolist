@@ -459,3 +459,9 @@ function confirmClearSteps(): void {
 }
 
 </script>
+
+<style>
+.x{
+  font-size: 0;
+}
+</style>

@@ -18,30 +18,40 @@
           <div v-for="i in 4" :key="i" class="h-16 rounded-xl bg-primary-50 animate-pulse"></div>
         </div>
 
-        <p v-else-if="tasks.length === 0" class="text-center text-sm text-primary-300 py-10">هنوز تسکی توی این گروه ساخته نشده</p>
+        <div v-else-if="tasks.length === 0" class="h-full flex items-center justify-center">
+          <div class="flex flex-col items-center gap-3 text-center px-6 py-10 rounded-2xl border border-dashed border-primary-200 bg-primary-50/40 max-w-[220px]">
+            <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+              <Icon icon="solar:checklist-minimalistic-line-duotone" class="text-2xl text-primary-400" />
+            </div>
+            <p class="text-sm font-medium text-primary-600">هنوز تسکی توی این گروه ساخته نشده</p>
+          </div>
+        </div>
 
-        <button
-            v-for="task in tasks" :key="task.id"
-            @click="emit('open-task', task)"
-            :class="['w-full text-start p-3 rounded-xl border border-primary-100 hover:bg-primary-50 transition-colors', task.is_completed ? 'opacity-75' : '']"
-        >
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5 min-w-0">
-              <p class="text-sm font-semibold text-primary-800 truncate" :class="task.is_completed ? 'line-through text-primary-300' : ''">{{ task.title }}</p>              <span
-                  v-if="task.assignees.some(a => a.id === currentUserId)"
-                  class="shrink-0 rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-medium text-primary-600"
-              >برای من
-              </span>
+        <template v-else>
+          <button
+              v-for="task in tasks" :key="task.id"
+              @click="emit('open-task', task)"
+              class="w-full text-start p-3 rounded-xl border border-primary-100 hover:bg-primary-50 transition-colors"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <p class="text-sm font-semibold text-primary-800 truncate" :class="task.is_completed ? 'line-through text-primary-400' : ''">{{ task.title }}</p>
+                <span
+                    v-if="task.assignees.some(a => a.id === currentUserId)"
+                    class="shrink-0 rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-medium text-primary-600"
+                >برای من
+                </span>
+              </div>
+              <span :class="['shrink-0 px-1.5 py-0.5 rounded-[5px] text-[10px] font-medium', priorityColors[task.priority]]">{{ task.priority }}</span>
             </div>
-            <span :class="['shrink-0 px-1.5 py-0.5 rounded-[5px] text-[10px] font-medium', priorityColors[task.priority]]">{{ task.priority }}</span>
-          </div>
-          <div class="mt-1.5 flex items-center -space-x-1.5 rtl:space-x-reverse">
-            <div v-for="a in task.assignees" :key="a.id" v-tooltip="a.name" class="w-6 h-6 rounded-full ring-2 ring-white overflow-hidden">
-              <img v-if="a.avatarUrl" :src="a.avatarUrl" class="w-full h-full object-cover" alt="" />
-              <div v-else :class="['w-full h-full flex items-center justify-center text-[9px] font-bold text-white', colorFor(a.id)]">{{ a.name[0] }}</div>
+            <div class="mt-1.5 flex items-center -space-x-1.5 rtl:space-x-reverse">
+              <div v-for="a in task.assignees" :key="a.id" v-tooltip="a.name" class="w-6 h-6 rounded-full ring-2 ring-white overflow-hidden">
+                <img v-if="a.avatarUrl" :src="a.avatarUrl" class="w-full h-full object-cover" alt="" />
+                <div v-else :class="['w-full h-full flex items-center justify-center text-[9px] font-bold text-white', colorFor(a.id)]">{{ a.name[0] }}</div>
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+        </template>
       </div>
     </aside>
 </template>

@@ -24,7 +24,6 @@
           :show-search="showSearch"
           :group-tasks-open="showGroupTasksPanel"
           @open-sidebar="mobilePane = 'sidebar'"
-          @go-to-tasks="emit('open-tasks')"
           @open-group-tasks="openGroupTasks"
           @toggle-search="showSearch = !showSearch"
           @toggle-filter="emit('toggle-filter')"
