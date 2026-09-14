@@ -1,5 +1,5 @@
 <template>
-  <div class="shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50">
+  <div :class="['shrink-0 bg-white/90 backdrop-blur-md md:rounded-ss-none rounded-t-2xl border-b border-primary-200/60 shadow-sm relative z-50', groupTasksOpen ? 'md:rounded-se-none' : '']">
     <div class="px-5 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3 min-w-0 cursor-pointer" @click.stop="emit('open-info')">
         <div class="w-10 h-10 rounded-full bg-linear-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-md shadow-primary-200 z-50 overflow-hidden shrink-0">
@@ -75,6 +75,7 @@ defineProps<{
   memberCount: number
   isAdmin: boolean
   showSearch: boolean
+  groupTasksOpen?: boolean
 }>()
 
 const emit = defineEmits<{
