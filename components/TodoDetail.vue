@@ -25,6 +25,7 @@
             <!-- Action Buttons -->
             <div class="flex gap-3">
               <button
+                  v-if="modelValue.canEdit"
                   @click="emit('edit-todo', modelValue.id)"
                   :disabled="modelValue.completed"
                   class="px-2 md:px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -33,6 +34,7 @@
                 <span class="hidden sm:inline">Edit</span>
               </button>
               <button
+                  v-if="modelValue.canEdit"
                   @click="emit('delete-todo', modelValue.id)"
                   class="px-2 md:px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-sm font-medium transition-all flex items-center gap-2"
               >
@@ -63,6 +65,7 @@
                   <!-- Complete Task Checkbox -->
                   <div class="pt-1.5 flex items-center px-3 shrink-0">
                     <input
+                        v-if="modelValue.canComplete"
                         type="checkbox"
                         :checked="modelValue.completed"
                         @change="emit('toggle-complete', modelValue.id)"
@@ -110,7 +113,7 @@
                   </div>
                   <div class="flex gap-2 shrink-0">
                     <button
-                        v-if="modelValue.steps && modelValue.steps.length > 0"
+                        v-if="modelValue.canEdit && modelValue.steps && modelValue.steps.length > 0"
                         @click="showClearStepsDialog = true"
                         class="px-3 py-2 bg-primary-100 text-primary-600 rounded-sm text-sm font-medium hover:bg-primary-200 transition-all flex items-center gap-1"
                     >
@@ -118,6 +121,7 @@
                       <span class="hidden sm:inline">Clear</span>
                     </button>
                     <button
+                        v-if="modelValue.canEdit"
                         @click="openStepsDialog"
                         class="px-3 md:px-4 py-2 bg-primary-600 text-white rounded-sm text-sm font-medium hover:bg-primary-700 transition-all flex items-center gap-1"
                     >
@@ -193,7 +197,7 @@
                                 type="checkbox"
                                 :checked="step.completed"
                                 @change="handleCompleteStep(step.id)"
-                                :disabled="!canCompleteStep(modelValue, index) || props.pendingStepIds.has(step.id)"
+                                :disabled="!modelValue.canComplete || !canCompleteStep(modelValue, index) || props.pendingStepIds.has(step.id)"
                                 class="w-4 h-4 md:w-5 md:h-5 accent-primary-600 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                             />
                           </div>

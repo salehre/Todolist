@@ -25,6 +25,8 @@ export interface Todo {
   groupName?: string | null
   orderedSteps: boolean
   lastEditedBy?: { id: number; name: string } | null
+  canEdit: boolean
+  canComplete: boolean
 }
 
 export interface StatusFilterOption {

@@ -23,12 +23,11 @@
         <button
             v-for="task in tasks" :key="task.id"
             @click="emit('open-task', task)"
-            class="w-full text-start p-3 rounded-xl border border-primary-100 hover:bg-primary-50 transition-colors"
+            :class="['w-full text-start p-3 rounded-xl border border-primary-100 hover:bg-primary-50 transition-colors', task.is_completed ? 'opacity-75' : '']"
         >
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-1.5 min-w-0">
-              <p class="text-sm font-semibold text-primary-800 truncate" :class="task.is_completed ? 'line-through text-primary-400' : ''">{{ task.title }}</p>
-              <span
+              <p class="text-sm font-semibold text-primary-800 truncate" :class="task.is_completed ? 'line-through text-primary-300' : ''">{{ task.title }}</p>              <span
                   v-if="task.assignees.some(a => a.id === currentUserId)"
                   class="shrink-0 rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-medium text-primary-600"
               >برای من
