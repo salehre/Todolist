@@ -459,9 +459,3 @@ function confirmClearSteps(): void {
 }
 
 </script>
-
-<style scoped>
-.a{
-  owerflow: hidden
-}
-</style>

@@ -329,6 +329,7 @@ watch(() => messageInputRef.value?.footerRef, observeFooter, { flush: 'post' })
 
 let previousMessageCount = 0
 
+// ── Group tasks panel ──────────────────────────────────────────────────
 const showGroupTasksPanel = ref(false)
 const groupTasks = ref<any[]>([])
 const loadingGroupTasks = ref(false)
@@ -351,6 +352,7 @@ async function openGroupTasks(): Promise<void> {
   showGroupTasksPanel.value = true
   await fetchGroupTasks(activeGroupId.value)
 }
+
 const viewedGroupTask = ref<Todo | null>(null)
 const groupTaskPendingStepIds = ref<Set<number>>(new Set())
 
@@ -383,11 +385,11 @@ async function submitEditGroupTask(): Promise<void> {
   isSubmittingGroupTaskEdit.value = true
   try {
     const res = await api.put('/tasks/updateTask', {
-          id: editingGroupTaskId.value,
-          title,
-          description: editGroupTaskForm.value.description.trim() || null,
-          priority: editGroupTaskForm.value.priority,
-        })
+      id: editingGroupTaskId.value,
+      title,
+      description: editGroupTaskForm.value.description.trim() || null,
+      priority: editGroupTaskForm.value.priority,
+    })
     const updated = mapTodoFromApi(res.data)
     if (viewedGroupTask.value?.id === editingGroupTaskId.value) {
       viewedGroupTask.value = { ...viewedGroupTask.value, text: updated.text, description: updated.description, priority: updated.priority, lastEditedBy: updated.lastEditedBy }
@@ -403,36 +405,32 @@ async function submitEditGroupTask(): Promise<void> {
   }
 }
 
-async function completeGroupTaskStep(todoId: number, stepId: number): Promise<void> {
-  if (groupTaskPendingStepIds.value.has(stepId)) return
-    groupTaskPendingStepIds.value.add(stepId)
-    const todo = viewedGroupTask.value
-        if (!todo || todo.id !== todoId) { groupTaskPendingStepIds.value.delete(stepId); return }
-
-  const idx = todo.steps.findIndex(s => s.id === stepId)
-  if (idx === -1) { groupTaskPendingStepIds.value.delete(stepId); return }
-  todo.steps[idx].completed = !todo.steps[idx].completed
-  if (todo.orderedSteps && !todo.steps[idx].completed) {
-    for (let i = idx + 1; i < todo.steps.length; i++) todo.steps[i].completed = false
-  }
-  todo.completed = todo.steps.every(s => s.completed) && todo.steps.length > 0
-  try {
-    const res = await api.put('/tasks/updateStep', { task_id: todoId, steps: todo.steps })
-    todo.steps = res.data.steps
-    todo.lastEditedBy = res.data.last_edited_by ?? null
-    viewedGroupTask.value = { ...todo }
-    const idx2 = groupTasks.value.findIndex((t: any) => t.id === todoId)
-    if (idx2 !== -1) groupTasks.value[idx2] = { ...groupTasks.value[idx2], is_completed: todo.completed }
-  } catch (e: any) {
-    toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
-  } finally {
-    groupTaskPendingStepIds.value.delete(stepId)
-  }
+// ── Delete group task ────────────────────────────────────────────────────
+function confirmDeleteGroupTask(id: number): void {
+  openConfirm({
+    title: 'حذف تسک',
+    message: 'مطمئنی می‌خوای این تسک رو حذف کنی؟ این کار غیرقابل بازگشته.',
+    confirmLabel: 'حذف',
+    danger: true,
+    onConfirm: async () => {
+      try {
+        await api.delete('/tasks/delete', { data: { id } })
+        groupTasks.value = groupTasks.value.filter((t: any) => t.id !== id)
+        if (viewedGroupTask.value?.id === id) viewedGroupTask.value = null
+        toast.success('تسک حذف شد')
+      } catch (e: any) {
+        toast.error(getErrorMessage(e, 'حذف تسک ناموفق بود'))
+      }
+    },
+  })
 }
 
+// ── Toggle whole-task complete ───────────────────────────────────────────
 async function toggleGroupTaskComplete(id: number): Promise<void> {
   const todo = viewedGroupTask.value
   if (!todo || todo.id !== id) return
+  const prevCompleted = todo.completed
+  const prevSteps = todo.steps.map(s => ({ ...s }))
   const newCompletedState = !todo.completed
   try {
     const res = await api.put('/tasks/updateTask', { id, is_completed: newCompletedState })
@@ -443,8 +441,8 @@ async function toggleGroupTaskComplete(id: number): Promise<void> {
     if (todo.completed && todo.steps.length > 0) {
       todo.steps.forEach(s => (s.completed = true))
       const stepsRes = await api.put('/tasks/updateStep', {
-            task_id: id,
-            steps: todo.steps.map(s => ({ id: s.id ?? null, text: s.text, completed: s.completed })),
+        task_id: id,
+        steps: todo.steps.map(s => ({ id: s.id ?? null, text: s.text, completed: s.completed })),
       })
       todo.steps = stepsRes.data.steps
       todo.lastEditedBy = stepsRes.data.last_edited_by ?? null
@@ -454,7 +452,46 @@ async function toggleGroupTaskComplete(id: number): Promise<void> {
     const idx = groupTasks.value.findIndex((t: any) => t.id === id)
     if (idx !== -1) groupTasks.value[idx] = { ...groupTasks.value[idx], is_completed: todo.completed }
   } catch (e: any) {
+    todo.completed = prevCompleted
+    todo.steps = prevSteps
+    viewedGroupTask.value = { ...todo }
     toast.error(getErrorMessage(e, 'آپدیت وضعیت ناموفق بود'))
+  }
+}
+
+// ── Step completion (group tasks) ────────────────────────────────────────
+async function completeGroupTaskStep(todoId: number, stepId: number): Promise<void> {
+  if (groupTaskPendingStepIds.value.has(stepId)) return
+  groupTaskPendingStepIds.value.add(stepId)
+  const todo = viewedGroupTask.value
+  if (!todo || todo.id !== todoId) { groupTaskPendingStepIds.value.delete(stepId); return }
+
+  const idx = todo.steps.findIndex(s => s.id === stepId)
+  if (idx === -1) { groupTaskPendingStepIds.value.delete(stepId); return }
+
+  const prevSteps = todo.steps.map(s => ({ ...s }))
+  const prevCompleted = todo.completed
+
+  todo.steps[idx].completed = !todo.steps[idx].completed
+  if (todo.orderedSteps && !todo.steps[idx].completed) {
+    for (let i = idx + 1; i < todo.steps.length; i++) todo.steps[i].completed = false
+  }
+  todo.completed = todo.steps.every(s => s.completed) && todo.steps.length > 0
+
+  try {
+    const res = await api.put('/tasks/updateStep', { task_id: todoId, steps: todo.steps })
+    todo.steps = res.data.steps
+    todo.lastEditedBy = res.data.last_edited_by ?? null
+    viewedGroupTask.value = { ...todo }
+    const idx2 = groupTasks.value.findIndex((t: any) => t.id === todoId)
+    if (idx2 !== -1) groupTasks.value[idx2] = { ...groupTasks.value[idx2], is_completed: todo.completed }
+  } catch (e: any) {
+    todo.steps = prevSteps
+    todo.completed = prevCompleted
+    viewedGroupTask.value = { ...todo }
+    toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
+  } finally {
+    groupTaskPendingStepIds.value.delete(stepId)
   }
 }
 
@@ -467,6 +504,9 @@ async function undoGroupTaskStep(todoId: number, stepId: number): Promise<void> 
   const idx = todo.steps.findIndex(s => s.id === stepId)
   if (idx === -1) { groupTaskPendingStepIds.value.delete(stepId); return }
 
+  const prevSteps = todo.steps.map(s => ({ ...s }))
+  const prevCompleted = todo.completed
+
   todo.steps[idx].completed = false
   todo.completed = false
 
@@ -478,6 +518,9 @@ async function undoGroupTaskStep(todoId: number, stepId: number): Promise<void> 
     const idx2 = groupTasks.value.findIndex((t: any) => t.id === todoId)
     if (idx2 !== -1) groupTasks.value[idx2] = { ...groupTasks.value[idx2], is_completed: false }
   } catch (e: any) {
+    todo.steps = prevSteps
+    todo.completed = prevCompleted
+    viewedGroupTask.value = { ...todo }
     toast.error(getErrorMessage(e, 'آپدیت استپ ناموفق بود'))
   } finally {
     groupTaskPendingStepIds.value.delete(stepId)
@@ -501,6 +544,7 @@ async function updateGroupTaskSteps(todoId: number, steps: Step[], orderedSteps?
     toast.error(getErrorMessage(e, 'ذخیره استپ‌ها ناموفق بود'))
   }
 }
+
 async function selectGroup(id: number): Promise<void> {
   viewedGroupTask.value = null
   groupTaskPendingStepIds.value.clear()
@@ -747,26 +791,6 @@ function confirmDeleteGroup(): void {
     },
   })
 }
-
-function confirmDeleteGroupTask(id: number): void {
-  openConfirm({
-        title: 'حذف تسک',
-        message: 'مطمئنی می‌خوای این تسک رو حذف کنی؟ این کار غیرقابل بازگشته.',
-        confirmLabel: 'حذف',
-        danger: true,
-        onConfirm: async () => {
-          try {
-            await api.delete('/tasks/delete', { data: { id } })
-            groupTasks.value = groupTasks.value.filter((t: any) => t.id !== id)
-            if (viewedGroupTask.value?.id === id) viewedGroupTask.value = null
-            toast.success('تسک حذف شد')
-          } catch (e: any) {
-            toast.error(getErrorMessage(e, 'حذف تسک ناموفق بود'))
-          }
-          },
-  })
-}
-
 function confirmRoleChange(m: GroupMember): void {
   const makeAdmin = m.role !== 'admin'
   openConfirm({ title: makeAdmin ? 'ارتقا به مدیر' : 'تنزل به عضو عادی', message: `${m.name} ${makeAdmin ? 'مدیر گروه بشه' : 'از مدیریت خارج بشه'}؟`, confirmLabel: 'تأیید', onConfirm: () => apiUpdateMemberRole(activeGroupId.value!, m.userId, makeAdmin ? 'admin' : 'member') })
