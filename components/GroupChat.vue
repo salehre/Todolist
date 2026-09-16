@@ -10,7 +10,6 @@
         v-model:sidebar-collapsed="sidebarCollapsed"
         v-model:mobile-pane="mobilePane"
         @select-group="selectGroup"
-        @go-to-tasks="emit('open-tasks')"
         @create-group="handleCreateGroup"
     />
 
@@ -257,7 +256,6 @@ const emit = defineEmits<{
   'create-todo': [title: string, description: string, priority: Priority]
   'view-todo': [todo: NonNullable<ApiMessage['todoRef']>]
   'toggle-filter': []
-  'open-tasks': []
 }>()
 
 const { authState } = useAuth()
@@ -378,6 +376,12 @@ function closeEditGroupTaskDialog(): void {
   showEditGroupTaskDialog.value = false
   editingGroupTaskId.value = null
 }
+
+watch(viewedGroupTask, (newTask, oldTask) => {
+  if (!newTask || newTask.id !== oldTask?.id) {
+    closeEditGroupTaskDialog()
+  }
+})
 
 async function submitEditGroupTask(): Promise<void> {
   const title = editGroupTaskForm.value.title.trim()

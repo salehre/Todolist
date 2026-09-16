@@ -6,7 +6,7 @@
         isMobile ? 'w-full' : 'w-80'
       ]"
   >
-      <div class="flex items-center justify-between h-16 shrink-0 px-5 border-b border-primary-100">
+      <div class="flex items-center justify-between h-18.5 shrink-0 px-5 border-b border-primary-100">
         <h3 class="text-base font-bold text-primary-900">Group Tasks — {{ tasks.length }}</h3>
         <button @click="emit('close')" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
           <Icon icon="mingcute:close-line" class="text-lg" />

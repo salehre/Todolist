@@ -7,35 +7,8 @@
       ]"
   >
     <div v-if="!sidebarIconOnly" class="w-full shrink-0 border-b border-primary-100">
-      <div class="flex items-center gap-2 h-14 px-3 pt-2">
-        <div class="flex items-center gap-1 p-1 rounded-xl bg-primary-50 flex-1 min-w-0">
-          <button
-              class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold bg-white text-primary-700 shadow-sm transition-all"
-              v-tooltip="'Chats & Groups'"
-          >
-            <Icon icon="solar:chat-round-dots-bold" class="text-base shrink-0" />
-            <span class="truncate">Chats</span>
-          </button>
-          <button
-              @click="emit('go-to-tasks')"
-              class="flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-primary-400 hover:text-primary-600 hover:bg-white/60 transition-all"
-              v-tooltip="'Open Tasks list'"
-          >
-            <Icon icon="solar:checklist-minimalistic-linear" class="text-base shrink-0" />
-            <span class="truncate">Tasks</span>
-          </button>
-        </div>
-        <button
-            @click="handleToggle"
-            class="p-2 rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all shrink-0"
-            v-tooltip="isMobile ? 'Close' : 'Collapse'"
-        >
-          <Icon :icon="isMobile ? 'mingcute:close-line' : 'solar:double-alt-arrow-right-linear'" class="text-lg" />
-        </button>
-      </div>
-
-      <div class="px-3 pb-3">
-        <div class="flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2">
+      <div class="flex items-center gap-3 h-18 px-3 py-3">
+      <div class="flex-1 flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2 min-w-0">
           <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0 text-sm" />
           <input
               v-model="searchQuery"
@@ -47,18 +20,19 @@
             <Icon icon="mingcute:close-line" class="text-sm" />
           </button>
         </div>
+        <button
+            @click="handleToggle"
+            class="p-2 rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all shrink-0"
+            v-tooltip="isMobile ? 'Close' : 'Collapse'"
+        >
+          <Icon :icon="isMobile ? 'mingcute:close-line' : 'solar:double-alt-arrow-right-linear'" class="text-lg" />
+        </button>
       </div>
     </div>
 
-    <div v-else class="hidden md:flex w-19 shrink-0 flex-col items-center gap-1.5 border-b border-primary-100 py-2.5">
+    <div v-else class="hidden md:flex w-19 shrink-0 flex-col items-center justify-center gap-1.5 border-b border-primary-100 h-18.5">
       <button @click="handleToggle" class="w-9 h-9 flex items-center justify-center rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="'Expand'">
         <Icon icon="solar:double-alt-arrow-left-linear" class="text-lg" />
-      </button>
-      <button class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary-100 text-primary-700 transition-all" v-tooltip="'Chats & Groups'">
-        <Icon icon="solar:chat-round-dots-bold" class="text-lg" />
-      </button>
-      <button @click="emit('go-to-tasks')" class="w-9 h-9 flex items-center justify-center rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="'Open Tasks list'">
-        <Icon icon="solar:checklist-minimalistic-linear" class="text-lg" />
       </button>
     </div>
 
@@ -206,7 +180,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'select-group': [id: number]
-  'go-to-tasks': []
   'create-group': [{ name: string; description: string }]
   'update:sidebarCollapsed': [boolean]
   'update:mobilePane': ['sidebar' | 'main']

@@ -50,7 +50,6 @@
         :todos="todos"
         @create-todo="handleCreateTodoFromChat"
         @view-todo="handleViewTodo"
-        @open-tasks="viewMode = 'todo'"
     />
 
     <!-- Add / Edit Task Dialog -->

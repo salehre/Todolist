@@ -463,5 +463,5 @@ function confirmClearSteps(): void {
 <style>
 .x{
   font-size: 0;
-}
+  }
 </style>
