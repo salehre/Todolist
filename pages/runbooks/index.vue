@@ -6,7 +6,6 @@
           @click="showCreateDialog = true"
           class="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-primary-500 to-primary-600 text-white rounded-xl font-medium shadow-md shadow-primary-200 hover:shadow-lg transition-all"
       >
-        <Icon icon="mingcute:add-line" class="text-lg" />
         ران‌بوک جدید
       </button>
     </div>
