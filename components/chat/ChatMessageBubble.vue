@@ -66,7 +66,19 @@
             <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[message.todoRef.priority]]">{{ message.todoRef.priority }}</span>
           </div>
 
-          <div><span>{{ message.text }}</span></div>
+          <div>
+            <span v-for="(part, i) in textParts" :key="i">
+              <span
+                  v-if="part.type === 'mention'"
+                  class="font-medium text-primary-600 cursor-pointer hover:underline"
+                  @click.stop="emit('open-profile', part.userId!)">
+                {{ part.content }}
+              </span>
+              <span v-else>
+                {{ part.content }}
+              </span>
+            </span>
+          </div>
 
           <div class="flex flex-wrap items-center justify-between gap-2 mt-2 pt-1">
             <div :class="['flex items-center gap-1', isMine ? 'justify-end' : 'justify-start']">
@@ -135,6 +147,24 @@ const isMine = computed(() => props.message.senderId === props.currentUserId)
 const sender = computed(() => props.members.find(m => m.userId === props.message.senderId))
 const senderName = computed(() => sender.value?.name ?? 'Unknown')
 const replyToMessage = computed(() => props.allMessages.find(m => m.id === props.message.replyTo))
+
+const textParts = computed(() => {
+  const text = props.message.text ?? ''
+  const parts: { type: 'text' | 'mention'; content: string; userId?: number }[] = []
+  const regex = /@([a-zA-Z0-9_]+)/g
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text)) !== null) {
+    const member = props.members.find(m => m.username === match![1])
+    if (member) {
+      if (match.index > lastIndex) parts.push({ type: 'text', content: text.slice(lastIndex, match.index) })
+      parts.push({ type: 'mention', content: `@${match[1]}`, userId: member.userId })
+      lastIndex = match.index + match[0].length
+    }
+  }
+  if (lastIndex < text.length) parts.push({ type: 'text', content: text.slice(lastIndex) })
+  return parts
+})
 
 function getMemberName(id: number): string {
   return props.members.find(m => m.userId === id)?.name ?? 'Unknown'

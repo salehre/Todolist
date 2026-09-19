@@ -141,7 +141,7 @@ export function useGroupChat() {
         }
     }
 
-    async function sendMessage(groupId: number, payload: { text?: string; reply_to?: number }): Promise<ApiMessage | null> {
+    async function sendMessage(groupId: number, payload: { text?: string; reply_to?: number; mentions?: number[] }): Promise<ApiMessage | null> {
         try {
             const res = await api.post(`/groups/${groupId}/messages`, payload)
             return res.data

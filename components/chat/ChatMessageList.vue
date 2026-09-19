@@ -116,21 +116,26 @@
           <div class="flex-1 h-px bg-primary-100"></div>
         </div>
 
-        <ChatMessageBubble
-            v-for="(msg, index) in group"
-            :key="msg.id"
-            :message="msg"
-            :current-user-id="currentUserId"
-            :consecutive="isSameSenderAsPrev(group, index)"
-            :highlighted="highlightedMessageId === msg.id"
-            :members="members"
-            :all-messages="messages"
-            @open-profile="emit('open-profile', $event)"
-            @preview-image="emit('preview-image', $event)"
-            @view-todo="emit('view-todo', $event)"
-            @toggle-reaction="(id, emoji) => emit('toggle-reaction', id, emoji)"
-            @open-menu="(msg, event) => emit('open-menu', msg, event)"
-        />
+        <template v-for="(msg, index) in group" :key="msg.id">
+          <div v-if="msg.id === firstUnreadMessageId" class="flex items-center gap-3 my-4">
+            <div class="flex-1 h-px bg-rose-200"></div>
+            <span class="text-xs font-medium text-rose-500 px-2 py-1 bg-rose-50 rounded-full">پیام‌های خوانده‌نشده</span>
+            <div class="flex-1 h-px bg-rose-200"></div>
+          </div>
+          <ChatMessageBubble
+              :message="msg"
+              :current-user-id="currentUserId"
+              :consecutive="isSameSenderAsPrev(group, index)"
+              :highlighted="highlightedMessageId === msg.id"
+              :members="members"
+              :all-messages="messages"
+              @open-profile="emit('open-profile', $event)"
+              @preview-image="emit('preview-image', $event)"
+              @view-todo="emit('view-todo', $event)"
+              @toggle-reaction="(id, emoji) => emit('toggle-reaction', id, emoji)"
+              @open-menu="(msg, event) => emit('open-menu', msg, event)"
+          />
+        </template>
       </template>
 
       <div v-if="typingUsers.length > 0" class="flex items-center gap-2 mt-2 ml-10">
@@ -155,6 +160,7 @@ import type { ApiMessage, GroupMember, SkeletonRow } from '~/types/ChatType'
 
 const props = defineProps<{
   messages: ApiMessage[]
+  firstUnreadMessageId: number | null
   members: GroupMember[]
   currentUserId: number
   activeGroupId: number | null

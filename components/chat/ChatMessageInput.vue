@@ -32,6 +32,22 @@
       <button @click="emit('cancel-edit')" class="text-amber-400 hover:text-amber-600"><Icon icon="mingcute:close-line" /></button>
     </div>
 
+    <div v-if="showMentionDropdown && mentionCandidates.length > 0" class="absolute bottom-full left-4 right-4 mb-2 max-h-48 overflow-y-auto bg-white rounded-xl border border-primary-200 shadow-lg z-40">
+      <button
+          v-for="(m, i) in mentionCandidates" :key="m.userId"
+          type="button"
+          @click="selectMention(m)"
+          :class="['flex items-center gap-2 w-full px-3 py-2 text-start text-sm transition-colors', i === mentionActiveIndex ? 'bg-primary-50' : 'hover:bg-primary-50']"
+      >
+        <img v-if="m.avatarUrl" :src="m.avatarUrl" class="w-6 h-6 rounded-full object-cover" alt="" />
+        <div v-else :class="['w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white', colorFor(m.userId)]">{{ m.name[0] }}</div>
+        <div class="min-w-0">
+          <p class="text-xs font-medium text-primary-800 truncate">{{ m.name }}</p>
+          <p class="text-[10px] text-primary-400 truncate">@{{ m.username }}</p>
+        </div>
+      </button>
+    </div>
+
     <div ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
       <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
         <div class="overflow-hidden">
@@ -90,8 +106,7 @@
               ref="inputRef"
               :value="modelValue"
               @input="onInput"
-              @keydown.enter.exact.prevent="emit('send')"
-              @keydown.enter.shift.exact="emit('update:modelValue', modelValue + '\n')"
+              @keydown="handleKeydown"
               rows="1" placeholder="Type a message..."
               class="flex-1 resize-none bg-transparent items-center text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
               style="field-sizing: content"
@@ -112,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, nextTick } from 'vue'
 import { Icon } from '@iconify/vue'
 import PrioritySlider from '~/components/Priorityslider.vue'
 import { colorFor } from '~/utils/avatarColor'
@@ -150,8 +165,57 @@ const emit = defineEmits<{
 const replyToSenderName = computed(() => props.members.find(m => m.userId === props.replyTo?.senderId)?.name ?? 'Unknown')
 
 function onInput(e: Event): void {
-  emit('update:modelValue', (e.target as HTMLTextAreaElement).value)
+  const el = e.target as HTMLTextAreaElement
+  emit('update:modelValue', el.value)
   emit('typing')
+  detectMentionTrigger(el)
+}
+
+// ── @mention autocomplete ────────────────────────────────────────────
+const showMentionDropdown = ref(false)
+const mentionQuery = ref('')
+const mentionStartIndex = ref(0)
+const mentionActiveIndex = ref(0)
+
+const mentionCandidates = computed(() => {
+      const q = mentionQuery.value.toLowerCase()
+      return props.members.filter(m => m.username.toLowerCase().startsWith(q)).slice(0, 6)
+    })
+function detectMentionTrigger(el: HTMLTextAreaElement): void {
+  const cursor = el.selectionStart ?? el.value.length
+  const textBeforeCursor = el.value.slice(0, cursor)
+  const match = /(?:^|\s)@([a-zA-Z0-9_]*)$/.exec(textBeforeCursor)
+  if (match) {
+    mentionQuery.value = match[1]
+    mentionStartIndex.value = cursor - match[1].length - 1
+    mentionActiveIndex.value = 0
+    showMentionDropdown.value = true
+  } else {
+    showMentionDropdown.value = false
+  }
+}
+
+function selectMention(member: GroupMember): void {
+  const before = props.modelValue.slice(0, mentionStartIndex.value)
+  const after = props.modelValue.slice(mentionStartIndex.value + mentionQuery.value.length + 1)
+  const newValue = `${before}@${member.username} ${after}`
+  emit('update:modelValue', newValue)
+  showMentionDropdown.value = false
+  nextTick(() => {
+    inputRef.value?.focus()
+    const pos = before.length + member.username.length + 2
+    inputRef.value?.setSelectionRange(pos, pos)
+  })
+}
+
+function handleKeydown(e: KeyboardEvent): void {
+  if (showMentionDropdown.value && mentionCandidates.value.length > 0) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); mentionActiveIndex.value = (mentionActiveIndex.value + 1) % mentionCandidates.value.length; return }
+    if (e.key === 'ArrowUp') { e.preventDefault(); mentionActiveIndex.value = (mentionActiveIndex.value - 1 + mentionCandidates.value.length) % mentionCandidates.value.length; return }
+    if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); selectMention(mentionCandidates.value[mentionActiveIndex.value]); return }
+    if (e.key === 'Escape') { e.preventDefault(); showMentionDropdown.value = false; return }
+  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); emit('send') }
 }
 
 function formatDuration(seconds: number): string {

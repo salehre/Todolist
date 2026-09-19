@@ -52,6 +52,7 @@
       <ChatMessageList
           ref="messageListRef"
           :messages="messages"
+          :first-unread-message-id="firstUnreadMessageId"
           :members="members"
           :current-user-id="currentUser.id"
           :active-group-id="activeGroupId"
@@ -79,7 +80,7 @@
           :can-delete-message="canDeleteMessage"
           @close="activeMenuId = null"
           @copy="copyMessage"
-          @reply="msg => replyTo = msg"
+          @reply="startReply"
           @edit="startEdit"
           @toggle-pin="togglePin"
           @delete="deleteMessage"
@@ -305,6 +306,28 @@ const messageInputRef = ref<InstanceType<typeof ChatMessageInput> | null>(null)
 const footerMenuOffset = ref(0)
 let footerBaseHeight: number | null = null
 let footerResizeObserver: ResizeObserver | null = null
+
+const firstUnreadByGroup = ref<Record<number, number | null>>({})
+
+function computeFirstUnread(groupId: number, hadUnread: boolean): void {
+  if (!hadUnread) { firstUnreadByGroup.value[groupId] = null; return }
+  const arr = messagesByGroup[groupId]
+  const firstUnread = arr?.find(m => m.senderId !== currentUser.value.id && !m.readBy.includes(currentUser.value.id))
+  firstUnreadByGroup.value = { ...firstUnreadByGroup.value, [groupId]: firstUnread ? firstUnread.id : null }
+}
+
+const firstUnreadMessageId = computed(() => activeGroupId.value !== null ? (firstUnreadByGroup.value[activeGroupId.value] ?? null) : null)
+
+function extractMentions(text: string): number[] {
+  const regex = /@([a-zA-Z0-9_]+)/g
+  const ids = new Set<number>()
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(text)) !== null) {
+    const member = members.value.find(m => m.username === match![1])
+    if (member) ids.add(member.userId)
+  }
+  return [...ids]
+}
 
 function observeFooter(): void {
   footerResizeObserver?.disconnect()
@@ -555,6 +578,7 @@ async function updateGroupTaskSteps(todoId: number, steps: Step[], orderedSteps?
 async function selectGroup(id: number): Promise<void> {
   viewedGroupTask.value = null
   groupTaskPendingStepIds.value.clear()
+  const hadUnread = (unreadCounts[id] || 0) > 0
   messagesReady.value = false
   activeGroupId.value = id
   setChatContext(id, currentUser.value.id)
@@ -564,6 +588,7 @@ async function selectGroup(id: number): Promise<void> {
   if (!membersByGroup[id]) await fetchMembers(id)
   if (!messagesByGroup[id]) await fetchMessages(id)
   if (showGroupTasksPanel.value) fetchGroupTasks(id)
+  computeFirstUnread(id, hadUnread)
   await nextTick()
   jumpToBottomInstant()
   requestAnimationFrame(() => { jumpToBottomInstant(); messagesReady.value = true })
@@ -591,6 +616,11 @@ function handleTypingInput(): void {
 const replyTo = ref<ApiMessage | null>(null)
 const editingMessage = ref<ApiMessage | null>(null)
 
+function startReply(msg: ApiMessage): void {
+  replyTo.value = msg
+  nextTick(() => messageInputRef.value?.focusInput())
+}
+
 async function sendMessage(): Promise<void> {
   const text = inputText.value.trim()
   if (!text || !activeGroupId.value) return
@@ -605,11 +635,12 @@ async function sendMessage(): Promise<void> {
   const groupId = activeGroupId.value
   const replyToId = replyTo.value?.id ?? null
   const tempId = -Date.now()
+  const mentions = extractMentions(text)
 
   addOptimisticMessage(groupId, {
     id: tempId, senderId: currentUser.value.id, text, timestamp: new Date().toISOString(),
     type: 'text', pinned: false, edited: false, replyTo: replyToId, reactions: {},
-    readBy: [], mentions: [], todoRef: null, attachments: [], status: 'pending',
+    readBy: [], mentions, todoRef: null, attachments: [], status: 'pending',
   })
 
   inputText.value = ''
@@ -617,7 +648,7 @@ async function sendMessage(): Promise<void> {
   showAttachMenu.value = false
   scrollToBottom()
 
-  const real = await apiSendMessage(groupId, { text, reply_to: replyToId ?? undefined })
+  const real = await apiSendMessage(groupId, { text, reply_to: replyToId ?? undefined, mentions: mentions.length ? mentions : undefined })
   if (real) replaceMessage(groupId, tempId, real)
   else markMessageFailed(groupId, tempId)
 }
