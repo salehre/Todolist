@@ -38,7 +38,7 @@
             @click="toggleLocale"
             class="flex h-9 w-9  items-center pt-1 justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
         >
-          <span class="text-[11px] font-bold uppercase" dir="ltr">{{ locale }}</span>
+          <span class="text-[11px] font-bold uppercase" dir="ltr">{{ isRtl ? 'en' : 'fa' }}</span>
         </button>
 
         <div class="relative" data-dropdown="notif-menu">

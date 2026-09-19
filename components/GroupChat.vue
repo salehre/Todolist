@@ -175,7 +175,7 @@
       <div v-if="showEditGroupTaskDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4" @click.self="closeEditGroupTaskDialog">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
-            <h3 class="text-xl font-bold text-primary-900">✏️ Edit Task</h3>
+            <h3 class="text-xl font-bold text-primary-900"> Edit Task</h3>
             <button @click="closeEditGroupTaskDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
           </div>
           <div class="p-6 space-y-4">

@@ -47,16 +47,15 @@
     <div v-if="showCreateDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeCreateDialog">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
-          <h3 class="text-xl font-bold text-primary-900">📘 ران‌بوک جدید</h3>
+          <h3 class="text-xl flex font-bold text-primary-900"><Icon icon="iconmind:runbook-outline-thin" class="text-2xl" /> ران‌بوک جدید</h3>
           <button @click="closeCreateDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">اسم ران‌بوک <span class="text-primary-600">*</span></label>
+            <label class="block text-sm font-medium text-primary-700 mb-2">اسم ران‌بوک <span class="text-red-300">*</span></label>
             <input
                 v-model="form.name"
                 type="text"
-                placeholder="مثلاً: راه‌اندازی پروژه‌ی جدید"
                 class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
             />
           </div>
@@ -64,10 +63,17 @@
             <label class="block text-sm font-medium text-primary-700 mb-2">فایل اکسل (اختیاری)</label>
             <label class="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-primary-300 bg-primary-50/40 cursor-pointer hover:bg-primary-50 transition-all">
               <Icon icon="solar:file-text-linear" class="text-primary-500" />
-              <span class="text-sm text-primary-600 truncate">{{ form.file ? form.file.name : 'انتخاب فایل xlsx...' }}</span>
+              <span class="text-sm text-primary-600 truncate">{{ form.file ? form.file.name : 'انتخاب فایل' }}</span>
               <input type="file" accept=".xlsx,.xls" class="hidden" @change="onFileSelect" />
             </label>
-            <p class="text-xs text-primary-400 mt-1.5">ستون‌ها: title (اجباری)، description، priority (low/medium/high)</p>
+            <button
+                type="button"
+                @click="downloadTemplate"
+                class="flex ms-3 mt-3 items-center gap-1.5 text-xs text-primary-500 hover:text-primary-700 mb-2 transition-colors"
+            >
+              <Icon icon="solar:download-linear" class="text-sm" />
+              دانلود قالب اکسل
+            </button>
           </div>
         </div>
         <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
@@ -119,6 +125,20 @@ const form = reactive<{ name: string; file: File | null }>({ name: '', file: nul
 
 function onFileSelect(e: Event): void {
   form.file = (e.target as HTMLInputElement).files?.[0] ?? null
+}
+
+async function downloadTemplate(): Promise<void> {
+  try {
+    const res = await api.get('/runbooks/template', { responseType: 'blob' })
+    const url = URL.createObjectURL(new Blob([res.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'runbook-template.xlsx'
+    link.click()
+    URL.revokeObjectURL(url)
+  } catch (e: any) {
+    toast.error(getErrorMessage(e, 'دانلود قالب ناموفق بود'))
+  }
 }
 
 function closeCreateDialog(): void {

@@ -221,13 +221,6 @@ export function useGroupChat() {
         if (!messagesByGroup[groupId]) messagesByGroup[groupId] = []
         if (messagesByGroup[groupId].some(m => m.id === message.id)) return
 
-        if (message.senderId !== trackedUserId && groupId !== trackedActiveGroupId) {
-            const mentionedMe = message.mentions.includes(trackedUserId)
-            const repliedToMe = message.replyTo !== null &&
-                messagesByGroup[groupId].some(m => m.id === message.replyTo && m.senderId === trackedUserId)
-            if (mentionedMe || repliedToMe) mentionedGroups[groupId] = true
-        }
-
         messagesByGroup[groupId].push(message)
         bumpGroupLastMessage(groupId, message.timestamp, message.text || (message.attachments.length ? '📎 File' : null))
         if (message.senderId !== trackedUserId && groupId !== trackedActiveGroupId) {

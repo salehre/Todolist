@@ -2,14 +2,13 @@
   <div class="h-full w-full flex flex-col overflow-hidden p-4 md:p-6">
     <div class="flex items-center gap-3 mb-4 shrink-0">
       <NuxtLink to="/runbooks" class="p-2 rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all">
-        <Icon icon="solar:arrow-right-linear" class="text-lg rtl:rotate-180" />
+        <Icon icon="solar:arrow-left-linear" class="text-lg rtl:rotate-180" />
       </NuxtLink>
       <h1 class="text-xl font-bold text-primary-900 truncate">{{ runbook?.name || '...' }}</h1>
       <button
           @click="openTaskDialog()"
           class="ms-auto flex items-center gap-2 px-4 py-2 bg-linear-to-br from-primary-500 to-primary-600 text-white rounded-xl font-medium shadow-md shadow-primary-200 hover:shadow-lg transition-all"
       >
-        <Icon icon="mingcute:add-line" class="text-lg" />
         تسک جدید
       </button>
     </div>
@@ -52,12 +51,12 @@
     <div v-if="showTaskDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeTaskDialog">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
-          <h3 class="text-xl font-bold text-primary-900">{{ editingTaskId ? '✏️ ویرایش تسک' : '➕ تسک جدید' }}</h3>
+          <h3 class="text-xl font-bold text-primary-900">{{ editingTaskId ? ' ویرایش تسک' : ' تسک جدید' }}</h3>
           <button @click="closeTaskDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">عنوان <span class="text-primary-600">*</span></label>
+            <label class="block text-sm font-medium text-primary-700 mb-2">عنوان <span class="text-red-300">*</span></label>
             <input v-model="taskForm.title" type="text" class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all" @keyup.enter="submitTask" />
           </div>
           <div>

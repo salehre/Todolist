@@ -48,7 +48,8 @@
       </button>
     </div>
 
-    <div ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
+    <div class="flex items-end gap-2">
+    <div ref="inputAreaRef" class="flex-1 min-w-0 bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
       <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
         <div class="overflow-hidden">
           <div class="px-4 pt-3 pb-2 border-b border-primary-100">
@@ -93,7 +94,7 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5 p-2">
+      <div class="flex items-end gap-1.5 p-2">
         <button v-if="!isRecording" @click="emit('start-recording')" class="p-2 rounded-full bg-primary-100 text-primary-400 hover:bg-primary-50 hover:text-primary-500 transition-all shrink-0" v-tooltip="'Record voice message'">
           <Icon icon="mdi:microphone" class="text-xl" />
         </button>
@@ -101,27 +102,26 @@
           <Icon icon="lucide:paperclip" class="text-lg" />
         </button>
 
-        <div class="flex-1 flex items-center bg-primary-50 rounded-full border border-primary-300 px-3 py-1">
           <textarea
               ref="inputRef"
               :value="modelValue"
               @input="onInput"
               @keydown="handleKeydown"
-              rows="1" placeholder="Type a message..."
-              class="flex-1 resize-none bg-transparent items-center text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
+              class="flex-1 resize-none custom-scrollbar bg-transparent items-center text-sm text-primary-800 placeholder-primary-300 focus:outline-none max-h-32 leading-relaxed py-1.5"
               style="field-sizing: content"
           />
-        </div>
 
-        <button
-            @click="emit('send')"
-            :disabled="!modelValue.trim()"
-            :class="['p-2.5 rounded-full transition-all shrink-0', modelValue.trim() ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95' : 'bg-primary-100 text-primary-300 cursor-not-allowed']"
-            v-tooltip="'Send message'"
-        >
-          <Icon icon="pepicons-pop:send" class="text-xl" />
-        </button>
       </div>
+    </div>
+
+    <button
+        @click="emit('send')"
+        :disabled="!modelValue.trim()"
+        :class="['p-3.5 rounded-full transition-all shrink-0', modelValue.trim() ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95' : 'bg-primary-100 text-primary-300 cursor-not-allowed']"
+        v-tooltip="'Send message'"
+    >
+      <Icon icon="pepicons-pop:send" class="text-xl" />
+    </button>
     </div>
   </div>
 </template>

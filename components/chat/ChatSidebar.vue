@@ -25,14 +25,14 @@
             class="p-2 rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all shrink-0"
             v-tooltip="isMobile ? 'Close' : 'Collapse'"
         >
-          <Icon :icon="isMobile ? 'mingcute:close-line' : 'solar:double-alt-arrow-right-linear'" class="text-lg" />
+          <Icon :icon="isMobile ? 'mingcute:close-line' : 'solar:double-alt-arrow-right-linear'" class="text-lg rtl:rotate-180" />
         </button>
       </div>
     </div>
 
     <div v-else class="hidden md:flex w-19 shrink-0 flex-col items-center justify-center gap-1.5 border-b border-primary-100 h-18.5">
       <button @click="handleToggle" class="w-9 h-9 flex items-center justify-center rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="'Expand'">
-        <Icon icon="solar:double-alt-arrow-left-linear" class="text-lg" />
+        <Icon icon="solar:double-alt-arrow-left-linear" class="text-lg rtl:rotate-180" />
       </button>
     </div>
 
@@ -119,9 +119,9 @@
 
     <Teleport to="body">
       <div v-if="showCreateDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeCreateDialog">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] custom-scrollbar overflow-y-auto">
           <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
-            <h3 class="text-xl font-bold text-primary-900">➕ Create New Group</h3>
+            <h3 class="text-xl font-bold text-primary-900"> Create New Group</h3>
             <button @click="closeCreateDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
           </div>
           <div class="p-6 space-y-4">
@@ -154,10 +154,35 @@
             </div>
             <div v-if="isCompanyAccount">
               <label class="block text-sm font-medium text-primary-700 mb-2">ران‌بوک (اختیاری)</label>
-              <select v-model="selectedRunbookId" class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all bg-white">
-                <option :value="null">بدون ران‌بوک</option>
-                <option v-for="rb in runbookOptions" :key="rb.id" :value="rb.id">{{ rb.name }}</option>
-              </select>
+            <div class="relative" data-dropdown="runbook-select">
+                <button
+                  type="button"
+                  @click.stop="showRunbookDropdown = !showRunbookDropdown"
+                  class="w-full flex items-center justify-between px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all bg-white text-start"
+              >
+                <span class="text-sm text-primary-700 truncate">{{ selectedRunbookName }}</span>
+                <Icon icon="solar:alt-arrow-down-linear" :class="['text-primary-400 transition-transform shrink-0', showRunbookDropdown ? 'rotate-180' : '']" />
+              </button>
+              <div v-if="showRunbookDropdown" class="absolute bottom-full mb-2 w-full bg-white rounded-xl shadow-lg border border-primary-100 py-2 max-h-48 overflow-y-auto z-20">
+                <button
+                    type="button"
+                    @click.stop="selectedRunbookId = null; showRunbookDropdown = false"
+                    :class="['w-full px-4 py-2 text-start text-sm hover:bg-primary-50 transition-all flex items-center gap-2', selectedRunbookId === null ? 'text-primary-600 font-medium bg-primary-50' : 'text-primary-700']"
+                >
+                  بدون ران‌بوک
+                  <Icon v-if="selectedRunbookId === null" icon="mingcute:check-fill" class="ms-auto text-primary-600" />
+                </button>
+                <button
+                    v-for="rb in runbookOptions" :key="rb.id"
+                    type="button"
+                    @click.stop="selectedRunbookId = rb.id; showRunbookDropdown = false"
+                    :class="['w-full px-4 py-2 text-start text-sm hover:bg-primary-50 transition-all flex items-center gap-2', selectedRunbookId === rb.id ? 'text-primary-600 font-medium bg-primary-50' : 'text-primary-700']"
+                >
+                  {{ rb.name }}
+                  <Icon v-if="selectedRunbookId === rb.id" icon="mingcute:check-fill" class="ms-auto text-primary-600" />
+                </button>
+              </div>
+            </div>
             </div>
           </div>
           <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
@@ -238,6 +263,16 @@ const { authState } = useAuth()
 const isCompanyAccount = computed(() => authState.user?.gender === 'company')
 const runbookOptions = ref<{ id: number; name: string }[]>([])
 const selectedRunbookId = ref<number | null>(null)
+const showRunbookDropdown = ref(false)
+const selectedRunbookName = computed(() =>
+    runbookOptions.value.find(r => r.id === selectedRunbookId.value)?.name ?? 'بدون ران‌بوک'
+)
+
+function handleRunbookDropdownOutside(e: MouseEvent): void {
+  if (!(e.target as HTMLElement).closest('[data-dropdown="runbook-select"]')) showRunbookDropdown.value = false
+}
+onMounted(() => document.addEventListener('click', handleRunbookDropdownOutside))
+onUnmounted(() => document.removeEventListener('click', handleRunbookDropdownOutside))
 
 watch(showCreateDialog, (open) => {
   if (open && isCompanyAccount.value && runbookOptions.value.length === 0) {
@@ -249,6 +284,7 @@ function closeCreateDialog(): void {
   showCreateDialog.value = false
   newGroupForm.value = { name: '', description: '' }
   selectedRunbookId.value = null
+  showRunbookDropdown.value = false
 }
 
 function submitCreate(): void {
