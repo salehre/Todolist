@@ -9,7 +9,7 @@
         </div>
         <div v-if="group" class="min-w-0">
           <h2 class="text-sm font-bold text-primary-900 truncate">{{ group.name }}</h2>
-          <p class="text-xs text-primary-400">{{ onlineCount }} online · {{ memberCount }} members</p>
+          <p class="text-xs text-primary-400">{{ memberCount }} members - {{ onlineCount }} online</p>
         </div>
         <div v-else class="min-w-0 space-y-1.5">
           <div class="h-3 w-24 rounded bg-primary-100 animate-pulse"></div>

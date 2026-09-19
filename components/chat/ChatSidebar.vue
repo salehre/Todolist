@@ -84,12 +84,20 @@
           </div>
           <div class="flex items-center justify-between gap-1">
             <p class="text-xs text-primary-400 truncate">{{ g.lastMessagePreview || g.description || 'No messages yet' }}</p>
-            <span
-                v-if="unreadCounts[g.id] > 0"
-                class="shrink-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white"
-            >
-              {{ unreadCounts[g.id] > 99 ? '99+' : unreadCounts[g.id] }}
-            </span>
+            <div class="shrink-0 flex items-center gap-1">
+              <span v-if="mentionedGroups[g.id]" class="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary-500 text-white">
+                <Icon icon="mingcute:at-line" class="text-[10px]" />
+              </span>
+              <span v-if="reactedGroups[g.id]" class="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary-500 text-white">
+                <Icon icon="solar:heart-bold" class="text-[9px]" />
+              </span>
+              <span
+                  v-if="unreadCounts[g.id] > 0"
+                  class="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white"
+              >
+                {{ unreadCounts[g.id] > 99 ? '99+' : unreadCounts[g.id] }}
+              </span>
+            </div>
           </div>
         </div>
       </button>
@@ -171,6 +179,8 @@ const props = defineProps<{
   groups: ApiGroup[]
   messagesByGroup: Record<number, ApiMessage[]>
   unreadCounts: Record<number, number>
+  mentionedGroups: Record<number, boolean>
+  reactedGroups: Record<number, boolean>
   activeGroupId: number | null
   loadingGroups: boolean
   isMobile: boolean

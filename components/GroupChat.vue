@@ -4,6 +4,8 @@
         :groups="apiGroups"
         :messages-by-group="messagesByGroup"
         :unread-counts="unreadCounts"
+        :mentioned-groups="mentionedGroups"
+        :reacted-groups="reactedGroups"
         :active-group-id="activeGroupId"
         :loading-groups="loadingGroups"
         :is-mobile="isMobile"
@@ -271,6 +273,7 @@ const {
   updateGroup: apiUpdateGroup, uploadGroupAvatar: apiUploadGroupAvatar,
   sendMessageWithFiles: apiSendMessageWithFiles, deleteGroup: apiDeleteGroup,
   fetchUserProfile, addOptimisticMessage, replaceMessage, markMessageFailed, unreadCounts, setChatContext,
+  mentionedGroups, reactedGroups,
 } = useGroupChat()
 
 const { clearMessageNotice } = useNotifications()

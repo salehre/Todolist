@@ -1,3 +1,4 @@
+import { useNotifications } from '~/composables/useNotifications'
 import { ref, reactive } from 'vue'
 import api, { getErrorMessage } from '~/src/services/api'
 import { toast } from 'vue-sonner'
@@ -62,6 +63,8 @@ const profileCache = reactive<Record<number, UserProfile>>({})
 const loadingGroups = ref(false)
 const loadingMessages = ref(false)
 const unreadCounts = reactive<Record<number, number>>({})
+const mentionedGroups = reactive<Record<number, boolean>>({})
+const reactedGroups = reactive<Record<number, boolean>>({})
 let trackedActiveGroupId: number | null = null
 let trackedUserId = 0
 
@@ -75,7 +78,11 @@ export function useGroupChat() {
     function setChatContext(activeGroupId: number | null, currentUserId: number): void {
         trackedActiveGroupId = activeGroupId
         trackedUserId = currentUserId
-        if (activeGroupId !== null) unreadCounts[activeGroupId] = 0
+        if (activeGroupId !== null) {
+            unreadCounts[activeGroupId] = 0
+            mentionedGroups[activeGroupId] = false
+            reactedGroups[activeGroupId] = false
+        }
     }
 
     function mapGroup(g: any): ApiGroup {
@@ -96,6 +103,12 @@ export function useGroupChat() {
         try {
             const res = await api.get('/groups')
             groups.value = res.data.map(mapGroup)
+            res.data.forEach((g: any) => {
+                unreadCounts[g.id] = g.unread_count ?? 0
+                mentionedGroups[g.id] = !!g.has_mention
+                reactedGroups[g.id] = !!g.has_reaction
+                if (g.unread_count > 0) useNotifications().addMessageNotice(g.id, g.name)
+            })
         } catch (e: any) {
             toast.error(getErrorMessage(e, 'گرفتن لیست گروه‌ها ناموفق بود'))
         } finally {
@@ -207,11 +220,28 @@ export function useGroupChat() {
     function pushIncomingMessage(groupId: number, message: ApiMessage): void {
         if (!messagesByGroup[groupId]) messagesByGroup[groupId] = []
         if (messagesByGroup[groupId].some(m => m.id === message.id)) return
+
+        if (message.senderId !== trackedUserId && groupId !== trackedActiveGroupId) {
+            const mentionedMe = message.mentions.includes(trackedUserId)
+            const repliedToMe = message.replyTo !== null &&
+                messagesByGroup[groupId].some(m => m.id === message.replyTo && m.senderId === trackedUserId)
+            if (mentionedMe || repliedToMe) mentionedGroups[groupId] = true
+        }
+
         messagesByGroup[groupId].push(message)
         bumpGroupLastMessage(groupId, message.timestamp, message.text || (message.attachments.length ? '📎 File' : null))
         if (message.senderId !== trackedUserId && groupId !== trackedActiveGroupId) {
             unreadCounts[groupId] = (unreadCounts[groupId] || 0) + 1
         }
+    }
+
+    function markMentionedFromNotification(groupId: number): void {
+        if (groupId === trackedActiveGroupId) return
+        mentionedGroups[groupId] = true
+    }
+    function markReactedFromNotification(groupId: number): void {
+        if (groupId === trackedActiveGroupId) return
+        reactedGroups[groupId] = true
     }
 
     function bumpGroupLastMessage(groupId: number, timestamp: string, previewText: string | null): void {
@@ -397,6 +427,8 @@ export function useGroupChat() {
         messagesByGroup,
         loadingGroups,
         loadingMessages,
+        mentionedGroups,
+        reactedGroups,
         fetchGroups,
         fetchMessages,
         createGroup,
@@ -428,5 +460,7 @@ export function useGroupChat() {
         replaceMessage,
         markMessageFailed,
         deleteGroup,
+        markMentionedFromNotification,
+        markReactedFromNotification,
     }
 }
