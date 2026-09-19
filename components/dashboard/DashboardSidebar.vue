@@ -209,7 +209,7 @@ const navItems: NavItem[] = [
   { label: 'داشبورد', icon: 'mdi:view-dashboard-outline', to: '/' },
   { label: 'تودولیست من', icon: 'mdi:format-list-checks', to: '/mainTodo' },
   { label: 'کار تیمی', icon: 'mdi:account-group-outline', to: '/workPlan' },
-  { label: 'تودولیست شخصی', icon: 'mdi:notebook-outline', to: '/customTodo' },
+  { label: 'ران‌بوک‌ها', icon: 'mdi:book-cog-outline', to: '/runbooks' },
   { label: 'پروفایل', icon: 'weui:me-filled', to: '/settings' },
 ]
 

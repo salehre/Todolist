@@ -597,8 +597,8 @@ async function selectGroup(id: number): Promise<void> {
   if (last) apiMarkRead(id, last.id)
 }
 
-async function handleCreateGroup(input: { name: string; description: string }): Promise<void> {
-  const group = await apiCreateGroup({ name: input.name, description: input.description || undefined })
+async function handleCreateGroup(input: { name: string; description: string; runbookId?: number }): Promise<void> {
+  const group = await apiCreateGroup({ name: input.name, description: input.description || undefined, runbook_id: input.runbookId })
   if (group) { await selectGroup(group.id) }
 }
 

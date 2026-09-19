@@ -152,6 +152,13 @@
                   class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"
               ></textarea>
             </div>
+            <div v-if="isCompanyAccount">
+              <label class="block text-sm font-medium text-primary-700 mb-2">ران‌بوک (اختیاری)</label>
+              <select v-model="selectedRunbookId" class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all bg-white">
+                <option :value="null">بدون ران‌بوک</option>
+                <option v-for="rb in runbookOptions" :key="rb.id" :value="rb.id">{{ rb.name }}</option>
+              </select>
+            </div>
           </div>
           <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
             <button @click="closeCreateDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
@@ -174,6 +181,8 @@ import { ref, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import { colorFor } from '~/utils/avatarColor'
 import type { ApiGroup, ApiMessage } from '~/types/ChatType'
+import { useAuth } from '~/composables/useAuth'
+import api from '~/src/services/api'
 
 const props = defineProps<{
   groups: ApiGroup[]
@@ -190,7 +199,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'select-group': [id: number]
-  'create-group': [{ name: string; description: string }]
+  'create-group': [{ name: string; description: string; runbookId?: number }]
   'update:sidebarCollapsed': [boolean]
   'update:mobilePane': ['sidebar' | 'main']
 }>()
@@ -225,16 +234,27 @@ function formatTime(date: Date | string): string {
 
 const showCreateDialog = ref(false)
 const newGroupForm = ref({ name: '', description: '' })
+const { authState } = useAuth()
+const isCompanyAccount = computed(() => authState.user?.gender === 'company')
+const runbookOptions = ref<{ id: number; name: string }[]>([])
+const selectedRunbookId = ref<number | null>(null)
+
+watch(showCreateDialog, (open) => {
+  if (open && isCompanyAccount.value && runbookOptions.value.length === 0) {
+    api.get('/runbooks').then(res => { runbookOptions.value = res.data.map((r: any) => ({ id: r.id, name: r.name })) })
+  }
+})
 
 function closeCreateDialog(): void {
   showCreateDialog.value = false
   newGroupForm.value = { name: '', description: '' }
+  selectedRunbookId.value = null
 }
 
 function submitCreate(): void {
   const name = newGroupForm.value.name.trim()
   if (!name) return
-  emit('create-group', { name, description: newGroupForm.value.description.trim() })
+  emit('create-group', { name, description: newGroupForm.value.description.trim(), runbookId: selectedRunbookId.value ?? undefined })
   closeCreateDialog()
 }
 </script>

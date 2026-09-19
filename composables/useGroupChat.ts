@@ -128,9 +128,9 @@ export function useGroupChat() {
         }
     }
 
-    async function createGroup(data: { name: string; description?: string }): Promise<ApiGroup | null> {
+    async function createGroup(payload: { name: string; description?: string; runbook_id?: number }): Promise<ApiGroup | null> {
         try {
-            const res = await api.post('/groups', data)
+            const res = await api.post('/groups', payload)
             const group = mapGroup({ ...res.data, avatar_url: null, members_count: 1 })
             groups.value.unshift(group)
             messagesByGroup[group.id] = []

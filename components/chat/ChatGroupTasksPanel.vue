@@ -31,7 +31,12 @@
           <button
               v-for="task in tasks" :key="task.id"
               @click="emit('open-task', task)"
-              class="w-full text-start p-3 rounded-xl border border-primary-100 hover:bg-primary-50 transition-colors"
+              :class="[
+              'w-full text-start p-3 rounded-xl hover:bg-primary-50 transition-colors',
+              task.from_runbook ? 'border-2 border-dashed border-indigo-300' : 'border border-primary-100',
+              task.is_completed ? 'opacity-75' : ''
+            ]"
+              v-tooltip="task.from_runbook ? 'از ران‌بوک ساخته شده' : undefined"
           >
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
