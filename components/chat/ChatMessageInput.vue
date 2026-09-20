@@ -31,18 +31,15 @@
     </div>
 
     <div class="flex items-end gap-2">
-      <div v-if="isRecording" class="flex items-center gap-3 bg-red-50 rounded-3xl border border-red-200 shadow-sm px-4 h-[52px]">
+      <div v-if="isRecording" class="flex-1 min-w-0 flex items-center gap-3 bg-red-50 rounded-3xl border border-red-200 shadow-sm px-4 h-[52px]">
         <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse shrink-0"></div>
         <span class="text-sm text-red-600 font-medium shrink-0 tabular-nums">{{ formatDuration(recordingDuration) }}</span>
         <VoiceWaveformLive :analyser="analyserNode" class="flex-1 min-w-0" />
-        <button @click="emit('cancel-recording')" class="p-2 rounded-lg bg-white text-red-600 hover:bg-red-100 transition shrink-0">
+        <button @click="emit('cancel-recording')" class="p-2 rounded-full bg-white text-red-600 hover:bg-red-100 transition shrink-0">
           <Icon icon="mingcute:close-line" />
         </button>
-        <button @click="emit('stop-recording')" class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition shrink-0">
-          <Icon :icon="isSendingVoice ? 'mdi:loading' : 'solar:plain-bold'" :class="isSendingVoice ? 'animate-spin' : ''" />
-        </button>
       </div>
-      <div v-else ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
+      <div v-else ref="inputAreaRef" class="flex-1 min-w-0 bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
       <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
         <div class="overflow-hidden">
           <div class="px-4 pt-3 pb-2 border-b border-primary-100">
@@ -108,12 +105,17 @@
     </div>
 
     <button
-        @click="emit('send')"
-        :disabled="!modelValue.trim()"
-        :class="['p-3.5 rounded-full transition-all shrink-0', modelValue.trim() ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95' : 'bg-primary-100 text-primary-300 cursor-not-allowed']"
-        v-tooltip="'Send message'"
+        @click="isRecording ? emit('stop-recording') : emit('send')"
+        :disabled="!isRecording && !modelValue.trim()"
+        :class="[
+          'p-3.5 rounded-full transition-all shrink-0',
+          isRecording
+            ? 'bg-red-500 text-white shadow-md shadow-red-200 hover:shadow-lg hover:scale-105 active:scale-95'
+            : (modelValue.trim() ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95' : 'bg-primary-100 text-primary-300 cursor-not-allowed')
+        ]"
+        v-tooltip="isRecording ? 'Send voice message' : 'Send message'"
     >
-      <Icon icon="pepicons-pop:send" class="text-xl" />
+      <Icon :icon="isRecording ? (isSendingVoice ? 'mdi:loading' : 'solar:plain-bold') : 'pepicons-pop:send'" :class="isRecording && isSendingVoice ? 'animate-spin' : ''" />
     </button>
     </div>
   </div>
