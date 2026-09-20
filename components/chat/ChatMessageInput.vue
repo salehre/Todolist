@@ -1,23 +1,5 @@
 <template>
   <div ref="footerRef" class="relative z-30 shrink-0 px-4 pb-4 pt-2">
-    <div v-if="isRecording" class="mb-2 px-4 py-3 bg-red-50 rounded-full border border-red-200 flex items-center gap-3">
-      <div class="flex items-center gap-2">
-        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-        <span class="text-sm text-red-600 font-medium">Recording... {{ formatDuration(recordingDuration) }}</span>
-      </div>
-      <div class="flex-1">
-        <div class="h-1 bg-red-200 rounded-full overflow-hidden">
-          <div class="h-full bg-red-500 rounded-full transition-all duration-1000" :style="{ width: recordingProgress + '%' }"></div>
-        </div>
-      </div>
-      <div class="flex gap-2">
-        <button @click="emit('cancel-recording')" class="p-2 rounded-lg bg-white text-red-600 hover:bg-red-100 transition"><Icon icon="mingcute:close-line" /></button>
-        <button @click="emit('stop-recording')" class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition">
-          <Icon :icon="isSendingVoice ? 'mdi:loading' : 'solar:plain-bold'" :class="isSendingVoice ? 'animate-spin' : ''" />
-        </button>
-      </div>
-    </div>
-
     <div v-if="replyTo" class="mb-2 px-3 py-2 bg-primary-50 rounded-full border border-primary-200 flex items-center gap-2">
       <div class="flex-1">
         <p class="text-xs font-medium text-primary-500">Replying to {{ replyToSenderName }}</p>
@@ -49,7 +31,18 @@
     </div>
 
     <div class="flex items-end gap-2">
-    <div ref="inputAreaRef" class="flex-1 min-w-0 bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
+      <div v-if="isRecording" class="flex items-center gap-3 bg-red-50 rounded-3xl border border-red-200 shadow-sm px-4 h-[52px]">
+        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse shrink-0"></div>
+        <span class="text-sm text-red-600 font-medium shrink-0 tabular-nums">{{ formatDuration(recordingDuration) }}</span>
+        <VoiceWaveformLive :analyser="analyserNode" class="flex-1 min-w-0" />
+        <button @click="emit('cancel-recording')" class="p-2 rounded-lg bg-white text-red-600 hover:bg-red-100 transition shrink-0">
+          <Icon icon="mingcute:close-line" />
+        </button>
+        <button @click="emit('stop-recording')" class="p-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition shrink-0">
+          <Icon :icon="isSendingVoice ? 'mdi:loading' : 'solar:plain-bold'" :class="isSendingVoice ? 'animate-spin' : ''" />
+        </button>
+      </div>
+      <div v-else ref="inputAreaRef" class="bg-white rounded-3xl border border-primary-200 shadow-sm overflow-hidden">
       <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
         <div class="overflow-hidden">
           <div class="px-4 pt-3 pb-2 border-b border-primary-100">
@@ -132,6 +125,7 @@ import { Icon } from '@iconify/vue'
 import PrioritySlider from '~/components/Priorityslider.vue'
 import { colorFor } from '~/utils/avatarColor'
 import type { ApiMessage, GroupMember, InlineTodoForm } from '~/types/ChatType'
+import VoiceWaveformLive from '~/components/chat/VoiceWaveformLive.vue'
 
 const props = defineProps<{
   modelValue: string
@@ -141,6 +135,7 @@ const props = defineProps<{
   showAttachMenu: boolean
   showCreateTodo: boolean
   isRecording: boolean
+  analyserNode: AnalyserNode | null
   isSendingVoice: boolean
   isCreatingTodo: boolean
   recordingDuration: number

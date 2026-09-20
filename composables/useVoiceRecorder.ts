@@ -1,13 +1,15 @@
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 
 export function useVoiceRecorder(onReady: (blob: Blob, duration: number) => void) {
     const isRecording = ref(false)
     const recordingDuration = ref(0)
     const recordingProgress = ref(0)
+    const analyserNode = shallowRef<AnalyserNode | null>(null)
 
     let mediaRecorder: MediaRecorder | null = null
     let audioChunks: Blob[] = []
     let recordingInterval: number | null = null
+    let audioContext: AudioContext | null = null
 
     async function startRecording(): Promise<void> {
         try {
@@ -15,12 +17,21 @@ export function useVoiceRecorder(onReady: (blob: Blob, duration: number) => void
             mediaRecorder = new MediaRecorder(stream)
             audioChunks = []
 
+            audioContext = new AudioContext()
+            const source = audioContext.createMediaStreamSource(stream)
+            const analyser = audioContext.createAnalyser()
+            analyser.fftSize = 256
+            source.connect(analyser)
+            analyserNode.value = analyser
+
             mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data)
 
             mediaRecorder.onstop = () => {
                 const blob = new Blob(audioChunks, { type: 'audio/webm' })
                 onReady(blob, recordingDuration.value)
                 stream.getTracks().forEach(track => track.stop())
+                audioContext?.close()
+                analyserNode.value = null
                 if (recordingInterval) clearInterval(recordingInterval)
                 recordingDuration.value = 0
                 recordingProgress.value = 0
@@ -53,6 +64,8 @@ export function useVoiceRecorder(onReady: (blob: Blob, duration: number) => void
     function cancelRecording(): void {
         if (mediaRecorder?.state === 'recording') {
             mediaRecorder.onstop = () => {
+                audioContext?.close()
+                analyserNode.value = null
                 if (recordingInterval) clearInterval(recordingInterval)
                 recordingDuration.value = 0
                 recordingProgress.value = 0
@@ -64,5 +77,5 @@ export function useVoiceRecorder(onReady: (blob: Blob, duration: number) => void
         }
     }
 
-    return { isRecording, recordingDuration, recordingProgress, startRecording, stopRecording, cancelRecording }
+    return { isRecording, recordingDuration, recordingProgress, analyserNode, startRecording, stopRecording, cancelRecording }
 }

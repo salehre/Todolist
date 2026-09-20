@@ -113,6 +113,7 @@
           :show-attach-menu="showAttachMenu"
           :show-create-todo="showCreateTodoInline"
           :is-recording="voice.isRecording.value"
+          :analyser-node="voice.analyserNode.value"
           :is-sending-voice="isSendingVoice"
           :is-creating-todo="isCreatingTodo"
           :recording-duration="voice.recordingDuration.value"
