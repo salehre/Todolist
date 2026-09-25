@@ -156,9 +156,9 @@ const skills = [
 ]
 
 const links = [
-  { label: 'GitHub', href: '#', icon: 'mdi:github' },
+  { label: 'GitHub', href: 'https://github.com/salehre', icon: 'mdi:github' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/saleh-rezaei-1985b5415/', icon: 'mdi:linkedin' },
   { label: 'Gmail', href: 'mailto:salehrezaeipoor123@gmail.com', icon: 'tabler:brand-gmail' },
-  { label: 'Reddit', href: '#', icon: 'ic:outline-reddit' },
+  { label: 'Reddit', href: 'https://www.reddit.com/user/salehrezaei/', icon: 'ic:outline-reddit' },
 ]
 </script>
