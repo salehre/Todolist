@@ -50,8 +50,8 @@ onMounted(() => {
 
   wavesurfer = WaveSurfer.create({
     container: waveformEl.value,
-    waveColor: isSent.value ? 'rgba(255,255,255,0.45)' : 'rgba(100,116,139,0.35)',
-    progressColor: isSent.value ? '#ffffff' : 'var(--t-500, #6366f1)',
+    waveColor: isSent.value ? 'rgba(0,0,0,0.25)' : 'rgba(148,163,184,0.4)',
+    progressColor: isSent.value ? '#ffffff' : '#4338ca',
     cursorWidth: 0,
     height: 28,
     barWidth: 2,
