@@ -43,7 +43,7 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2,ttf}"],
+      globPatterns: ["**/*.{js,css,html,woff2,svg,ico}"],
     },
     devOptions: {
       enabled: true,
@@ -53,7 +53,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000/api',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'https://saleh.sinatech-dm.com/api/api',
       pusherKey: process.env.NUXT_PUBLIC_PUSHER_KEY,
       pusherCluster: process.env.NUXT_PUBLIC_PUSHER_CLUSTER,
     },
