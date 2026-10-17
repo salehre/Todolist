@@ -1,11 +1,11 @@
 <template>
   <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl">
-    <h2 class="text-lg font-bold text-slate-800">میزان فعالیت (۷ روز اخیر)</h2>
+    <h2 class="text-lg font-bold text-slate-800">    {{ $t('settings.activity') }}</h2>
 
     <div v-if="loading" class="mt-6 h-64 rounded-xl bg-slate-100 animate-pulse"></div>
 
     <div v-else-if="hasNoData" class="mt-6 flex h-40 items-center justify-center text-sm text-slate-400">
-      هنوز فعالیتی ثبت نشده
+      {{ $t('settings.noActivity') }}
     </div>
 
     <div v-else class="mt-4 w-full" style="height: 260px;">

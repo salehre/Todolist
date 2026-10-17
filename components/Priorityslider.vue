@@ -2,7 +2,7 @@
   <div>
     <!-- لیبل بالای اسلایدر: کلمه‌ی سطح با رنگ مخصوص همون سطح -->
     <p class="mb-2 text-start text-base font-semibold text-primary-900">
-      <span :class="currentOption.textClass">{{ currentOption.label }}</span> priority
+      <span :class="currentOption.textClass">{{ currentOption.label }}</span> {{ $t('tasks.priorityLabel') }}
     </p>
 
     <div class="relative h-7">
@@ -50,19 +50,20 @@ type Priority = 'low' | 'medium' | 'high'
 const props = defineProps<{ modelValue: Priority }>()
 const emit = defineEmits<{ 'update:modelValue': [Priority] }>()
 
-const options: { value: Priority; label: string; bgClass: string; textClass: string }[] = [
-  { value: 'low', label: 'Low', bgClass: 'bg-emerald-500', textClass: 'text-emerald-600' },
-  { value: 'medium', label: 'Medium', bgClass: 'bg-orange-500', textClass: 'text-orange-600' },
-  { value: 'high', label: 'High', bgClass: 'bg-red-500', textClass: 'text-red-600' },
-]
+const { t } = useLocale()
+const options = computed<{ value: Priority; label: string; bgClass: string; textClass: string }[]>(() => [
+  { value: 'low', label: t('tasks.priority.lowShort'), bgClass: 'bg-emerald-500', textClass: 'text-emerald-600' },
+  { value: 'medium', label: t('tasks.priority.mediumShort'), bgClass: 'bg-orange-500', textClass: 'text-orange-600' },
+  { value: 'high', label: t('tasks.priority.highShort'), bgClass: 'bg-red-500', textClass: 'text-red-600' },
+])
 
-const modelIndex = computed(() => Math.max(0, options.findIndex((o) => o.value === props.modelValue)))
+const modelIndex = computed(() => Math.max(0, options.value.findIndex((o) => o.value === props.modelValue)))
 const fraction = computed(() => modelIndex.value / (options.length - 1))
-const currentOption = computed(() => options[modelIndex.value] ?? options[0])
+const currentOption = computed(() => options.value[modelIndex.value] ?? options.value[0])
 
 function onInput(e: Event): void {
   const index = Number((e.target as HTMLInputElement).value)
-  emit('update:modelValue', options[index].value)
+  emit('update:modelValue', options.value[index].value)
 }
 </script>
 

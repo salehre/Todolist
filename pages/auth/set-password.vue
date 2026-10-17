@@ -1,7 +1,7 @@
 <template>
   <AuthCard
-    title="تنظیم رمز عبور"
-    subtitle="یک رمز عبور قوی برای حساب خود انتخاب کن"
+    :title="$t('auth.setPasswordTitle')"
+    :subtitle="$t('auth.setPasswordSubtitle')"
     icon="mdi:lock-plus-outline"
   >
     <form class="space-y-4" @submit.prevent="handleSubmit" novalidate>
@@ -11,8 +11,8 @@
         <AuthInput
           v-model="form.password"
           :type="showPassword ? 'text' : 'password'"
-          label="رمز عبور"
-          placeholder="رمز عبور خود را وارد کن"
+          :label="$t('auth.password')"
+          :placeholder="$t('auth.enterPassword')"
           autocomplete="new-password"
           :error="errors.password"
           required
@@ -26,7 +26,7 @@
               type="button"
               @click="showPassword = !showPassword"
               class="text-slate-400 hover:text-slate-600 transition-colors"
-              :aria-label="showPassword ? 'مخفی کردن رمز' : 'نمایش رمز'"
+              :aria-label="showPassword ? $t('auth.hidePassword') : $t('auth.showPassword')"
             >
               <Icon :icon="showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'" />
             </button>
@@ -41,8 +41,8 @@
       <AuthInput
         v-model="form.confirmPassword"
         :type="showConfirm ? 'text' : 'password'"
-        label="تکرار رمز عبور"
-        placeholder="رمز عبور را دوباره وارد کن"
+        :label="$t('auth.repeatPassword')"
+        :placeholder="$t('auth.confirmPassword')"
         autocomplete="new-password"
         :error="errors.confirmPassword"
         required
@@ -69,7 +69,7 @@
           class="flex items-center gap-2 text-xs font-medium justify-end"
           :class="passwordsMatch ? 'text-emerald-300' : 'text-rose-300'"
         >
-          <span>{{ passwordsMatch ? 'رمزها با هم مطابقت دارند' : 'رمزها با هم مطابقت ندارند' }}</span>
+          <span>{{ passwordsMatch ? $t('auth.passwordsMatchIndicator') : $t('auth.passwordsMismatchIndicator') }}</span>
           <Icon :icon="passwordsMatch ? 'mdi:check-circle' : 'mdi:close-circle'" />
         </div>
       </Transition>
@@ -85,7 +85,7 @@
                flex items-center justify-center gap-2"
       >
         <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
-        <span>{{ isLoading ? 'در حال ثبت‌نام...' : 'تکمیل ثبت‌نام' }}</span>
+        <span>{{ isLoading ? $t('auth.registering') : $t('auth.completeSignup') }}</span>
         <Icon v-if="!isLoading" icon="mdi:check" class="text-lg" />
       </button>
 
@@ -109,6 +109,7 @@ useHead(() => ({
 
 const router = useRouter()
 const { setPassword } = useAuth()
+const { t } = useLocale()
 
 const isLoading = ref(false)
 const showPassword = ref(false)
@@ -138,13 +139,13 @@ function validateField(field: 'password' | 'confirmPassword') {
   errors[field] = ''
 
   if (field === 'password') {
-    if (!form.password) errors.password = 'رمز عبور الزامی است'
-    else if (form.password.length < 8) errors.password = 'رمز عبور باید حداقل ۸ کاراکتر باشد'
+    if (!form.password) errors.password = t('auth.passwordRequired')
+    else if (form.password.length < 8) errors.password = t('auth.passwordMinLength')
   }
 
   if (field === 'confirmPassword') {
-    if (!form.confirmPassword) errors.confirmPassword = 'تکرار رمز الزامی است'
-    else if (form.password !== form.confirmPassword) errors.confirmPassword = 'رمزها با هم مطابقت ندارند'
+    if (!form.confirmPassword) errors.confirmPassword = t('auth.confirmPasswordRequired')
+    else if (form.password !== form.confirmPassword) errors.confirmPassword = t('auth.passwordsDoNotMatch')
   }
 }
 

@@ -17,20 +17,20 @@
       </div>
 
       <button @click="emit('copy', message.text ?? ''); emit('close')" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-        <Icon icon="solar:copy-linear" class="text-primary-500 text-sm" /> Copy
+        <Icon icon="solar:copy-linear" class="text-primary-500 text-sm" /> {{ $t('chat.copy') }}
       </button>
       <button @click="emit('reply', message); emit('close')" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-        <Icon icon="solar:reply-linear" class="text-primary-500 text-sm" /> Reply
+        <Icon icon="solar:reply-linear" class="text-primary-500 text-sm" /> {{ $t('chat.reply') }}
       </button>
       <button v-if="message.senderId === currentUserId" @click="emit('edit', message); emit('close')" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-        <Icon icon="mi:edit" class="text-primary-500 text-sm" /> Edit
+        <Icon icon="mi:edit" class="text-primary-500 text-sm" /> {{ $t('chat.edit') }}
       </button>
       <button @click="emit('toggle-pin', message.id); emit('close')" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
         <Icon :icon="message.pinned ? 'ri:unpin-line' : 'iconoir:pin'" class="text-primary-500 text-sm" />
-        {{ message.pinned ? 'Unpin' : 'Pin' }}
+        {{ message.pinned ? $t('chat.unpin') : $t('chat.pin') }}
       </button>
       <button v-if="canDeleteMessage" @click="emit('delete', message.id); emit('close')" class="flex items-center gap-2 w-full px-3 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors">
-        <Icon icon="mingcute:delete-line" class="text-primary-500 text-sm" /> Delete
+        <Icon icon="mingcute:delete-line" class="text-primary-500 text-sm" /> {{ $t('common.delete') }}
       </button>
     </div>
   </Teleport>

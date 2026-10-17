@@ -62,8 +62,8 @@
 
           <div v-if="message.todoRef" :class="['flex items-center gap-2 px-3 py-2 rounded-xl mb-1.5 bg-primary-50 border border-primary-200 text-xs text-primary-700 cursor-pointer hover:bg-primary-100 transition-all', isMine ? 'rounded-tr-sm' : 'rounded-tl-sm']" @click="emit('view-todo', message.todoRef!)">
             <Icon icon="mingcute:task-2-line" class="text-primary-500 shrink-0" />
-            <span class="font-medium">Task: {{ message.todoRef.text }}</span>
-            <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[message.todoRef.priority]]">{{ message.todoRef.priority }}</span>
+            <span class="font-medium">{{ $t('chat.taskLabel') }} {{ message.todoRef.text }}</span>
+            <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[message.todoRef.priority]]">{{ $t(`tasks.priority.${message.todoRef.priority}Short`) }}</span>
           </div>
 
           <div>
@@ -145,7 +145,8 @@ const priorityColors: Record<Priority, string> = {
 
 const isMine = computed(() => props.message.senderId === props.currentUserId)
 const sender = computed(() => props.members.find(m => m.userId === props.message.senderId))
-const senderName = computed(() => sender.value?.name ?? 'Unknown')
+const { locale, t } = useLocale()
+const senderName = computed(() => sender.value?.name ?? t('common.unknown'))
 const replyToMessage = computed(() => props.allMessages.find(m => m.id === props.message.replyTo))
 
 const textParts = computed(() => {
@@ -167,11 +168,11 @@ const textParts = computed(() => {
 })
 
 function getMemberName(id: number): string {
-  return props.members.find(m => m.userId === id)?.name ?? 'Unknown'
+  return props.members.find(m => m.userId === id)?.name ?? t('common.unknown')
 }
 
 function formatTime(date: Date | string): string {
-  return new Date(date).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(date).toLocaleTimeString(locale.value === 'fa' ? 'fa-IR' : 'en-US', { hour: '2-digit', minute: '2-digit' })
 }
 
 function getFileIcon(filename: string): string {

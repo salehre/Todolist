@@ -3,7 +3,7 @@
     <div v-if="open" class="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" @click.self="emit('close')">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col">
         <div class="flex items-center justify-between p-4 border-b border-primary-100">
-          <h3 class="text-sm font-bold text-primary-900">{{ files.length }} Files Selected</h3>
+          <h3 class="text-sm font-bold text-primary-900">{{ files.length }} {{ $t('chat.filesSelected') }}</h3>
           <button @click="emit('close')" class="text-primary-400 hover:text-primary-600 text-xl">✕</button>
         </div>
 
@@ -25,11 +25,11 @@
               :value="caption"
               @input="emit('update:caption', ($event.target as HTMLTextAreaElement).value)"
               rows="2"
-              placeholder="Add a caption.."
+              :placeholder="$t('chat.addCaption')"
               class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none"
           />
           <button @click="emit('send')" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all">
-            <Icon icon="solar:plain-bold" class="text-base" /> Send {{ files.length }} Files
+            <Icon icon="solar:plain-bold" class="text-base" /> {{ $t('chat.sendFiles') }} ({{ files.length }})
           </button>
         </div>
       </div>

@@ -2,7 +2,7 @@
   <div ref="footerRef" class="relative z-30 shrink-0 px-4 pb-4 pt-2">
     <div v-if="replyTo" class="mb-2 px-3 py-2 bg-primary-50 rounded-full border border-primary-200 flex items-center gap-2">
       <div class="flex-1">
-        <p class="text-xs font-medium text-primary-500">Replying to {{ replyToSenderName }}</p>
+        <p class="text-xs font-medium text-primary-500">{{ $t('chat.replyingTo') }} {{ replyToSenderName }}</p>
         <p class="text-xs text-primary-400 truncate">{{ replyTo.text }}</p>
       </div>
       <button @click="emit('cancel-reply')" class="text-primary-400 hover:text-primary-600"><Icon icon="mingcute:close-line" /></button>
@@ -10,7 +10,7 @@
 
     <div v-if="editingMessage" class="mb-2 px-3 py-2 bg-amber-50 rounded-full border border-amber-200 flex items-center gap-2">
       <Icon icon="mi:edit" class="text-amber-500 shrink-0" />
-      <p class="text-xs text-amber-600 flex-1 truncate">Editing: {{ editingMessage.text }}</p>
+      <p class="text-xs text-amber-600 flex-1 truncate">{{ $t('chat.editing') }} {{ editingMessage.text }}</p>
       <button @click="emit('cancel-edit')" class="text-amber-400 hover:text-amber-600"><Icon icon="mingcute:close-line" /></button>
     </div>
 
@@ -43,27 +43,27 @@
       <div class="grid transition-[grid-template-rows] duration-300 ease-in-out" :class="showAttachMenu ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
         <div class="overflow-hidden">
           <div class="px-4 pt-3 pb-2 border-b border-primary-100">
-            <p class="text-xs text-primary-400 mb-2 font-medium">Attach & Share</p>
+            <p class="text-xs text-primary-400 mb-2 font-medium">{{ $t('chat.attachShare') }}</p>
             <button @click="emit('pick-files', 'image')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-              <Icon icon="solar:gallery-linear" class="text-primary-500" /> Upload Images
+              <Icon icon="solar:gallery-linear" class="text-primary-500" /> {{ $t('common.uploadImages') }}
             </button>
             <button @click="emit('pick-files', 'file')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mb-1">
-              <Icon icon="solar:document-linear" class="text-primary-500" /> Upload Files
+              <Icon icon="solar:document-linear" class="text-primary-500" /> {{ $t('common.uploadFiles') }}
             </button>
             <button @click="emit('toggle-create-task')" class="flex items-center gap-2 w-full px-3 py-2 rounded-full bg-primary-50 hover:bg-primary-100 transition-all text-sm text-primary-700 mt-1">
-              <Icon icon="mingcute:task-2-line" class="text-primary-500" /> Create Task
+              <Icon icon="mingcute:task-2-line" class="text-primary-500" /> {{ $t('chat.createTask') }}
             </button>
           </div>
         </div>
       </div>
 
       <div v-if="showCreateTodo" class="px-4 pt-3 pb-2 border-b border-primary-100 space-y-2">
-        <p class="text-xs text-primary-500 font-semibold flex items-center gap-1"><Icon icon="mingcute:task-2-line" /> New Task</p>
-        <input v-model="todoForm.title" type="text" placeholder="Task title " class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200" />
-        <textarea v-model="todoForm.description" rows="2" placeholder="Description (optional)" class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none" />
+        <p class="text-xs text-primary-500 font-semibold flex items-center gap-1"><Icon icon="mingcute:task-2-line" /> {{ $t('chat.newTask') }}</p>
+        <input v-model="todoForm.title" type="text" :placeholder="$t('chat.taskTitle')" class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200" />
+        <textarea v-model="todoForm.description" rows="2" :placeholder="$t('tasks.descriptionPlaceholder')" class="w-full px-3 py-2 rounded-xl border border-primary-200 text-sm focus:outline-none focus:border-primary-400 focus:ring-1 focus:ring-primary-200 resize-none" />
         <PrioritySlider v-model="todoForm.priority" />
         <div>
-          <p class="mb-1.5 text-xs font-medium text-primary-500">Assign to</p>
+          <p class="mb-1.5 text-xs font-medium text-primary-500">{{ $t('chat.assignTo') }}</p>
           <div class="flex flex-wrap gap-1.5">
             <button
                 v-for="m in members" :key="m.userId" type="button"
@@ -79,16 +79,16 @@
           </div>
         </div>
         <div class="flex gap-2">
-          <button @click="submitTodo" :disabled="!todoForm.title.trim() || todoForm.assignedTo.length === 0 || isCreatingTodo" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center"> <Icon v-if="isCreatingTodo" icon="mdi:loading" class="animate-spin" /> <span v-else>Create</span></button>
+          <button @click="submitTodo" :disabled="!todoForm.title.trim() || todoForm.assignedTo.length === 0 || isCreatingTodo" class="flex-1 px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-medium hover:bg-primary-600 transition-all disabled:opacity-50 flex items-center justify-center"> <Icon v-if="isCreatingTodo" icon="mdi:loading" class="animate-spin" /> <span v-else>{{ $t('common.create') }}</span></button>
           <button @click="emit('toggle-create-task')" class="px-3 py-2 text-primary-400 hover:text-primary-600"><Icon icon="mingcute:close-line" /></button>
         </div>
       </div>
 
       <div class="flex items-end gap-1.5 p-2">
-        <button v-if="!isRecording" @click="emit('start-recording')" class="p-2 rounded-full bg-primary-100 text-primary-400 hover:bg-primary-50 hover:text-primary-500 transition-all shrink-0" v-tooltip="'Record voice message'">
+        <button v-if="!isRecording" @click="emit('start-recording')" class="p-2 rounded-full bg-primary-100 text-primary-400 hover:bg-primary-50 hover:text-primary-500 transition-all shrink-0" v-tooltip="$t('chat.recordVoice')">
           <Icon icon="mdi:microphone" class="text-xl" />
         </button>
-        <button @click="emit('toggle-attach-menu')" :disabled="isCreatingTodo" :class="['p-2.5 rounded-full bg-primary-100 transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed', showAttachMenu ? 'bg-primary-500 text-white' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']" v-tooltip="'Attach file or image'">
+        <button @click="emit('toggle-attach-menu')" :disabled="isCreatingTodo" :class="['p-2.5 rounded-full bg-primary-100 transition-all shrink-0 disabled:opacity-40 disabled:cursor-not-allowed', showAttachMenu ? 'bg-primary-500 text-white' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-500']" v-tooltip="$t('chat.attachFile')">
           <Icon icon="lucide:paperclip" class="text-lg" />
         </button>
 
@@ -113,7 +113,7 @@
             ? 'bg-red-500 text-white shadow-md shadow-red-200 hover:shadow-lg hover:scale-105 active:scale-95'
             : (modelValue.trim() ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200 hover:shadow-lg hover:scale-105 active:scale-95' : 'bg-primary-100 text-primary-300 cursor-not-allowed')
         ]"
-        v-tooltip="isRecording ? 'Send voice message' : 'Send message'"
+        v-tooltip="isRecording ? $t('chat.sendVoice') : $t('chat.sendMessage')"
     >
       <Icon :icon="isRecording ? (isSendingVoice ? 'mdi:loading' : 'solar:plain-bold') : 'pepicons-pop:send'" :class="isRecording && isSendingVoice ? 'animate-spin' : ''" />
     </button>
@@ -159,7 +159,8 @@ const emit = defineEmits<{
   'create-todo': [form: InlineTodoForm]
 }>()
 
-const replyToSenderName = computed(() => props.members.find(m => m.userId === props.replyTo?.senderId)?.name ?? 'Unknown')
+const { t } = useLocale()
+const replyToSenderName = computed(() => props.members.find(m => m.userId === props.replyTo?.senderId)?.name ?? t('chat.unknown'))
 
 function onInput(e: Event): void {
   const el = e.target as HTMLTextAreaElement

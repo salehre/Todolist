@@ -29,7 +29,7 @@
           class="hidden md:flex items-center gap-1.5 rounded-xl bg-linear-to-r from-primary-500 to-primary-600 px-6.5 py-2 text-sm font-medium text-white shadow-md shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700"
       >
 <!--        <Icon icon="mdi:login" class="text-base" />-->
-        ورود
+        {{ $t('auth.login') }}
       </NuxtLink>
       <div v-if="authState.isLoggedIn" class="hidden items-center gap-1.5 md:flex">
         <!-- جستجو -->
@@ -67,7 +67,7 @@
                 :style="{ top: notifDropdownTop + 'px', left: notifDropdownLeft + 'px' }"
             >
               <div v-if="invites.length === 0 && messageNoticeList.length === 0" class="p-6 text-center text-sm text-slate-400">
-                اعلانی نداری
+                {{ $t('notifications.empty') }}
               </div>
 
               <!-- دعوت‌نامه‌ها -->
@@ -79,7 +79,7 @@
                   </div>
                   <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold text-slate-800 truncate">{{ inv.groupName }}</p>
-                    <p class="text-[11px] text-slate-400">{{ inv.invitedByName }} دعوتت کرده</p>
+                    <p class="text-[11px] text-slate-400">{{ inv.invitedByName }} {{ $t('notifications.invitedYou') }}</p>
                   </div>
                 </div>
                 <div class="mt-2 flex gap-2">
@@ -87,13 +87,13 @@
                       @click="handleAccept(inv.id)"
                       class="flex-1 rounded-lg bg-primary-500 py-1.5 text-xs font-medium text-white hover:bg-primary-600"
                   >
-                    پذیرفتن
+                    {{ $t('notifications.accept') }}
                   </button>
                   <button
                       @click="declineInvite(inv.id)"
                       class="flex-1 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
                   >
-                    رد کردن
+                    {{ $t('notifications.decline') }}
                   </button>
                 </div>
               </div>
@@ -110,7 +110,7 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-xs font-semibold text-slate-800 truncate">{{ notice.groupName }}</p>
-                  <p class="text-[11px] text-primary-500">{{ notice.count }} پیام جدید</p>
+                  <p class="text-[11px] text-primary-500">{{ notice.count }} {{ $t('notifications.newMessage') }}</p>
                 </div>
                 <span class="shrink-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-500 px-1 text-[10px] font-bold text-white">
                   {{ notice.count > 99 ? '99+' : notice.count }}
@@ -123,7 +123,7 @@
                   <Icon icon="mdi:account-remove-outline" class="text-base" />
                 </div>
                 <div class="min-w-0 flex-1">
-                  <p class="text-xs font-semibold text-slate-800">از گروه «{{ notice.groupName }}» حذف شدی</p>
+                  <p class="text-xs font-semibold text-slate-800">{{ $t('notifications.removedFromGroup') }} «{{ notice.groupName }}»</p>
                 </div>
                 <button @click="dismissRemovalNotice(notice.id)" class="shrink-0 text-slate-300 hover:text-slate-500">
                   <Icon icon="mingcute:close-line" class="text-sm" />
@@ -177,7 +177,7 @@
             class="relative flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
         >
           <Icon icon="mdi:bell-outline" class="text-lg text-slate-400" />
-          اعلان‌ها
+          {{ $t('notifications.title') }}
           <span
               class="absolute inset-e-3 top-2.5 h-2 w-2 rounded-full border-2 border-white bg-primary-500"
               :class="hasUnread() ? '' : 'hidden'"
@@ -188,14 +188,14 @@
             class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
         >
           <MorphIcon :icon="isDark ? heroMoon : heroSun" spring="smooth" class="text-lg text-slate-400" :size="18" />
-          تغییر تم
+          {{ $t('common.toggleTheme') }}
         </button>
         <button
             @click="toggleLocale(); mobileMenuOpen = false"
             class="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-slate-600 hover:bg-slate-50"
         >
           <Icon icon="mdi:translate" class="text-lg text-slate-400" />
-          {{ isRtl ? 'English' : 'فارسی' }}
+          {{ isRtl ? $t('common.languageEn') : $t('common.languageFa') }}
         </button>
       </div>
     </Transition>
@@ -213,7 +213,7 @@
           class="fixed inset-x-4 top-20 z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-slate-200/70 bg-white py-1 shadow-lg shadow-slate-200/50 md:hidden"
       >
         <div v-if="invites.length === 0 && messageNoticeList.length === 0" class="p-6 text-center text-sm text-slate-400">
-          اعلانی نداری
+          {{ $t('notifications.empty') }}
         </div>
         <div v-for="inv in invites" :key="'m-invite-' + inv.id" class="border-b border-slate-100 p-3">
           <div class="flex items-center gap-2.5">
@@ -223,15 +223,15 @@
             </div>
             <div class="min-w-0 flex-1">
               <p class="text-xs font-semibold text-slate-800 truncate">{{ inv.groupName }}</p>
-              <p class="text-[11px] text-slate-400">{{ inv.invitedByName }} دعوتت کرده</p>
+              <p class="text-[11px] text-slate-400">{{ inv.invitedByName }} {{ $t('notifications.invitedYou') }}</p>
             </div>
           </div>
           <div class="mt-2 flex gap-2">
             <button @click="handleAccept(inv.id)" class="flex-1 rounded-lg bg-primary-500 py-1.5 text-xs font-medium text-white hover:bg-primary-600">
-              پذیرفتن
+              {{ $t('notifications.accept') }}
             </button>
             <button @click="declineInvite(inv.id)" class="flex-1 rounded-lg border border-slate-200 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
-              رد کردن
+              {{ $t('notifications.decline') }}
             </button>
           </div>
         </div>
@@ -246,7 +246,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-xs font-semibold text-slate-800 truncate">{{ notice.groupName }}</p>
-            <p class="text-[11px] text-primary-500">پیام جدید</p>
+            <p class="text-[11px] text-primary-500">{{ $t('notifications.newMessage') }}</p>
           </div>
         </button>
       </div>
@@ -273,7 +273,7 @@ const route = useRoute()
 const router = useRouter()
 
 const { isDark, toggleDark } = useTheme()
-const { locale, isRtl, setLocale } = useLocale()
+const { locale, isRtl, setLocale, t } = useLocale()
 const { authState } = useAuth()
 const {
   invites,
@@ -302,14 +302,15 @@ const desktopCollapsed = useState<boolean>('dashboard-sidebar-collapsed', () => 
 // از route.meta.title استفاده کنی (توی definePageMeta هر صفحه ست کن)
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
-    '/': 'خانه',
-    '/mainTodo': 'تودولیست من',
-    '/workPlan': 'کار تیمی',
-    '/customTodo': 'تودولیست شخصی',
-    '/aboutMe': 'درباره من',
-    '/settings': 'تنظیمات',
+    '/': t('dashboard.home'),
+    '/mainTodo': t('dashboard.personalTodo'),
+    '/workPlan': t('dashboard.teamwork'),
+    '/customTodo': t('dashboard.personalTodo'),
+    '/aboutMe': t('dashboard.about'),
+    '/settings': t('settings.profile'),
+    '/runbooks': t('runbooks.title'),
   }
-  return (route.meta.title as string) || titles[route.path] || 'داشبورد'
+  return (route.meta.title as string) || titles[route.path] || t('dashboard.title')
 })
 
 // ─── دراپ‌داون اعلان‌ها (دسکتاپ) ─────────────────────────────────────────

@@ -6,7 +6,7 @@
   <Transition enter-active-class="transition-transform duration-300 ease-in-out" leave-active-class="transition-transform duration-300 ease-in-out" enter-from-class="translate-x-full rtl:-translate-x-full" leave-to-class="translate-x-full rtl:-translate-x-full">
     <aside v-if="open" class="absolute inset-y-0 inset-e-0 z-40 w-full max-w-sm bg-white shadow-2xl flex flex-col">
       <div class="flex items-center justify-between h-16 shrink-0 px-5 border-b border-primary-100">
-        <h3 class="text-base font-bold text-primary-900">Group Info</h3>
+        <h3 class="text-base font-bold text-primary-900">{{ $t('chat.groupInfo') }}</h3>
         <button @click="emit('close')" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
           <Icon icon="mingcute:close-line" class="text-lg" />
         </button>
@@ -24,20 +24,20 @@
           </div>
 
           <div class="w-full">
-            <label class="block text-[11px] font-semibold uppercase tracking-wide text-primary-300 mb-1">Name</label>
+            <label class="block text-[11px] font-semibold uppercase tracking-wide text-primary-300 mb-1">{{ $t('chat.groupName') }}</label>
             <input v-model="form.name" @blur="emit('save-info', { ...form })" @keyup.enter="($event.target as HTMLInputElement).blur()" type="text" class="w-full px-3 py-2 rounded-xl border border-transparent hover:border-primary-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-all text-sm font-semibold text-primary-900 text-center" :disabled="!isAdmin" />
           </div>
           <div class="w-full">
-            <label class="block text-[11px] font-semibold uppercase tracking-wide text-primary-300 mb-1">Description</label>
-            <textarea v-model="form.description" @blur="emit('save-info', { ...form })" rows="2" placeholder="Add a description..." class="w-full px-3 py-2 rounded-xl border border-transparent hover:border-primary-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-all text-sm text-primary-600 text-center resize-none" :disabled="!isAdmin" />
+            <label class="block text-[11px] font-semibold uppercase tracking-wide text-primary-300 mb-1">{{ $t('common.description') }}</label>
+            <textarea v-model="form.description" @blur="emit('save-info', { ...form })" rows="2" :placeholder="$t('chat.addGroupDescription')" class="w-full px-3 py-2 rounded-xl border border-transparent hover:border-primary-200 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 focus:outline-none transition-all text-sm text-primary-600 text-center resize-none" :disabled="!isAdmin" />
           </div>
         </div>
 
         <div class="p-4">
           <div class="flex items-center justify-between px-2 pb-2">
-            <p class="text-[11px] font-semibold uppercase tracking-wide text-primary-300">Members — {{ members.length }}</p>
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-primary-300">{{ $t('chat.members') }} — {{ members.length }}</p>
             <button v-if="isAdmin" @click="emit('open-add-member')" class="flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700">
-              <Icon icon="mingcute:user-add-line" class="text-sm" /> Add
+              <Icon icon="mingcute:user-add-line" class="text-sm" /> {{ $t('common.add') }}
             </button>
           </div>
 
@@ -49,19 +49,19 @@
                 <span class="absolute bottom-0 inset-e-0 w-2.5 h-2.5 rounded-full ring-2 ring-white" :class="onlineUserIds.includes(m.userId) ? 'bg-emerald-500' : 'bg-primary-200'" />
               </div>
               <div class="flex-1 min-w-0 cursor-pointer" @click="emit('open-profile', m.userId)">
-                <p class="text-sm font-medium text-primary-800 truncate">{{ m.name }}<span v-if="m.userId === currentUserId" class="text-primary-400 font-normal"> (you)</span></p>
-                <p class="text-xs text-primary-400">{{ m.role === 'owner' ? 'Owner' : m.role === 'admin' ? 'Admin' : 'Member' }}</p>
+                <p class="text-sm font-medium text-primary-800 truncate">{{ m.name }}<span v-if="m.userId === currentUserId" class="text-primary-400 font-normal"> ({{ $t('common.you') }})</span></p>
+                <p class="text-xs text-primary-400">{{ m.role === 'owner' ? $t('chat.owner') : m.role === 'admin' ? $t('chat.admin') : $t('chat.member') }}</p>
               </div>
 
               <div v-if="isAdmin && m.userId !== currentUserId" class="opacity-0 group-hover/member:opacity-100 transition-opacity flex items-center gap-1">
-                <button v-if="isOwner && m.role !== 'owner'" @click="emit('change-role', m)" v-tooltip="m.role === 'admin' ? 'Make member' : 'Make admin'" class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600">
+                <button v-if="isOwner && m.role !== 'owner'" @click="emit('change-role', m)" v-tooltip="m.role === 'admin' ? $t('chat.makeMember') : $t('chat.makeAdmin')" class="p-1.5 rounded-lg text-primary-400 hover:bg-primary-100 hover:text-primary-600">
                   <Icon icon="mingcute:vip-2-line" class="text-sm" />
                 </button>
-                <button v-if="isOwner || m.role === 'member'" @click="emit('remove-member', m)" v-tooltip="'Remove from group'" class="p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500">
+                <button v-if="isOwner || m.role === 'member'" @click="emit('remove-member', m)" v-tooltip="$t('chat.removeFromGroup')" class="p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500">
                   <Icon icon="mingcute:user-remove-line" class="text-sm" />
                 </button>
               </div>
-              <button v-else-if="m.userId === currentUserId" @click="emit('leave-group')" v-tooltip="'Leave group'" class="opacity-0 group-hover/member:opacity-100 transition-opacity p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500">
+              <button v-else-if="m.userId === currentUserId" @click="emit('leave-group')" v-tooltip="$t('chat.leaveGroup')" class="opacity-0 group-hover/member:opacity-100 transition-opacity p-1.5 rounded-lg text-primary-400 hover:bg-red-50 hover:text-red-500">
                 <Icon icon="mingcute:exit-line" class="text-sm" />
               </button>
             </div>

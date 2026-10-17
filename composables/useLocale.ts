@@ -35,7 +35,9 @@ export function useLocale() {
     }
 
     function t(key: string): string {
-        return messages.value[key] || key
+        return Object.prototype.hasOwnProperty.call(messages.value, key)
+            ? messages.value[key]
+            : key
     }
 
     return { locale, direction, isRtl, messages, syncFromUser, setLocale, t }

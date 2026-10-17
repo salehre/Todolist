@@ -25,7 +25,7 @@
               :disabled="confirmLoading"
               class="flex-1 rounded-xl border border-primary-200 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50 disabled:opacity-50"
           >
-            انصراف
+            {{ $t('cancel') }}
           </button>
           <button
               @click="runConfirm"

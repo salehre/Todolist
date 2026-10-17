@@ -35,7 +35,7 @@
       <div v-if="activeGroupId && showSearch" class="shrink-0 px-3 py-2 bg-white relative z-[9999]">
         <div class="flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-2.5">
           <Icon icon="solar:magnifer-linear" class="text-primary-400 shrink-0" />
-          <input v-model="searchQuery" type="text" placeholder="Search messages..." class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none" autofocus />
+          <input v-model="searchQuery" type="text" :placeholder="$t('chat.searchMessages')" class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none" autofocus />
           <button v-if="searchQuery" @click="searchQuery = ''" class="text-primary-300 hover:text-primary-500 shrink-0"><Icon icon="mingcute:close-line" /></button>
         </div>
       </div>
@@ -91,7 +91,7 @@
         <div v-if="!isNearBottom" class="absolute inset-e-6 z-20 transition-[bottom] duration-300 ease-out" :style="{ bottom: `${96 + footerMenuOffset}px` }">
           <button @click="scrollToBottom()" class="flex items-center gap-1.5 p-2.5 bg-primary-500 text-white rounded-full text-sm font-medium shadow-lg hover:bg-primary-600 transition-all">
             <Icon icon="ep:arrow-down-bold" class="text-lg" />
-            <span v-if="unreadCount > 0">{{ unreadCount }} new</span>
+            <span v-if="unreadCount > 0">{{ unreadCount }} {{ $t('chat.new') }}</span>
           </button>
         </div>
       </Transition>
@@ -176,25 +176,25 @@
       <div v-if="showEditGroupTaskDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4" @click.self="closeEditGroupTaskDialog">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
-            <h3 class="text-xl font-bold text-primary-900"> Edit Task</h3>
+            <h3 class="text-xl font-bold text-primary-900">{{ $t('tasks.editTitle') }}</h3>
             <button @click="closeEditGroupTaskDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
           </div>
           <div class="p-6 space-y-4">
             <div>
-              <label class="block text-sm font-medium text-primary-700 mb-2">Title <span class="text-primary-600">*</span></label>
-              <input v-model="editGroupTaskForm.title" type="text" placeholder="Enter task title..." class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all" @keyup.enter="submitEditGroupTask" />
+              <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('tasks.titleLabel') }} <span class="text-primary-600">*</span></label>
+              <input v-model="editGroupTaskForm.title" type="text" :placeholder="$t('tasks.titlePlaceholder')" class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all" @keyup.enter="submitEditGroupTask" />
             </div>
             <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">Description</label>
-            <textarea v-model="editGroupTaskForm.description" rows="4" placeholder="Enter task description (optional)..." class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"></textarea>
+            <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('tasks.descriptionLabel') }}</label>
+            <textarea v-model="editGroupTaskForm.description" rows="4" :placeholder="$t('tasks.descriptionPlaceholder')" class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"></textarea>
             </div>
             <div>
               <PrioritySlider v-model="editGroupTaskForm.priority" />
             </div>
           </div>
           <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
-            <button @click="closeEditGroupTaskDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
-            <button @click="submitEditGroupTask" :disabled="!editGroupTaskForm.title.trim()" class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">Save Changes</button>
+            <button @click="closeEditGroupTaskDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">{{ $t('cancel') }}</button>
+            <button @click="submitEditGroupTask" :disabled="!editGroupTaskForm.title.trim()" class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed">{{ $t('tasks.saveChanges') }}</button>
           </div>
         </div>
       </div>
@@ -263,7 +263,8 @@ const emit = defineEmits<{
 }>()
 
 const { authState } = useAuth()
-const currentUser = computed(() => ({ id: Number(authState.user?.id ?? 0), name: authState.user?.name || 'You' }))
+const { t } = useLocale()
+const currentUser = computed(() => ({ id: Number(authState.user?.id ?? 0), name: authState.user?.name || t('common.you') }))
 
 const {
   groups: apiGroups, messagesByGroup, loadingGroups, loadingMessages,
@@ -439,9 +440,9 @@ async function submitEditGroupTask(): Promise<void> {
 // ── Delete group task ────────────────────────────────────────────────────
 function confirmDeleteGroupTask(id: number): void {
   openConfirm({
-    title: 'حذف تسک',
-    message: 'مطمئنی می‌خوای این تسک رو حذف کنی؟ این کار غیرقابل بازگشته.',
-    confirmLabel: 'حذف',
+    title: t('chat.deleteTaskTitle'),
+    message: t('chat.deleteTaskConfirm'),
+    confirmLabel: t('common.delete'),
     danger: true,
     onConfirm: async () => {
       try {
@@ -663,7 +664,7 @@ function cancelEdit(): void { editingMessage.value = null; inputText.value = '' 
 
 function deleteMessage(id: number): void {
   openConfirm({
-    title: 'حذف پیام', message: 'مطمئنی می‌خوای این پیام رو حذف کنی؟', confirmLabel: 'حذف', danger: true,
+    title: t('chat.deleteMessageTitle'), message: t('chat.deleteMessageConfirm'), confirmLabel: t('common.delete'), danger: true,
     onConfirm: () => { if (activeGroupId.value) apiDeleteMessage(activeGroupId.value, id) },
   })
 }
@@ -819,7 +820,7 @@ function closeAddMemberDialog(): void { showAddMemberDialog.value = false; membe
 function confirmDeleteGroup(): void {
   if (!activeGroup.value) return
   openConfirm({
-    title: 'حذف گروه', message: `مطمئنی می‌خوای گروه «${activeGroup.value.name}» رو کامل حذف کنی؟ این کار غیرقابل بازگشته.`, confirmLabel: 'حذف گروه', danger: true,
+    title: t('chat.deleteGroup'), message: `${t('chat.deleteGroupConfirm')} (${activeGroup.value.name})`, confirmLabel: t('chat.deleteGroup'), danger: true,
     onConfirm: async () => {
       const id = activeGroupId.value!
       if (await apiDeleteGroup(id)) {
@@ -832,15 +833,15 @@ function confirmDeleteGroup(): void {
 }
 function confirmRoleChange(m: GroupMember): void {
   const makeAdmin = m.role !== 'admin'
-  openConfirm({ title: makeAdmin ? 'ارتقا به مدیر' : 'تنزل به عضو عادی', message: `${m.name} ${makeAdmin ? 'مدیر گروه بشه' : 'از مدیریت خارج بشه'}؟`, confirmLabel: 'تأیید', onConfirm: () => apiUpdateMemberRole(activeGroupId.value!, m.userId, makeAdmin ? 'admin' : 'member') })
+  openConfirm({ title: makeAdmin ? t('chat.promoteAdmin') : t('chat.demoteMember'), message: `${m.name}: ${t(makeAdmin ? 'chat.promoteQuestion' : 'chat.demoteQuestion')}`, confirmLabel: t('confirm'), onConfirm: () => apiUpdateMemberRole(activeGroupId.value!, m.userId, makeAdmin ? 'admin' : 'member') })
 }
 function confirmRemoveMember(m: GroupMember): void {
-  openConfirm({ title: 'حذف عضو', message: `${m.name} از گروه حذف بشه؟`, confirmLabel: 'حذف', danger: true, onConfirm: () => apiRemoveMember(activeGroupId.value!, m.userId) })
+  openConfirm({ title: t('chat.removeMemberTitle'), message: `${m.name}: ${t('chat.removeMemberQuestion')}`, confirmLabel: t('common.delete'), danger: true, onConfirm: () => apiRemoveMember(activeGroupId.value!, m.userId) })
 }
 function confirmLeaveGroup(): void {
   if (!activeGroup.value) return
   openConfirm({
-    title: 'ترک گروه', message: `مطمئنی می‌خوای گروه «${activeGroup.value.name}» رو ترک کنی؟`, confirmLabel: 'ترک گروه', danger: true,
+    title: t('chat.leave'), message: `${t('chat.leaveGroupConfirm')} (${activeGroup.value.name})`, confirmLabel: t('chat.leave'), danger: true,
     onConfirm: async () => {
       const id = activeGroupId.value!
       await apiRemoveMember(id, currentUser.value.id)

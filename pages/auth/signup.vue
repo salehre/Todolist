@@ -1,7 +1,7 @@
 <template>
   <AuthCard
-      title="ایجاد حساب کاربری"
-      subtitle="برای شروع، اطلاعات خود را وارد کنید"
+      :title="$t('auth.signupTitle')"
+      :subtitle="$t('auth.signupSubtitle')"
       icon="mdi:account-plus-outline"
   >
     <form class="space-y-4" @submit.prevent="handleSubmit" novalidate>
@@ -9,8 +9,8 @@
       <!-- نام و نام خانوادگی -->
       <AuthInput
           v-model="form.name"
-          label="نام و نام خانوادگی"
-          placeholder="مثال: علی رضایی"
+          :label="$t('auth.fullName')"
+          :placeholder="$t('auth.exampleName')"
           autocomplete="name"
           :error="errors.name"
           required
@@ -24,11 +24,11 @@
       <!-- نام کاربری -->
       <AuthInput
           v-model="form.username"
-          label="نام کاربری"
-          placeholder="مثال: ali_rezaei"
+          :label="$t('auth.username')"
+          :placeholder="$t('auth.exampleUsername')"
           autocomplete="username"
           :error="errors.username"
-          :hint="!errors.username && form.username ? 'فقط حروف انگلیسی، عدد و آندرلاین مجاز است' : ''"
+          :hint="!errors.username && form.username ? $t('auth.usernameHint') : ''"
           required
           @blur="validateField('username')"
       >
@@ -40,7 +40,7 @@
       <!-- ایمیل -->
       <AuthInput
           v-model="form.email"
-          label="آدرس ایمیل"
+          :label="$t('auth.emailAddress')"
           type="email"
           placeholder="example@gmail.com"
           autocomplete="email"
@@ -64,16 +64,16 @@
                flex items-center justify-center gap-2"
       >
         <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
-        <span>{{ isLoading ? 'در حال ارسال...' : 'ادامه' }}</span>
+        <span>{{ isLoading ? $t('auth.sending') : $t('auth.continue') }}</span>
       </button>
 
     </form>
 
     <template #footer>
       <p class="text-sm text-white/70">
-        قبلاً حساب داری؟
+        {{ $t('auth.alreadyHaveAccount') }}
         <NuxtLink to="/auth/login" class="text-primary-300 font-semibold hover:text-primary-200 ms-1 transition-colors">
-          وارد شو
+          {{ $t('auth.loginCta') }}
         </NuxtLink>
       </p>
     </template>
@@ -95,6 +95,7 @@ useHead(() => ({
 
 const router = useRouter()
 const { registerUser } = useAuth()
+const { t } = useLocale()
 
 const isLoading = ref(false)
 
@@ -115,20 +116,20 @@ function validateField(field: keyof typeof form) {
   errors[field] = ''
 
   if (field === 'name') {
-    if (!form.name.trim()) errors.name = 'نام الزامی است'
-    else if (form.name.trim().length < 2) errors.name = 'نام باید حداقل ۲ کاراکتر باشد'
+    if (!form.name.trim()) errors.name = t('auth.nameRequired')
+    else if (form.name.trim().length < 2) errors.name = t('auth.nameMinLength')
   }
 
   if (field === 'username') {
-    if (!form.username.trim()) errors.username = 'نام کاربری الزامی است'
+    if (!form.username.trim()) errors.username = t('auth.usernameRequired')
     else if (!/^[a-zA-Z0-9_]{3,20}$/.test(form.username))
-      errors.username = 'نام کاربری: ۳ تا ۲۰ کاراکتر، فقط انگلیسی، عدد و _'
+      errors.username = t('auth.usernameFormat')
   }
 
   if (field === 'email') {
-    if (!form.email.trim()) errors.email = 'ایمیل الزامی است'
+    if (!form.email.trim()) errors.email = t('auth.emailRequired')
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      errors.email = 'فرمت ایمیل صحیح نیست'
+      errors.email = t('auth.emailInvalid')
   }
 }
 
@@ -146,7 +147,7 @@ async function handleSubmit() {
     await registerUser({ name: form.name, username: form.username, email: form.email })
     router.push('/auth/verify-email')
   } catch (e) {
-    errors.email = 'خطا در ارسال اطلاعات. دوباره تلاش کن'
+    errors.email = t('auth.signupFailed')
   } finally {
     isLoading.value = false
   }

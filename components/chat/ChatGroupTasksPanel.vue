@@ -7,13 +7,13 @@
       ]"
   >
       <div class="flex items-center justify-between h-18.5 shrink-0 px-5 border-b border-primary-100">
-        <h3 class="text-base font-bold text-primary-900">Tasks : {{ tasks.length }}</h3>
+        <h3 class="text-base font-bold text-primary-900">{{ $t('chat.tasks') }}: {{ tasks.length }}</h3>
                 <div class="flex items-center gap-1">
                   <!-- Status filter -->
                   <div class="relative inline-block" data-dropdown="gt-status-menu">
                     <button
                           @click.stop="toggleMenu('status')"
-                          v-tooltip="'وضعیت'"
+                          v-tooltip="$t('tasks.filter.status')"
                           :class="['w-8 h-8 flex items-center justify-center rounded-lg transition-all', currentFilter !== 'all' ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-600']"
                       >
                       <Icon icon="mingcute:check-circle-line" class="text-lg" />
@@ -34,7 +34,7 @@
                   <div class="relative inline-block" data-dropdown="gt-sort-menu">
                     <button
                           @click.stop="toggleMenu('sort')"
-                          v-tooltip="'ترتیب'"
+                          v-tooltip="$t('tasks.filter.sort')"
                           :class="['w-8 h-8 flex items-center justify-center rounded-lg transition-all', currentTimeSort !== 'date-desc' ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-600']"
                       >
                       <Icon icon="solar:sort-broken" class="text-lg" />
@@ -56,7 +56,7 @@
                   <div class="relative inline-block" data-dropdown="gt-priority-menu">
                     <button
                           @click.stop="toggleMenu('priority')"
-                          v-tooltip="'اولویت'"
+                          v-tooltip="$t('tasks.filter.priority')"
                           :class="['w-8 h-8 flex items-center justify-center rounded-lg transition-all', currentPriorityFilter !== 'all' ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-600']"
                       >
                       <Icon icon="solar:flag-linear" class="text-lg" />
@@ -75,7 +75,7 @@
 
                   <button
               @click.stop="showOnlyRunbook = !showOnlyRunbook"
-              v-tooltip="'فقط تسک‌های ران‌بوک'"
+              v-tooltip="$t('chat.onlyRunbookTasks')"
               :class="['w-8 h-8 flex items-center justify-center rounded-lg transition-all', showOnlyRunbook ? 'bg-primary-100 text-primary-600' : 'text-primary-400 hover:bg-primary-50 hover:text-primary-600']"
           >
             <Icon icon="mdi:book-cog-outline" class="text-lg" />
@@ -97,7 +97,7 @@
             <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
               <Icon icon="solar:checklist-minimalistic-line-duotone" class="text-2xl text-primary-400" />
             </div>
-            <p class="text-sm font-medium text-primary-600">هنوز تسکی توی این گروه ساخته نشده</p>
+            <p class="text-sm font-medium text-primary-600">{{ $t('chat.noGroupTasks') }}</p>
           </div>
         </div>
 
@@ -110,7 +110,7 @@
               task.from_runbook ? 'border-2 border-dashed border-indigo-300' : 'border border-primary-100',
               task.is_completed ? 'opacity-75' : ''
             ]"
-              v-tooltip="task.from_runbook ? 'از ران‌بوک ساخته شده' : undefined"
+              v-tooltip="task.from_runbook ? $t('chat.fromRunbook') : undefined"
           >
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 min-w-0">
@@ -118,10 +118,10 @@
                 <span
                     v-if="task.assignees.some(a => a.id === currentUserId)"
                     class="shrink-0 rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-medium text-primary-600"
-                >برای من
+                >{{ $t('chat.forMeLabel') }}
                 </span>
               </div>
-              <span :class="['shrink-0 px-1.5 py-0.5 rounded-[5px] text-[10px] font-medium', priorityColors[task.priority]]">{{ task.priority }}</span>
+              <span :class="['shrink-0 px-1.5 py-0.5 rounded-[5px] text-[10px] font-medium', priorityColors[task.priority]]">{{ $t(`chat.priority.${task.priority}`) }}</span>
             </div>
             <div class="mt-1.5 flex items-center -space-x-1.5 rtl:space-x-reverse">
               <div v-for="a in task.assignees" :key="a.id" v-tooltip="a.name" class="w-6 h-6 rounded-full ring-2 ring-white overflow-hidden">
@@ -175,22 +175,23 @@ const priorityColors: Record<Priority, string> = {
         openMenu.value = openMenu.value === type ? null : type
           }
     
-    const statusFilters = [
-        { label: 'همه', value: 'all' as FilterValue },
-        { label: 'فعال', value: 'active' as FilterValue },
-        { label: 'تکمیل‌شده', value: 'completed' as FilterValue },
-      ]
-    const priorityFilters = [
-        { label: 'همه‌ی اولویت‌ها', value: 'all' as PriorityFilterValue },
-        { label: 'اولویت بالا', value: 'high' as PriorityFilterValue },
-        { label: 'اولویت متوسط', value: 'medium' as PriorityFilterValue },
-        { label: 'اولویت پایین', value: 'low' as PriorityFilterValue },
-      ]
-    const sortOptions = [
-        { label: 'جدیدترین', value: 'date-desc' as SortValue, icon: 'solar:sort-from-bottom-to-top-broken' },
-        { label: 'قدیمی‌ترین', value: 'date-asc' as SortValue, icon: 'solar:sort-from-top-to-bottom-broken' },
-        { label: 'اولویت', value: 'priority-high' as SortValue, icon: 'solar:flag-linear' },
-      ]
+    const { t } = useLocale()
+    const statusFilters = computed(() => [
+        { label: t('tasks.status.all'), value: 'all' as FilterValue },
+        { label: t('tasks.status.active'), value: 'active' as FilterValue },
+        { label: t('tasks.status.completed'), value: 'completed' as FilterValue },
+      ])
+    const priorityFilters = computed(() => [
+        { label: t('tasks.priority.all'), value: 'all' as PriorityFilterValue },
+        { label: t('tasks.priority.high'), value: 'high' as PriorityFilterValue },
+        { label: t('tasks.priority.medium'), value: 'medium' as PriorityFilterValue },
+        { label: t('tasks.priority.low'), value: 'low' as PriorityFilterValue },
+      ])
+    const sortOptions = computed(() => [
+        { label: t('tasks.sort.newest'), value: 'date-desc' as SortValue, icon: 'solar:sort-from-bottom-to-top-broken' },
+        { label: t('tasks.sort.oldest'), value: 'date-asc' as SortValue, icon: 'solar:sort-from-top-to-bottom-broken' },
+        { label: t('tasks.sort.priority'), value: 'priority-high' as SortValue, icon: 'solar:flag-linear' },
+      ])
     
     const priorityWeight: Record<Priority, number> = { high: 3, medium: 2, low: 1 }
     

@@ -63,7 +63,7 @@
                 class="absolute top-3 right-3 flex items-center gap-1.5 rounded-lg bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur transition-opacity"
             >
               <Icon icon="mdi:image-edit-outline" />
-              تغییر کاور
+              {{ $t('settings.changeCover') }}
             </button>
             <input ref="coverInput" type="file" accept="image/*" class="hidden" @change="onCoverChange" />
           </div>
@@ -99,25 +99,25 @@
         <!-- ─── کارت اطلاعات پایه ───────────────────────────────────────────── -->
         <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">
         <div class="flex mb-4 items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-800">اطلاعات پایه</h2>
+          <h2 class="text-lg font-bold text-slate-800">{{ $t('settings.basicInfo') }}</h2>
           <button
               type="button"
               @click="openEditDialog"
               class="flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700 transition-colors hover:bg-primary-100"
           >
             <Icon icon="mdi:pencil-outline" />
-            ویرایش
+            {{ $t('common.edit') }}
           </button>
         </div>
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <InfoRow icon="mdi:account-outline" label="نام" :value="authState.user?.name" />
-          <InfoRow icon="mdi:at" label="نام کاربری" :value="authState.user?.username" ltr />
-          <InfoRow icon="mdi:email-outline" label="ایمیل" :value="authState.user?.email" ltr />
-          <InfoRow icon="mdi:phone-outline" label="شماره موبایل" :value="authState.user?.phone || '—'" ltr />
-          <InfoRow icon="mdi:gender-male-female" label="جنسیت" :value="genderLabel" />
-          <InfoRow icon="mdi:biography" label="بیوگرافی" :value="authState.user?.bio" />
-          <InfoRow icon="streamline-ultimate:corporate-social-media" label="فضای مجازی" :value="socialLinksLabel" />
+          <InfoRow icon="mdi:account-outline" :label="$t('settings.name')" :value="authState.user?.name" />
+          <InfoRow icon="mdi:at" :label="$t('settings.username')" :value="authState.user?.username" ltr />
+          <InfoRow icon="mdi:email-outline" :label="$t('settings.email')" :value="authState.user?.email" ltr />
+          <InfoRow icon="mdi:phone-outline" :label="$t('settings.phone')" :value="authState.user?.phone || '—'" ltr />
+          <InfoRow icon="mdi:gender-male-female" :label="$t('settings.gender')" :value="genderLabel" />
+          <InfoRow icon="mdi:biography" :label="$t('settings.bio')" :value="authState.user?.bio" />
+          <InfoRow icon="streamline-ultimate:corporate-social-media" :label="$t('settings.socialLinks')" :value="socialLinksLabel" />
         </div>
         </div>
 
@@ -127,7 +127,7 @@
         <div class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-bold text-slate-800">ظاهر برنامه</h2>
+              <h2 class="text-lg font-bold text-slate-800">{{ $t('settings.appearance') }}</h2>
             </div>
 
             <!-- سوییچ حالت تاریک -->
@@ -187,7 +187,7 @@
           <div class="flex shrink-0 items-center justify-between border-b border-primary-100 bg-white p-6">
             <h3 class="flex items-center gap-1.5 text-xl font-bold text-primary-900">
               <Icon icon="mdi:account-edit-outline" class="text-lg" />
-              ویرایش اطلاعات
+              {{ $t('settings.editProfileTitle') }}
             </h3>
             <button @click="closeEditDialog" class="text-2xl text-primary-400 hover:text-primary-600">✕</button>
           </div>
@@ -195,9 +195,9 @@
           <!-- Scrollable Content -->
           <div class="custom-scrollbar flex-1 space-y-4 overflow-y-auto p-6">
             <div class="flex items-center gap-4">
-              <label class="text-sm font-medium text-primary-700">جنسیت :</label>
+              <label class="text-sm font-medium text-primary-700">{{ $t('settings.gender') }}:</label>
               <label
-                  v-for="g in [{ value: 'male', label: 'مرد' }, { value: 'female', label: 'زن' }, { value: 'company', label: 'حقوقی' }]"
+                  v-for="g in [{ value: 'male', label: $t('settings.gender.male') }, { value: 'female', label: $t('settings.gender.female') }, { value: 'company', label: $t('settings.gender.company') }]"
                   :key="g.value"
                   class="flex cursor-pointer items-center gap-1.5 text-sm text-slate-600"
               >
@@ -211,7 +211,7 @@
               </label>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-primary-700">نام</label>
+              <label class="mb-2 block text-sm font-medium text-primary-700">{{ $t('settings.name') }}</label>
               <input
                   v-model="form.name"
                   type="text"
@@ -219,7 +219,7 @@
               />
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-primary-700">نام کاربری</label>
+              <label class="mb-2 block text-sm font-medium text-primary-700">{{ $t('settings.username') }}</label>
               <input
                   v-model="form.username"
                   type="text"
@@ -228,7 +228,7 @@
               />
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-primary-700">ایمیل</label>
+              <label class="mb-2 block text-sm font-medium text-primary-700">{{ $t('settings.email') }}</label>
               <input
                   v-model="form.email"
                   type="email"
@@ -237,28 +237,28 @@
               />
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-primary-700">شماره موبایل</label>
+              <label class="mb-2 block text-sm font-medium text-primary-700">{{ $t('settings.phone') }}</label>
               <input
                   v-model="form.phone"
                   type="tel"
-                  placeholder="09xxxxxxxxx"
+                  :placeholder="$t('settings.phonePlaceholder')"
                   dir="ltr"
                   class="w-full rounded-xl border border-primary-200 px-4 py-2 text-left transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
               />
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-primary-700">بیوگرافی</label>
+              <label class="mb-2 block text-sm font-medium text-primary-700">{{ $t('settings.bio') }}</label>
               <textarea
                   v-model="form.bio"
                   rows="3"
                   maxlength="280"
-                  placeholder="چند خط درباره‌ی خودت..."
+                  :placeholder="$t('settings.bioPlaceholder')"
                   class="w-full resize-none rounded-xl border border-primary-200 px-4 py-2 transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
               />
               <p class="mt-1 text-left text-xs text-slate-400" dir="ltr">{{ (form.bio || '').length }}/280</p>
             </div>
             <div>
-              <label class="mb-2 block text-sm font-medium text-primary-700">لینک‌های شبکه‌های اجتماعی</label>
+              <label class="mb-2 block text-sm font-medium text-primary-700">{{ $t('settings.socialLinks') }}</label>
               <div class="space-y-2">
                 <div v-for="(link, i) in form.socialLinks" :key="i" class="flex gap-2" data-social-dropdown>
                   <div class="relative shrink-0">
@@ -292,7 +292,7 @@
                       v-model="link.url"
                       type="url"
                       dir="ltr"
-                      :placeholder="`لینک ${platformInfo(link.platform).label}`"
+                      :placeholder="`${$t('settings.socialPlaceholder')} ${platformInfo(link.platform).label}`"
                       class="flex-1 rounded-xl border border-primary-200 px-4 py-2 text-left transition-all focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
                   />
                 </div>
@@ -306,14 +306,14 @@
                 @click="closeEditDialog"
                 class="flex-1 rounded-xl border border-primary-200 bg-white px-4 py-2 font-medium text-primary-700 transition-all hover:bg-primary-50"
             >
-              انصراف
+              {{ $t('cancel') }}
             </button>
             <button
                 @click="saveProfile"
                 :disabled="saving"
                 class="flex-1 rounded-xl bg-linear-to-r from-primary-500 to-primary-600 px-4 py-2 font-medium text-white transition-all hover:from-primary-600 hover:to-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {{ saving ? 'در حال ذخیره...' : 'ذخیره تغییرات' }}
+              {{ saving ? $t('settings.saving') : $t('settings.saveChanges') }}
             </button>
           </div>
         </div>
@@ -338,6 +338,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth' })
 
 const { currentTheme, setTheme, themeOptions, isDark, toggleDark } = useTheme()
 const { authState, updateProfile, uploadAvatar, uploadCover, cachedCoverUrl } = useAuth()
+const { t } = useLocale()
 
 const isProfileLoading = computed(() => !authState.user)
 
@@ -368,9 +369,9 @@ const socialLinksLabel = computed(() => {
 })
 
 const genderLabel = computed(() => {
-  if (authState.user?.gender === 'male') return 'مرد'
-  if (authState.user?.gender === 'female') return 'زن'
-  if (authState.user?.gender === 'company') return 'حقوقی'
+  if (authState.user?.gender === 'male') return t('settings.gender.male')
+  if (authState.user?.gender === 'female') return t('settings.gender.female')
+  if (authState.user?.gender === 'company') return t('settings.gender.company')
   return '—'
 })
 

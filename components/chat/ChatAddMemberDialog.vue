@@ -3,7 +3,7 @@
     <div v-if="open" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4" @click.self="emit('close')">
       <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full max-h-[70vh] flex flex-col">
         <div class="flex items-center justify-between p-5 border-b border-primary-100">
-          <h3 class="text-base font-bold text-primary-900">Add Member</h3>
+          <h3 class="text-base font-bold text-primary-900">{{ $t('chat.addMember') }}</h3>
           <button @click="emit('close')" class="text-primary-400 hover:text-primary-600 text-xl">✕</button>
         </div>
         <div class="p-4">
@@ -13,14 +13,14 @@
                 :value="query"
                 @input="localQuery = ($event.target as HTMLInputElement).value"
                 @keyup.enter="emit('search', localQuery)"
-                type="text" placeholder="Search by username or name..."
+                type="text" :placeholder="$t('chat.searchByName')"
                 class="flex-1 bg-transparent text-sm text-primary-800 placeholder-primary-300 focus:outline-none"
                 autofocus
             />
             <button
                 @click="emit('search', localQuery)"
                 class="shrink-0 text-primary-400 hover:text-primary-600"
-                v-tooltip="'Search'"
+                v-tooltip="$t('common.search')"
             >
               <Icon icon="mdi:magnify" class="text-sm" />
             </button>
@@ -41,7 +41,7 @@
             </div>
             <Icon v-if="addingId === u.id" icon="mdi:loading" class="animate-spin text-primary-400 shrink-0" />
           </button>
-          <p v-if="query.length >= 2 && results.length === 0" class="text-center text-xs text-primary-300 py-4">No users found</p>
+          <p v-if="query.length >= 2 && results.length === 0" class="text-center text-xs text-primary-300 py-4">{{ $t('chat.noUsers') }}</p>
         </div>
       </div>
     </div>

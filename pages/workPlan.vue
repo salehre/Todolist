@@ -35,9 +35,9 @@
         />
         <div v-else key="no-selection" class="hidden md:flex flex-1 flex-col items-center justify-center gap-2 text-primary-300">
           <Icon icon="solar:checklist-minimalistic-linear" class="text-4xl" />
-          <p class="text-sm">Select a task to see its details</p>
+          <p class="text-sm">{{ $t('tasks.selectForDetails') }}</p>
           <button @click="viewMode = 'chat'" class="mt-1 text-xs text-primary-400 hover:text-primary-600 underline underline-offset-2">
-            Back to Chat
+            {{ $t('chat.back') }}
           </button>
         </div>
       </transition>
@@ -57,29 +57,29 @@
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
           <h3 class="text-xl font-bold text-primary-900">
-            {{ dialogMode === 'add' ? ' Add New Task' : ' Edit Task' }}
+            {{ dialogMode === 'add' ? $t('tasks.addTitle') : $t('tasks.editTitle') }}
           </h3>
           <button @click="closeDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
             <label class="block text-sm font-medium text-primary-700 mb-2">
-              Title <span class="text-primary-600">*</span>
+              {{ $t('tasks.titleLabel') }} <span class="text-primary-600">*</span>
             </label>
             <input
                 v-model="dialogForm.title"
                 type="text"
-                placeholder="Enter task title..."
+                :placeholder="$t('tasks.titlePlaceholder')"
                 class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
                 @keyup.enter="submitDialog"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">Description</label>
+            <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('tasks.descriptionLabel') }}</label>
             <textarea
                 v-model="dialogForm.description"
                 rows="4"
-                placeholder="Enter task description (optional)..."
+                :placeholder="$t('tasks.descriptionPlaceholder')"
                 class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"
             ></textarea>
           </div>
@@ -88,13 +88,13 @@
           </div>
         </div>
         <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
-          <button @click="closeDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
+          <button @click="closeDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">{{ $t('cancel') }}</button>
           <button
               @click="submitDialog"
               :disabled="!dialogForm.title.trim()"
               class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ dialogMode === 'add' ? 'Add Task' : 'Save Changes' }}
+            {{ dialogMode === 'add' ? $t('tasks.add') : $t('tasks.saveChanges') }}
           </button>
         </div>
       </div>
@@ -105,13 +105,13 @@
       <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
         <div class="p-6 text-center">
           <div class="text-5xl mb-4">⚠️</div>
-          <h3 class="text-xl font-bold text-primary-900 mb-2">Confirm Delete</h3>
-          <p class="text-primary-600 text-sm mb-2">Are you sure you want to delete this task?</p>
-          <p class="text-primary-400 text-xs">This action cannot be undone!</p>
+          <h3 class="text-xl font-bold text-primary-900 mb-2">{{ $t('tasks.deleteConfirm') }}</h3>
+          <p class="text-primary-600 text-sm mb-2">{{ $t('tasks.deleteQuestion') }}</p>
+          <p class="text-primary-400 text-xs">{{ $t('tasks.undoWarning') }}</p>
         </div>
         <div class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl">
-          <button @click="closeDeleteDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
-          <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all">Delete</button>
+          <button @click="closeDeleteDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">{{ $t('cancel') }}</button>
+          <button @click="confirmDelete" class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all">{{ $t('tasks.delete') }}</button>
         </div>
       </div>
     </div>

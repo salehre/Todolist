@@ -1,12 +1,12 @@
 <template>
   <div class="h-full w-full flex flex-col overflow-hidden p-4 md:p-6">
     <div class="flex items-center justify-between mb-4 shrink-0">
-      <h1 class="text-xl font-bold text-primary-900">ران‌بوک‌ها</h1>
+      <h1 class="text-xl font-bold text-primary-900">{{ $t('runbooks.title') }}</h1>
       <button
           @click="showCreateDialog = true"
           class="flex items-center gap-2 px-4 py-2 bg-linear-to-br from-primary-500 to-primary-600 text-white rounded-xl font-medium shadow-md shadow-primary-200 hover:shadow-lg transition-all"
       >
-        ران‌بوک جدید
+        {{ $t('runbooks.new') }}
       </button>
     </div>
 
@@ -20,8 +20,8 @@
           <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
             <Icon icon="mdi:book-cog-outline" class="text-2xl text-primary-400" />
           </div>
-          <p class="text-sm font-medium text-primary-600">هنوز ران‌بوکی نساختی</p>
-          <p class="text-xs text-primary-400">با دکمه‌ی بالا اولین ران‌بوکت رو بساز</p>
+          <p class="text-sm font-medium text-primary-600">{{ $t('runbooks.empty') }}</p>
+          <p class="text-xs text-primary-400">{{ $t('runbooks.createFirst') }}</p>
         </div>
       </div>
 
@@ -37,7 +37,7 @@
             </div>
             <div class="min-w-0">
               <p class="text-sm font-semibold text-primary-800 truncate">{{ rb.name }}</p>
-              <p class="text-xs text-primary-400">{{ rb.tasksCount }} تسک</p>
+              <p class="text-xs text-primary-400">{{ rb.tasksCount }} {{ $t('runbooks.taskCount') }}</p>
             </div>
           </div>
         </NuxtLink>
@@ -47,12 +47,12 @@
     <div v-if="showCreateDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeCreateDialog">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
-          <h3 class="text-xl flex font-bold text-primary-900"><Icon icon="iconmind:runbook-outline-thin" class="text-2xl" /> ران‌بوک جدید</h3>
+          <h3 class="text-xl flex font-bold text-primary-900"><Icon icon="iconmind:runbook-outline-thin" class="text-2xl" /> {{ $t('runbooks.new') }}</h3>
           <button @click="closeCreateDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">اسم ران‌بوک <span class="text-red-300">*</span></label>
+            <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('runbooks.nameLabel') }} <span class="text-red-300">*</span></label>
             <input
                 v-model="form.name"
                 type="text"
@@ -60,10 +60,10 @@
             />
           </div>
           <div v-if="form.name.trim()">
-            <label class="block text-sm font-medium text-primary-700 mb-2">فایل اکسل (اختیاری)</label>
+            <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('runbooks.excelOptional') }}</label>
             <label class="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-primary-300 bg-primary-50/40 cursor-pointer hover:bg-primary-50 transition-all">
               <Icon icon="solar:file-text-linear" class="text-primary-500" />
-              <span class="text-sm text-primary-600 truncate">{{ form.file ? form.file.name : 'انتخاب فایل' }}</span>
+              <span class="text-sm text-primary-600 truncate">{{ form.file ? form.file.name : $t('runbooks.selectFile') }}</span>
               <input type="file" accept=".xlsx,.xls" class="hidden" @change="onFileSelect" />
             </label>
             <button
@@ -72,19 +72,19 @@
                 class="flex ms-3 mt-3 items-center gap-1.5 text-xs text-primary-500 hover:text-primary-700 mb-2 transition-colors"
             >
               <Icon icon="solar:download-linear" class="text-sm" />
-              دانلود قالب اکسل
+              {{ $t('runbooks.downloadTemplate') }}
             </button>
           </div>
         </div>
         <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
-          <button @click="closeCreateDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">انصراف</button>
+          <button @click="closeCreateDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">{{ $t('cancel') }}</button>
           <button
               @click="submitCreate"
               :disabled="!form.name.trim() || isSubmitting"
               class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Icon v-if="isSubmitting" icon="mdi:loading" class="animate-spin" />
-            <span>ساخت</span>
+            <span>{{ $t('runbooks.createAction') }}</span>
           </button>
         </div>
       </div>
@@ -97,8 +97,10 @@ import { ref, reactive, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { toast } from 'vue-sonner'
 import api, { getErrorMessage } from '~/src/services/api'
+import { useLocale } from '~/composables/useLocale'
 
 definePageMeta({ layout: 'dashboard' })
+const { t } = useLocale()
 
 interface RunbookListItem { id: number; name: string; tasksCount: number; createdAt: string }
 
@@ -111,7 +113,7 @@ async function fetchRunbooks(): Promise<void> {
     const res = await api.get('/runbooks')
     runbooks.value = res.data.map((r: any) => ({ id: r.id, name: r.name, tasksCount: r.tasks_count, createdAt: r.created_at }))
   } catch (e: any) {
-    toast.error(getErrorMessage(e, 'گرفتن لیست ران‌بوک‌ها ناموفق بود'))
+    toast.error(getErrorMessage(e, t('runbooks.fetchFailed')))
   } finally {
     loading.value = false
   }
@@ -137,7 +139,7 @@ async function downloadTemplate(): Promise<void> {
     link.click()
     URL.revokeObjectURL(url)
   } catch (e: any) {
-    toast.error(getErrorMessage(e, 'دانلود قالب ناموفق بود'))
+    toast.error(getErrorMessage(e, t('runbooks.templateFailed')))
   }
 }
 
@@ -156,11 +158,11 @@ async function submitCreate(): Promise<void> {
     fd.append('name', name)
     if (form.file) fd.append('file', form.file)
     await api.post('/runbooks', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-    toast.success('ران‌بوک ساخته شد')
+    toast.success(t('runbooks.created'))
     closeCreateDialog()
     fetchRunbooks()
   } catch (e: any) {
-    toast.error(getErrorMessage(e, 'ساخت ران‌بوک ناموفق بود'))
+    toast.error(getErrorMessage(e, t('runbooks.createFailed')))
   } finally {
     isSubmitting.value = false
   }

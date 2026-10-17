@@ -7,7 +7,7 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-primary-100">
           <div class="flex items-center gap-2">
             <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-lg" />
-            <h3 class="text-base font-bold text-primary-900">Pinned Messages</h3>
+            <h3 class="text-base font-bold text-primary-900">{{ $t('chat.pinnedMessages') }}</h3>
             <span class="text-xs text-primary-400 bg-primary-50 px-2 py-0.5 rounded-full">{{ messages.length }}</span>
           </div>
           <button @click="emit('close')" class="p-1.5 rounded-full hover:bg-primary-50 text-primary-400 hover:text-primary-600 transition">
@@ -27,7 +27,7 @@
               </div>
               <p class="text-sm text-primary-600 line-clamp-2">{{ msg.text }}</p>
             </div>
-            <button @click.stop="emit('unpin', msg.id)" class="shrink-0 p-1.5 rounded-lg bg-primary-100 text-primary-500 opacity-0 transition-all" v-tooltip="'Unpin'">
+            <button @click.stop="emit('unpin', msg.id)" class="shrink-0 p-1.5 rounded-lg bg-primary-100 text-primary-500 opacity-0 transition-all" v-tooltip="$t('chat.unpin')">
               <Icon icon="ri:unpin-fill" class="text-sm -rotate-45" />
             </button>
           </div>
@@ -43,11 +43,12 @@ import type { ApiMessage, GroupMember } from '~/types/chatType'
 
 const props = defineProps<{ open: boolean; messages: ApiMessage[]; members: GroupMember[] }>()
 const emit = defineEmits<{ close: []; unpin: [id: number]; 'go-to-message': [id: number] }>()
+const { locale, t } = useLocale()
 
 function getMemberName(id: number): string {
-  return props.members.find(m => m.userId === id)?.name ?? 'Unknown'
+  return props.members.find(m => m.userId === id)?.name ?? t('common.unknown')
 }
 function formatTime(date: Date | string): string {
-  return new Date(date).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(date).toLocaleTimeString(locale.value === 'fa' ? 'fa-IR' : 'en-US', { hour: '2-digit', minute: '2-digit' })
 }
 </script>

@@ -13,7 +13,7 @@
           <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search groups..."
+              :placeholder="$t('chat.searchGroups')"
               class="flex-1 min-w-0 bg-transparent text-xs text-primary-800 placeholder-primary-300 focus:outline-none"
           />
           <button v-if="searchQuery" @click="searchQuery = ''" class="text-primary-300 hover:text-primary-500 shrink-0">
@@ -23,7 +23,7 @@
         <button
             @click="handleToggle"
             class="p-2 rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all shrink-0"
-            v-tooltip="isMobile ? 'Close' : 'Collapse'"
+            v-tooltip="isMobile ? $t('common.close') : $t('common.collapse')"
         >
           <Icon :icon="isMobile ? 'mingcute:close-line' : 'solar:double-alt-arrow-right-linear'" class="text-lg rtl:rotate-180" />
         </button>
@@ -31,14 +31,14 @@
     </div>
 
     <div v-else class="hidden md:flex w-19 shrink-0 flex-col items-center justify-center gap-1.5 border-b border-primary-100 h-18.5">
-      <button @click="handleToggle" class="w-9 h-9 flex items-center justify-center rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="'Expand'">
+      <button @click="handleToggle" class="w-9 h-9 flex items-center justify-center rounded-lg text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="$t('common.expand')">
         <Icon icon="solar:double-alt-arrow-left-linear" class="text-lg rtl:rotate-180" />
       </button>
     </div>
 
     <div class="w-full flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2 pb-20 space-y-1 custom-scrollbar">
       <p v-if="!sidebarIconOnly" class="px-2.5 pt-1 pb-1 text-[11px] font-semibold uppercase tracking-wide text-primary-300">
-        {{ searchQuery ? `Results — ${filteredGroups.length}` : 'Chats' }}
+        {{ searchQuery ? `${$t('common.results')} — ${filteredGroups.length}` : $t('chat.chats') }}
       </p>
 
       <div v-if="loadingGroups && groups.length === 0" class="space-y-0.5">
@@ -83,7 +83,7 @@
             <span v-if="g.lastMessageAt" class="text-[10px] text-primary-300 shrink-0">{{ formatTime(g.lastMessageAt) }}</span>
           </div>
           <div class="flex items-center justify-between gap-1">
-            <p class="text-xs text-primary-400 truncate">{{ g.lastMessagePreview || g.description || 'No messages yet' }}</p>
+            <p class="text-xs text-primary-400 truncate">{{ g.lastMessagePreview || g.description || $t('chat.noMessages') }}</p>
             <div class="shrink-0 flex items-center gap-1">
               <span v-if="mentionedGroups[g.id]" class="flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary-500 text-white">
                 <Icon icon="mingcute:at-line" class="text-[10px]" />
@@ -103,14 +103,14 @@
       </button>
 
       <p v-if="!sidebarIconOnly && searchQuery && filteredGroups.length === 0" class="px-2.5 py-6 text-center text-xs text-primary-300">
-        No groups found for "{{ searchQuery }}"
+        {{ $t('chat.noGroupsFor') }} "{{ searchQuery }}"
       </p>
     </div>
 
     <div class="pointer-events-none absolute inset-x-3 bottom-3 flex justify-start">
       <button
           @click="showCreateDialog = true"
-          v-tooltip="'New Group'"
+          v-tooltip="$t('chat.createGroupTitle')"
           class="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-300/50 hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
       >
         <Icon icon="mingcute:add-line" class="text-2xl" />
@@ -121,7 +121,7 @@
       <div v-if="showCreateDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" @click.self="closeCreateDialog">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] custom-scrollbar overflow-y-auto">
           <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
-            <h3 class="text-xl font-bold text-primary-900"> Create New Group</h3>
+            <h3 class="text-xl font-bold text-primary-900">{{ $t('chat.createGroupTitle') }}</h3>
             <button @click="closeCreateDialog" class="text-primary-400 hover:text-primary-600 text-2xl">✕</button>
           </div>
           <div class="p-6 space-y-4">
@@ -131,29 +131,29 @@
                   {{ newGroupForm.name ? newGroupForm.name[0].toUpperCase() : '👥' }}
                 </div>
               </div>
-              <span class="text-xs text-primary-400">Group photo can be added after creation</span>
+              <span class="text-xs text-primary-400">{{ $t('chat.createGroupHint') }}</span>
             </div>
             <div>
-              <label class="block text-sm font-medium text-primary-700 mb-2">Group Name <span class="text-primary-600">*</span></label>
+              <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('chat.groupName') }} <span class="text-primary-600">*</span></label>
               <input
                   v-model="newGroupForm.name"
                   type="text"
-                  placeholder="e.g. Product Design Team"
+                  :placeholder="$t('chat.groupNamePlaceholder')"
                   class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
                   @keyup.enter="submitCreate"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-primary-700 mb-2">Description</label>
+              <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('common.description') }}</label>
               <textarea
                   v-model="newGroupForm.description"
                   rows="3"
-                  placeholder="What's this group about? (optional)"
+                  :placeholder="$t('chat.groupDescriptionPlaceholder')"
                   class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"
               ></textarea>
             </div>
             <div v-if="isCompanyAccount">
-              <label class="block text-sm font-medium text-primary-700 mb-2">ران‌بوک (اختیاری)</label>
+              <label class="block text-sm font-medium text-primary-700 mb-2">{{ $t('chat.optionalRunbook') }}</label>
             <div class="relative" data-dropdown="runbook-select">
                 <button
                   type="button"
@@ -169,7 +169,7 @@
                     @click.stop="selectedRunbookId = null; showRunbookDropdown = false"
                     :class="['w-full px-4 py-2 text-start text-sm hover:bg-primary-50 transition-all flex items-center gap-2', selectedRunbookId === null ? 'text-primary-600 font-medium bg-primary-50' : 'text-primary-700']"
                 >
-                  بدون ران‌بوک
+                  {{ $t('chat.noRunbook') }}
                   <Icon v-if="selectedRunbookId === null" icon="mingcute:check-fill" class="ms-auto text-primary-600" />
                 </button>
                 <button
@@ -186,13 +186,13 @@
             </div>
           </div>
           <div class="flex gap-3 p-6 border-t border-primary-100 rounded-b-2xl sticky bottom-0 bg-white">
-            <button @click="closeCreateDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
+            <button @click="closeCreateDialog" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">{{ $t('cancel') }}</button>
             <button
                 @click="submitCreate"
                 :disabled="!newGroupForm.name.trim()"
                 class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Group
+              {{ $t('chat.createGroup') }}
             </button>
           </div>
         </div>
@@ -254,18 +254,19 @@ const filteredGroups = computed(() => {
 })
 
 function formatTime(date: Date | string): string {
-  return new Date(date).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(date).toLocaleTimeString(locale.value === 'fa' ? 'fa-IR' : 'en-US', { hour: '2-digit', minute: '2-digit' })
 }
 
 const showCreateDialog = ref(false)
 const newGroupForm = ref({ name: '', description: '' })
 const { authState } = useAuth()
+const { locale, t } = useLocale()
 const isCompanyAccount = computed(() => authState.user?.gender === 'company')
 const runbookOptions = ref<{ id: number; name: string }[]>([])
 const selectedRunbookId = ref<number | null>(null)
 const showRunbookDropdown = ref(false)
 const selectedRunbookName = computed(() =>
-    runbookOptions.value.find(r => r.id === selectedRunbookId.value)?.name ?? 'بدون ران‌بوک'
+    runbookOptions.value.find(r => r.id === selectedRunbookId.value)?.name ?? t('chat.noRunbook')
 )
 
 function handleRunbookDropdownOutside(e: MouseEvent): void {

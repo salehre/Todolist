@@ -43,7 +43,7 @@
             :class="showLabels ? 'w-auto opacity-100' : 'w-0 opacity-0'"
         >
           <p class="truncate whitespace-nowrap text-[13px] font-bold text-slate-800">
-            {{ authState.user?.name || 'کاربر مهمان' }}
+            {{ authState.user?.name || $t('common.guestUser') }}
           </p>
           <p class="truncate whitespace-nowrap text-[11px] text-slate-400 text-center">
             {{ authState.user?.username }}
@@ -53,7 +53,7 @@
 
       <button
           v-if="showLabels && authState.isLoggedIn"
-          v-tooltip="'خروج از حساب'"
+          v-tooltip="$t('auth.logout')"
           @click="showLogoutDialog = true"
           class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
       >
@@ -113,7 +113,7 @@
           class="mx-1.5 mt-4 flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-primary-500 to-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700 md:hidden"
       >
         <Icon icon="mdi:login" class="text-base" />
-        ورود به حساب
+        {{ $t('auth.loginToAccount') }}
       </NuxtLink>
     </nav>
 
@@ -131,7 +131,7 @@
       <!-- حالت expanded: نمایش متن -->
       <div v-else class="flex items-baseline gap-1">
     <span class="whitespace-nowrap tracking-wider text-[12px] text-center transition-opacity duration-200">
-      Powered by
+      {{ $t('common.poweredBy') }}
     </span>
         <span class="font-medium tracking-wide ps-0.5 text-[14px] hover:text-primary-600 transition-colors text-primary-400">
       Saleh Rezaei
@@ -151,8 +151,8 @@
           <div class="text-6xl mb-2">
             <Icon class="text-primary-900" icon="mdi:logout" />
           </div>
-          <h3 class="text-xl font-bold text-primary-900 mb-2">خروج از حساب کاربری</h3>
-          <p class="text-primary-600 text-sm mb-2">آیا مطمئن هستید که می‌خواهید از حساب کاربری خود خارج شوید؟</p>
+          <h3 class="text-xl font-bold text-primary-900 mb-2">{{ $t('auth.logout') }}</h3>
+          <p class="text-primary-600 text-sm mb-2">{{ $t('auth.logoutConfirm') }}</p>
         </div>
         <div
             class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl"
@@ -161,13 +161,13 @@
               @click="showLogoutDialog = false"
               class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all"
           >
-            انصراف
+            {{ $t('cancel') }}
           </button>
           <button
               @click="confirmLogout"
               class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all"
           >
-            خروج
+            {{ $t('auth.logout') }}
           </button>
         </div>
       </div>
@@ -181,6 +181,7 @@ import { Icon } from '@iconify/vue'
 import { useAuth } from '@/composables/useAuth'
 
 const { authState, logout } = useAuth()
+const { t } = useLocale()
 const router = useRouter()
 
 const userInitial = computed(() => {
@@ -205,13 +206,13 @@ interface NavItem {
   to: string
 }
 
-const navItems: NavItem[] = [
-  { label: 'داشبورد', icon: 'mdi:view-dashboard-outline', to: '/' },
-  { label: 'تودولیست من', icon: 'mdi:format-list-checks', to: '/mainTodo' },
-  { label: 'کار تیمی', icon: 'mdi:account-group-outline', to: '/workPlan' },
-  { label: 'ران‌بوک‌ها', icon: 'mdi:book-cog-outline', to: '/runbooks' },
-  { label: 'پروفایل', icon: 'weui:me-filled', to: '/settings' },
-]
+const navItems = computed<NavItem[]>(() => [
+  { label: t('dashboard.home'), icon: 'mdi:view-dashboard-outline', to: '/' },
+  { label: t('dashboard.personalTodo'), icon: 'mdi:format-list-checks', to: '/mainTodo' },
+  { label: t('dashboard.teamwork'), icon: 'mdi:account-group-outline', to: '/workPlan' },
+  { label: t('dashboard.runbooks'), icon: 'mdi:book-cog-outline', to: '/runbooks' },
+  { label: t('dashboard.profile'), icon: 'weui:me-filled', to: '/settings' },
+])
 
 const route = useRoute()
 
@@ -270,7 +271,7 @@ function setItemRef(el: unknown, index: number): void {
   itemRefs.value[index] = (el as { $el?: HTMLElement })?.$el ?? (el as HTMLElement | null)
 }
 
-const activeIndex = computed(() => navItems.findIndex((item) => isActive(item.to)))
+const activeIndex = computed(() => navItems.value.findIndex((item) => isActive(item.to)))
 
 const indicatorTop = ref(0)
 const indicatorHeight = ref(0)

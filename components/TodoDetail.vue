@@ -18,7 +18,7 @@
           modelValue.completed ? 'bg-primary-50 text-primary-600' : 'bg-orange-50 text-orange-600'
         ]">
           <Icon class="mb-1" :icon="modelValue.completed ? 'tabler:checkbox' : 'eos-icons:hourglass'" />
-          {{ modelValue.completed ? 'Completed' : 'Pending ..' }}
+          {{ modelValue.completed ? $t('tasks.completed') : $t('tasks.pending') }}
         </span>
             </div>
 
@@ -31,7 +31,7 @@
                   class="px-2 md:px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 <Icon icon="mi:edit" class="sm:hidden" />
-                <span class="hidden sm:inline">Edit</span>
+                <span class="hidden sm:inline">{{ $t('tasks.edit') }}</span>
               </button>
               <button
                   v-if="modelValue.canEdit"
@@ -39,7 +39,7 @@
                   class="px-2 md:px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-sm font-medium transition-all flex items-center gap-2"
               >
                 <Icon icon="mingcute:delete-line" class="sm:hidden" />
-                <span class="hidden sm:inline">Delete</span>
+                <span class="hidden sm:inline">{{ $t('tasks.delete') }}</span>
               </button>
               <!-- Back Button -->
               <button
@@ -89,13 +89,13 @@
               <div class="p-6 md:p-8">
                 <div class="flex items-center gap-2 mb-4">
                   <Icon class="text-xl mb-2 text-primary-800" icon="ic:outline-description" />
-                  <h3 class="text-lg font-semibold text-primary-800">Description</h3>
+                  <h3 class="text-lg font-semibold text-primary-800">{{ $t('tasks.description') }}</h3>
                 </div>
                 <div v-if="modelValue.description" class="bg-primary-50 rounded-xl p-4 md:p-6 text-gray-700 whitespace-pre-wrap leading-relaxed wrap-break-word">
                   {{ modelValue.description }}
                 </div>
                 <div v-else class="bg-primary-50 rounded-xl p-4 md:p-6 text-primary-400 text-center italic">
-                  No description provided for this task.
+                  {{ $t('tasks.noDescription') }}
                 </div>
               </div>
 
@@ -104,7 +104,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-y-2 mb-6">
                   <div class="flex items-center gap-2 min-w-0">
                     <span class="text-xl shrink-0"><Icon icon="ci:path" class="text-primary-800 mb-1" /></span>
-                    <h3 class="text-base md:text-lg font-semibold text-primary-700 truncate">Progress Path</h3>
+                    <h3 class="text-base md:text-lg font-semibold text-primary-700 truncate">{{ $t('tasks.progressPath') }}</h3>
                     <span v-if="modelValue.steps && modelValue.steps.length > 0"
                         class="text-sm text-primary-500 font-medium shrink-0 whitespace-nowrap"
                     >
@@ -118,7 +118,7 @@
                         class="px-3 py-2 bg-primary-100 text-primary-600 rounded-sm text-sm font-medium hover:bg-primary-200 transition-all flex items-center gap-1"
                     >
                       <Icon icon="tdesign:close-circle" class="sm:hidden" />
-                      <span class="hidden sm:inline">Clear</span>
+                      <span class="hidden sm:inline">{{ $t('tasks.clear') }}</span>
                     </button>
                     <button
                         v-if="modelValue.canEdit"
@@ -126,7 +126,7 @@
                         class="px-3 md:px-4 py-2 bg-primary-600 text-white rounded-sm text-sm font-medium hover:bg-primary-700 transition-all flex items-center gap-1"
                     >
                       <Icon icon="solar:map-point-wave-outline" class="sm:hidden" />
-                      <span class="hidden sm:inline">Manage Steps</span>
+                      <span class="hidden sm:inline">{{ $t('tasks.manageSteps') }}</span>
                     </button>
                   </div>
                 </div>
@@ -179,9 +179,9 @@
                                 : 'text-gray-400'
                             ]">{{ step.text }}</p>
                             <p class="text-xs mt-1">
-                              <span v-if="step.completed" class="text-emerald-700"> Completed</span>
-                              <span v-else-if="index === getCurrentIncompleteIndex(modelValue)" class="text-yellow-800 font-medium"> Current Step</span>
-                              <span v-else class="text-primary-900"> Waiting for previous steps</span>
+                              <span v-if="step.completed" class="text-emerald-700"> {{ $t('tasks.completedStep') }}</span>
+                              <span v-else-if="index === getCurrentIncompleteIndex(modelValue)" class="text-yellow-800 font-medium"> {{ $t('tasks.currentStep') }}</span>
+                              <span v-else class="text-primary-900"> {{ $t('tasks.waitingStep') }}</span>
                             </p>
                           </div>
                           <div class="flex items-center gap-2 shrink-0">
@@ -191,7 +191,7 @@
                                 class="px-2 md:px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg text-xs hover:bg-orange-100 transition-all flex items-center gap-1"
                             >
                               <Icon icon="solar:undo-left-linear" class="sm:hidden" />
-                              <span class="hidden sm:inline">Undo</span>
+                              <span class="hidden sm:inline">{{ $t('tasks.undoStep') }}</span>
                             </button>
                             <input
                                 type="checkbox"
@@ -209,7 +209,7 @@
 
                 <div v-else class="flex flex-col items-center py-8">
                   <div class="text-4xl text-primary-400 mb-3"><Icon icon="ci:path" /></div>
-                  <p class="text-primary-400 text-sm tracking-wide"> create a path for your task</p>
+                  <p class="text-primary-400 text-sm tracking-wide">{{ $t('tasks.createPath') }}</p>
                 </div>
               </div>
 
@@ -217,7 +217,7 @@
               <div class="px-6 md:px-8 py-3 border-t border-primary-100 bg-primary-50/40 flex items-center justify-between gap-1.5 text-xs text-primary-500">
                 <span v-if="modelValue.lastEditedBy" class="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1">
                   <Icon icon="mdi:pencil-outline" class="text-xs" />
-                  آخرین ویرایش توسط {{ modelValue.lastEditedBy.name }}
+                  {{ $t('tasks.lastEditedBy') }} {{ modelValue.lastEditedBy.name }}
                 </span>
                 <span v-else></span>
                 <span class="flex items-center gap-1.5">
@@ -235,8 +235,8 @@
     <div v-else class="hidden md:flex items-center justify-center h-full">
       <div class="text-center text-primary-400">
         <div class="text-6xl mb-4 flex justify-center"><Icon icon="line-md:clipboard-list" /></div>
-        <h3 class="text-xl font-medium mb-2">No Task Selected</h3>
-        <p class="text-sm">Click on any task from the list to see details</p>
+        <h3 class="text-xl font-medium mb-2">{{ $t('tasks.noSelection') }}</h3>
+        <p class="text-sm">{{ $t('tasks.selectForDetails') }}</p>
       </div>
     </div>
 
@@ -246,12 +246,12 @@
       <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full">
         <div class="p-6 flex flex-col items-center text-center">
           <div class="text-5xl mb-2"><Icon class="text-primary-900" icon="quill:folder-trash" /></div>
-          <h3 class="text-xl font-bold text-primary-800 mb-2">Clear All Steps</h3>
-          <p class="text-primary-600 text-sm mb-2">Are you sure you want to clear all steps?</p>
+          <h3 class="text-xl font-bold text-primary-800 mb-2">{{ $t('tasks.clearSteps') }}</h3>
+          <p class="text-primary-600 text-sm mb-2">{{ $t('tasks.clearStepsQuestion') }}</p>
         </div>
         <div class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl">
-          <button @click="showClearStepsDialog = false" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">Cancel</button>
-          <button @click="confirmClearSteps" class="flex-1 px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-xl font-medium transition-all">Clear All</button>
+          <button @click="showClearStepsDialog = false" class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all">{{ $t('cancel') }}</button>
+          <button @click="confirmClearSteps" class="flex-1 px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-xl font-medium transition-all">{{ $t('tasks.clearAll') }}</button>
         </div>
       </div>
     </div>
@@ -290,7 +290,7 @@
         <div class="px-6 pt-4">
           <label class="flex items-center gap-2 text-sm text-primary-700 cursor-pointer">
             <input type="checkbox" v-model="unorderedSteps" class="w-4 h-4 accent-primary-600 rounded" />
-            می‌خوام استپ‌ها رو بدون رعایت ترتیب کامل کنم
+            {{ $t('tasks.unorderedSteps') }}
           </label>
         </div>
 
@@ -364,11 +364,11 @@ const showStepsDialog      = ref<boolean>(false)
 const stepsDraft           = ref<StepDraft[]>([])
 const unorderedSteps       = ref<boolean>(false)
 const { isMobile }         = useResponsiveMode()
-const { t } = useLocale()
+const { t, locale } = useLocale()
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleString('fa-IR')
+  return new Date(dateString).toLocaleString(locale.value === 'fa' ? 'fa-IR' : 'en-US')
 }
 
 function getCurrentIncompleteIndex(todo: Todo): number {

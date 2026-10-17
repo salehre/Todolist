@@ -10,7 +10,7 @@
 
       <!-- Title -->
       <div>
-        <h1 class="text-white/90 text-4xl font-semibold tracking-tight">دکمه‌های مدرن</h1>
+        <h1 class="text-white/90 text-4xl font-semibold tracking-tight">{{ $t('customTodo.title') }}</h1>
         <p class="text-white/35 text-sm mt-2 tracking-widest uppercase">Glass · 3D · Glow</p>
       </div>
 

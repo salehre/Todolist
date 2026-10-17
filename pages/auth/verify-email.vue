@@ -1,7 +1,7 @@
 <template>
   <AuthCard
-    title="تأیید ایمیل"
-    :subtitle="`کد ۶ رقمی به ${maskedEmail} ارسال شد`"
+    :title="$t('auth.confirmEmail')"
+    :subtitle="`${$t('auth.codeSent')} ${maskedEmail} ${$t('auth.sent')}`"
     icon="mdi:email-check-outline"
   >
     <div class="space-y-6">
@@ -36,7 +36,7 @@
       <Transition name="slide-down">
         <p v-if="isError" class="text-center text-sm text-rose-500 flex items-center justify-center gap-1">
           <Icon icon="mdi:alert-circle-outline" />
-          کد وارد شده اشتباه است. دوباره تلاش کن
+          {{ $t('auth.invalidCode') }}
         </p>
       </Transition>
 
@@ -51,13 +51,13 @@
                flex items-center justify-center gap-2"
       >
         <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
-        <span>{{ isLoading ? 'در حال بررسی...' : 'تأیید کد' }}</span>
+        <span>{{ isLoading ? $t('auth.checking') : $t('auth.verifyCode') }}</span>
       </button>
 
       <!-- ارسال مجدد -->
       <div class="text-center text-sm">
         <span v-if="countdown > 0" class="text-white/70">
-          ارسال مجدد تا
+          {{ $t('auth.resendIn') }}
           <span class="font-bold text-primary-300 tabular-nums">{{ formatCountdown }}</span>
         </span>
         <button
@@ -66,7 +66,7 @@
           @click="resendCode"
           class="text-primary-300 font-semibold hover:text-primary-200 disabled:opacity-50 transition-colors"
         >
-          {{ isResending ? 'در حال ارسال...' : 'ارسال مجدد کد' }}
+          {{ isResending ? $t('auth.sending') : $t('auth.resendCode') }}
         </button>
       </div>
 
@@ -75,7 +75,7 @@
     <template #footer>
       <button @click="router.back()" class="text-sm text-white/70 hover:text-white flex items-center gap-1 mx-auto transition-colors">
         <Icon icon="mdi:arrow-right" />
-        بازگشت
+        {{ $t('common.back') }}
       </button>
     </template>
   </AuthCard>

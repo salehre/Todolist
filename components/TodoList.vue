@@ -7,21 +7,21 @@
       ]">
     <button
         @click="isCollapsed = false"
-        v-tooltip:end="'Show Tasks'"
+        v-tooltip:end="$t('tasks.show')"
         class="w-9 h-9 flex items-center justify-center rounded-xl text-primary-600 hover:bg-primary-100/70 transition-all cursor-e-resize!"
     >
       <Icon icon="mingcute:layout-left-fill" class="text-lg" />
     </button>
     <button
         @click="emit('add-todo')"
-        v-tooltip:end="'Add Task'"
+        v-tooltip:end="$t('tasks.addTooltip')"
         class="w-9 h-9 flex items-center justify-center rounded-xl text-primary-600 hover:bg-primary-100/70 transition-all"
     >
       <Icon icon="mingcute:add-line" class="text-lg" />
     </button>
     <button
         @click="swTheme = !swTheme"
-        v-tooltip:end="swTheme ? 'light' : 'dark'"
+        v-tooltip:end="swTheme ? $t('common.lightTheme') : $t('common.darkTheme')"
         class="w-9 h-9 flex items-center justify-center rounded-xl text-primary-600 hover:bg-primary-100/70 transition-all"
     >
       <Icon :icon="swTheme ? 'material-symbols:sunny-outline-rounded' : 'material-symbols:mode-night-outline' " class="text-lg" />
@@ -39,14 +39,14 @@
     <div class="@container relative z-20 ps-4 py-5 border-b border-white/20 shrink-0 backdrop-blur-xl bg-white/5">
       <!-- Sidebar Title Row -->
       <div class="flex items-center justify-between pe-4 mb-3">
-        <h2 class="text-lg font-bold text-primary-900">Tasks</h2>
+        <h2 class="text-lg font-bold text-primary-900">{{ $t('tasks.title') }}</h2>
 
         <div class="flex items-center gap-2">
           <!-- Status Filter icon button -->
           <div class="relative inline-block" data-dropdown="status-menu">
             <button
                 @click.stop="toggleMenu('status', $event)"
-                v-tooltip="'status'"
+                v-tooltip="$t('tasks.filter.status')"
                 :class="[
                   'w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300',
                   currentFilter !== 'all'
@@ -87,7 +87,7 @@
           <div class="relative inline-block" data-dropdown="sort-menu">
             <button
                 @click.stop="toggleMenu('sort', $event)"
-                v-tooltip="'Sort'"
+                v-tooltip="$t('tasks.filter.sort')"
                 :class="[
                   'w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300',
                   currentTimeSort !== 'date-desc'
@@ -129,7 +129,7 @@
           <div class="relative inline-block" data-dropdown="priority-menu">
             <button
                 @click.stop="toggleMenu('priority', $event)"
-                v-tooltip="'Priority'"
+                v-tooltip="$t('tasks.filter.priority')"
                 :class="[
                   'w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300',
                   currentPriorityFilter !== 'all'
@@ -168,7 +168,7 @@
 
           <button
               @click="isCollapsed = true"
-              v-tooltip="'Hide Tasks'"
+              v-tooltip="$t('tasks.hide')"
               class="hidden @min-[360px]:flex w-8 h-8 items-center justify-center rounded-lg text-primary-500 hover:bg-primary-100/70 hover:text-primary-700 transition-all cursor-e-resize!"
           >
             <Icon icon="mingcute:layout-left-line" class="text-lg" />
@@ -176,7 +176,7 @@
           <button
               v-if="hideChatButton"
               @click="closeMobile"
-              v-tooltip="'Back to Chats'"
+              v-tooltip="$t('chat.backToChats')"
               class="w-8 h-8 flex items-center justify-center rounded-lg text-primary-500 hover:bg-primary-100/70 hover:text-primary-700 transition-all"
           >
             <Icon icon="carbon:chat" class="text-lg" />
@@ -187,7 +187,7 @@
       <!-- Selection Actions -->
       <div class="flex gap-2 mb-3" v-if="selectedIds.size > 0">
         <button @click="deleteSelected" class="flex-1 px-3 py-2 bg-primary-500/80 backdrop-blur-md text-white rounded-xl text-xs hover:bg-primary-600/90 transition-all flex items-center justify-center gap-2 shadow-[0_4px_6px_rgba(0,0,0,0.1),0_1px_3px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_8px_16px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.3)] transform hover:scale-105 active:scale-95">
-          <Icon icon="mingcute:delete-line" /> Delete ({{ selectedIds.size }})
+          <Icon icon="mingcute:delete-line" /> {{ $t('tasks.delete') }} ({{ selectedIds.size }})
         </button>
       </div>
     </div>
@@ -217,7 +217,7 @@
 
       <div v-else-if="filteredTodos.length === 0" class="text-center justify-center flex py-10 text-primary-300 text-sm">
         <Icon icon="mingcute:empty-box-line" class="text-lg relative bottom-0.5 me-0.5" />
-        No tasks yet.
+        {{ $t('tasks.empty') }}
       </div>
       <div
           v-else
@@ -300,16 +300,16 @@
           text-primary-700 bg-white/25
           [box-shadow:0_-8px_32px_rgba(0,0,0,0.1),0_4px_6px_rgba(255,255,255,0.15),inset_0_1px_0_rgba(255,255,255,0.3),inset_0_-1px_0_rgba(255,255,255,0.1)]
           [backdrop-filter:blur(20px)_saturate(180%)] [-webkit-backdrop-filter:blur(20px)_saturate(180%)]">
-        <div>Total: <span class="font-bold text-primary-900">{{ totalCount }}</span></div>
-        <div>Completed: <span class="font-bold text-primary-900">{{ completedCount }}</span></div>
-        <div>Remaining: <span class="font-bold text-primary-900">{{ pendingCount }}</span></div>
+        <div>{{ $t('tasks.total') }} <span class="font-bold text-primary-900">{{ totalCount }}</span></div>
+        <div>{{ $t('tasks.completedCount') }} <span class="font-bold text-primary-900">{{ completedCount }}</span></div>
+        <div>{{ $t('tasks.remaining') }} <span class="font-bold text-primary-900">{{ pendingCount }}</span></div>
       </div>
       <div class="p-4">
         <button
             @click="emit('add-todo')"
             class="w-full px-4 py-3 bg-linear-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-4xl font-medium shadow-lg transition-all flex items-center justify-center gap-2"
         >
-          Add New Task
+          {{ $t('tasks.addNew') }}
         </button>
       </div>
     </div>
@@ -358,6 +358,7 @@ const currentPriorityFilter = ref<PriorityFilterValue>('all')
 const currentTimeSort      = ref<SortValue>('date-desc')
 const selectedIds          = ref<Set<number>>(new Set())
 const { isMobile }         = useResponsiveMode()
+const { t } = useLocale()
 const isCollapsed          = ref<boolean>(false)
 const swTheme               = ref<boolean>(false)
 const listPanelRef          = ref<HTMLElement | null>(null)
@@ -442,29 +443,29 @@ watch(
 )
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const statusFilters: StatusFilterOption[] = [
-  { label: 'All',       value: 'all' },
-  { label: 'Active',    value: 'active' },
-  { label: 'Completed', value: 'completed' },
-]
+const statusFilters = computed<StatusFilterOption[]>(() => [
+  { label: t('tasks.status.all'),       value: 'all' },
+  { label: t('tasks.status.active'),    value: 'active' },
+  { label: t('tasks.status.completed'), value: 'completed' },
+])
 
-const priorityFilters: PriorityFilterOption[] = [
-  { label: 'All Priorities', value: 'all' },
-  { label: 'High Priority',  value: 'high' },
-  { label: 'Medium Priority',value: 'medium' },
-  { label: 'Low Priority',   value: 'low' },
-]
+const priorityFilters = computed<PriorityFilterOption[]>(() => [
+  { label: t('tasks.priority.all'),    value: 'all' },
+  { label: t('tasks.priority.high'),   value: 'high' },
+  { label: t('tasks.priority.medium'), value: 'medium' },
+  { label: t('tasks.priority.low'),    value: 'low' },
+])
 
-const timeSortOptions: SortOption[] = [
-  { label: 'Newest', value: 'date-desc',     icon: 'solar:sort-from-bottom-to-top-broken' },
-  { label: 'Oldest', value: 'date-asc',      icon: 'solar:sort-from-top-to-bottom-broken' },
-]
+const timeSortOptions = computed<SortOption[]>(() => [
+  { label: t('tasks.sort.newest'), value: 'date-desc', icon: 'solar:sort-from-bottom-to-top-broken' },
+  { label: t('tasks.sort.oldest'), value: 'date-asc', icon: 'solar:sort-from-top-to-bottom-broken' },
+])
 
-const prioritySortOptions: SortOption[] = [
-  { label: 'Priority', value: 'priority-high', icon: 'solar:flag-linear' },
-]
+const prioritySortOptions = computed<SortOption[]>(() => [
+  { label: t('tasks.sort.priority'), value: 'priority-high', icon: 'solar:flag-linear' },
+])
 
-const allSortOptions = computed<SortOption[]>(() => [...timeSortOptions, ...prioritySortOptions])
+const allSortOptions = computed<SortOption[]>(() => [...timeSortOptions.value, ...prioritySortOptions.value])
 
 const priorityBorderColors: Record<Todo['priority'], string> = {
   high:   'border-s-rose-500',

@@ -9,7 +9,7 @@
         </div>
         <div v-if="group" class="min-w-0">
           <h2 class="text-sm font-bold text-primary-900 truncate">{{ group.name }}</h2>
-          <p class="text-xs text-primary-400">{{ memberCount }} members - {{ onlineCount }} online</p>
+          <p class="text-xs text-primary-400">{{ memberCount }} {{ $t('chat.members') }} - {{ onlineCount }} {{ $t('chat.online') }}</p>
         </div>
         <div v-else class="min-w-0 space-y-1.5">
           <div class="h-3 w-24 rounded bg-primary-100 animate-pulse"></div>
@@ -18,10 +18,10 @@
       </div>
 
       <div class="flex items-center gap-2 relative">
-        <button @click="emit('open-sidebar')" class="md:hidden flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="'Chats'">
+        <button @click="emit('open-sidebar')" class="md:hidden flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="$t('chat.chats')">
           <Icon icon="solar:hamburger-menu-linear" class="text-lg" />
         </button>
-        <button @click="emit('open-group-tasks')" class="flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="'Group tasks'">
+        <button @click="emit('open-group-tasks')" class="flex items-center gap-2 px-2 py-2 text-sm text-primary-700 transition-colors" v-tooltip="$t('chat.tasks')">
           <Icon icon="solar:clipboard-list-linear" class="text-lg" />
         </button>
         <button @click="emit('toggle-search')" :class="['flex items-center gap-2 px-2 py-2 text-sm transition-colors', showSearch ? 'text-primary-600' : 'text-primary-700']">
@@ -29,7 +29,7 @@
         </button>
 
         <div class="relative inline-block" data-dropdown="header-menu">
-          <button ref="menuButtonRef" @click.stop="toggleMenu" class="p-2 rounded-full text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="'More options'">
+          <button ref="menuButtonRef" @click.stop="toggleMenu" class="p-2 rounded-full text-primary-400 hover:bg-primary-50 hover:text-primary-600 transition-all" v-tooltip="$t('chat.moreOptions')">
             <Icon icon="mage:dots" class="text-xl" />
           </button>
         </div>
@@ -48,13 +48,13 @@
           @click.stop
       >
         <button @click.stop="emit('toggle-filter'); menuOpen = false" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors">
-          <Icon icon="mi:filter" class="text-sm" /> Filter messages
+          <Icon icon="mi:filter" class="text-sm" /> {{ $t('chat.filterMessages') }}
         </button>
         <button @click.stop="emit('open-info'); menuOpen = false" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary-700 hover:bg-primary-50 transition-colors border-t border-primary-100 mt-1">
-          <Icon icon="mi:circle-information" class="text-sm" /> Group info
+          <Icon icon="mi:circle-information" class="text-sm" /> {{ $t('chat.groupInfo') }}
         </button>
         <button v-if="isAdmin" @click.stop="menuOpen = false; emit('delete-group')" class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-primary-100 mt-1">
-          <Icon icon="mi:delete" class="text-sm" /> حذف گروه
+          <Icon icon="mi:delete" class="text-sm" /> {{ $t('chat.deleteGroup') }}
         </button>
       </div>
     </Transition>

@@ -39,9 +39,9 @@
           <div class="text-6xl mb-2">
             <Icon class="text-primary-900" icon="quill:folder-trash" />
           </div>
-          <h3 class="text-xl font-bold text-primary-900 mb-2">Confirm Delete</h3>
+          <h3 class="text-xl font-bold text-primary-900 mb-2">{{ $t('tasks.deleteConfirm') }}</h3>
           <p class="text-primary-600 text-sm mb-2">{{ deleteDialogMessage }}</p>
-          <p class="text-primary-400 text-xs">This action cannot be undone!</p>
+          <p class="text-primary-400 text-xs">{{ $t('tasks.undoWarning') }}</p>
         </div>
         <div
             class="flex gap-3 p-6 border-t border-primary-100 bg-primary-50/50 rounded-b-2xl"
@@ -50,13 +50,13 @@
               @click="closeDeleteDialog"
               class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all"
           >
-            Cancel
+            {{ $t('cancel') }}
           </button>
           <button
               @click="confirmDelete"
               class="flex-1 px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-medium transition-all"
           >
-            Delete
+            {{ $t('tasks.delete') }}
           </button>
         </div>
       </div>
@@ -75,7 +75,7 @@
             class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10"
         >
           <h3 class="text-xl flex font-bold text-primary-900">
-            {{ dialogMode === "add" ? "Add New Task" : "Edit Task" }}
+            {{ dialogMode === "add" ? $t('tasks.addTitle') : $t('tasks.editTitle') }}
           </h3>
           <button
               @click="closeDialog"
@@ -87,22 +87,22 @@
         <div class="p-6 space-y-4">
           <div>
             <label class="block text-sm font-medium text-primary-900 mb-2">
-              Title
+              {{ $t('tasks.titleLabel') }}
             </label>
             <input
                 v-model="dialogForm.title"
                 type="text"
-                placeholder="Enter task title"
+                :placeholder="$t('tasks.titlePlaceholder')"
                 class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all"
                 @keyup.enter="submitDialog"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-primary-900 mb-2"> Description </label>
+            <label class="block text-sm font-medium text-primary-900 mb-2">{{ $t('tasks.descriptionLabel') }}</label>
             <textarea
                 v-model="dialogForm.description"
                 rows="4"
-                placeholder="Enter task description (optional)"
+                :placeholder="$t('tasks.descriptionPlaceholder')"
                 class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"
             />
           </div>
@@ -117,14 +117,14 @@
               @click="closeDialog"
               class="flex-1 px-4 py-2 bg-white border border-primary-200 text-primary-700 rounded-xl font-medium hover:bg-primary-50 transition-all"
           >
-            Cancel
+            {{ $t('cancel') }}
           </button>
           <button
               @click="submitDialog"
               :disabled="!dialogForm.title.trim()"
               class="flex-1 px-4 py-2 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:from-primary-600 hover:to-primary-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ dialogMode === "add" ? "Add Task" : "Save Changes" }}
+            {{ dialogMode === "add" ? $t('tasks.add') : $t('tasks.saveChanges') }}
           </button>
         </div>
       </div>
@@ -133,7 +133,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'dashboard', middleware: 'auth' })
+definePageMeta({ layout: 'dashboard'})
 
 // import { onMounted } from "vue";
 import TodoList from "~/components/TodoList.vue";

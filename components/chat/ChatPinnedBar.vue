@@ -4,7 +4,7 @@
     <button @click="emit('open')" class="w-full mx-auto flex items-center gap-2 px-4 py-2.5 bg-white/90 backdrop-blur-md rounded-2xl border border-primary-200/60 shadow-lg shadow-primary-200/20 hover:shadow-primary-200/40 transition-all group">
       <Icon icon="iconoir:pin" class="text-primary-500 -rotate-45 text-sm shrink-0" />
       <span class="text-sm text-primary-700 flex-1 text-left truncate">{{ messages[0].text }}</span>
-      <span class="text-xs text-primary-400 bg-primary-200/50 px-2 py-0.5 rounded-full font-medium shrink-0">{{ messages.length }} pinned</span>
+      <span class="text-xs text-primary-400 bg-primary-200/50 px-2 py-0.5 rounded-full font-medium shrink-0">{{ messages.length }} {{ $t('chat.pinned') }}</span>
     </button>
   </div>
 </template>

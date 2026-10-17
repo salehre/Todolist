@@ -22,7 +22,7 @@
           v-model="email"
           label="آدرس ایمیل"
           type="email"
-          placeholder="ایمیل ثبت‌شده را وارد کن"
+          :placeholder="$t('auth.emailPlaceholder')"
           autocomplete="email"
           :error="errors.email"
           required
@@ -43,7 +43,7 @@
                  flex items-center justify-center gap-2"
         >
           <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
-          <span>{{ isLoading ? 'در حال ارسال...' : 'ارسال کد' }}</span>
+          <span>{{ isLoading ? $t('auth.sending') : $t('auth.sendCode') }}</span>
         </button>
       </form>
 
@@ -51,7 +51,7 @@
       <div v-else-if="currentStep === 2" key="step2" class="space-y-5">
 
         <p class="text-center text-sm text-white/70">
-          کد ۶ رقمی به <span class="font-semibold text-white">{{ maskedEmail }}</span> ارسال شد
+          {{ $t('auth.codeSent') }} <span class="font-semibold text-white">{{ maskedEmail }}</span> {{ $t('auth.sent') }}
         </p>
 
         <!-- OTP inputs -->
@@ -78,14 +78,14 @@
         <Transition name="slide-down">
           <p v-if="otpError" class="text-center text-sm text-rose-500 flex items-center justify-center gap-1">
             <Icon icon="mdi:alert-circle-outline" />
-            کد وارد شده اشتباه است
+            {{ $t('auth.invalidCode') }}
           </p>
         </Transition>
 
         <!-- countdown -->
         <p class="text-center text-sm text-white/70">
-          <span v-if="countdown > 0">ارسال مجدد تا <span class="font-bold text-primary-300 tabular-nums">{{ formatCountdown }}</span></span>
-          <button v-else @click="resendCode" class="text-primary-300 font-semibold hover:text-primary-200 transition-colors">ارسال مجدد کد</button>
+          <span v-if="countdown > 0">{{ $t('auth.resendIn') }} <span class="font-bold text-primary-300 tabular-nums">{{ formatCountdown }}</span></span>
+          <button v-else @click="resendCode" class="text-primary-300 font-semibold hover:text-primary-200 transition-colors">{{ $t('auth.resendCode') }}</button>
         </p>
 
         <button
@@ -110,7 +110,7 @@
             v-model="newPassword"
             :type="showPassword ? 'text' : 'password'"
             label="رمز عبور جدید"
-            placeholder="رمز عبور جدید را وارد کن"
+            :placeholder="$t('auth.enterNewPassword')"
             autocomplete="new-password"
             :error="errors.newPassword"
             required
@@ -130,7 +130,7 @@
           v-model="confirmPassword"
           :type="showConfirm ? 'text' : 'password'"
           label="تکرار رمز عبور"
-          placeholder="رمز عبور را تکرار کن"
+          :placeholder="$t('auth.confirmPassword')"
           autocomplete="new-password"
           :error="errors.confirmPassword"
           required
@@ -163,7 +163,7 @@
 
     <template #footer>
       <NuxtLink to="/auth/login" class="text-sm text-white/70 hover:text-white flex items-center gap-1 mx-auto transition-colors justify-center">
-        بازگشت به ورود
+        {{ $t('auth.backToLogin') }}
       </NuxtLink>
     </template>
   </AuthCard>
@@ -188,14 +188,15 @@ useHead(() => ({
 
 const router = useRouter()
 const { sendResetCode, resetPassword } = useAuth()
+const { t } = useLocale()
 
 // ─── Steps ────────────────────────────────────────────────────────────────────
 const currentStep = ref(1)
 
 const stepConfig = computed(() => ({
-  1: { title: 'فراموشی رمز عبور', subtitle: 'ایمیل ثبت‌شده خود را وارد کن', icon: 'mdi:lock-question' },
-  2: { title: 'تأیید ایمیل', subtitle: 'کد ارسال‌شده را وارد کن', icon: 'mdi:email-check-outline' },
-  3: { title: 'رمز جدید', subtitle: 'رمز عبور جدید را تنظیم کن', icon: 'mdi:lock-reset' },
+  1: { title: t('auth.forgotTitle'), subtitle: t('auth.forgotSubtitle'), icon: 'mdi:lock-question' },
+  2: { title: t('auth.confirmEmail'), subtitle: t('auth.enterCodeSubtitle'), icon: 'mdi:email-check-outline' },
+  3: { title: t('auth.newPasswordTitle'), subtitle: t('auth.setNewPassword'), icon: 'mdi:lock-reset' },
 }[currentStep.value]!))
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -249,19 +250,19 @@ watch(isCodeComplete, (complete) => {
 // ─── Validation ───────────────────────────────────────────────────────────────
 function validateEmail() {
   errors.email = ''
-  if (!email.value.trim()) errors.email = 'ایمیل الزامی است'
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) errors.email = 'فرمت ایمیل صحیح نیست'
+  if (!email.value.trim()) errors.email = t('auth.emailRequired')
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) errors.email = t('auth.emailInvalid')
 }
 
 function validateNewPassword() {
   errors.newPassword = ''
-  if (!newPassword.value) errors.newPassword = 'رمز عبور الزامی است'
-  else if (newPassword.value.length < 8) errors.newPassword = 'حداقل ۸ کاراکتر'
+  if (!newPassword.value) errors.newPassword = t('auth.passwordRequired')
+  else if (newPassword.value.length < 8) errors.newPassword = t('auth.passwordMinEight')
 }
 
 function validateConfirmPassword() {
   errors.confirmPassword = ''
-  if (newPassword.value !== confirmPassword.value) errors.confirmPassword = 'رمزها با هم مطابقت ندارند'
+  if (newPassword.value !== confirmPassword.value) errors.confirmPassword = t('auth.passwordsDoNotMatch')
 }
 
 // ─── OTP handlers ─────────────────────────────────────────────────────────────

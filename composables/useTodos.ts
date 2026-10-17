@@ -6,6 +6,7 @@ import { toast } from 'vue-sonner'
 import { getErrorMessage } from '~/src/services/api'
 
 export function useTodos() {
+    const { t } = useLocale()
     const todos = ref<Todo[]>([])
     const selectedTodo = ref<Todo | null>(null)
     const isLoading = ref<boolean>(false)
@@ -13,7 +14,7 @@ export function useTodos() {
     // ─── Delete dialog state ────────────────────────────────────────────────
     const showDeleteDialog = ref<boolean>(false)
     const deleteTargetId = ref<number | null>(null)
-    const deleteDialogMessage = ref<string>('Are you sure you want to delete this task?')
+    const deleteDialogMessage = ref<string>(t('tasks.deleteQuestion'))
 
     // ─── Add / Edit dialog state ────────────────────────────────────────────
     const isDialogOpen = ref<boolean>(false)
@@ -30,7 +31,7 @@ export function useTodos() {
             todos.value = response.data.map(mapTodoFromApi)
         } catch (error) {
             console.error('خطا در گرفتن tasks:', error)
-            toast.error(getErrorMessage(error, 'گرفتن لیست تسک‌ها ناموفق بود'))
+            toast.error(getErrorMessage(error, t('tasks.fetchFailed')))
         } finally {
             isLoading.value = false
         }
@@ -173,7 +174,7 @@ export function useTodos() {
     }
 
     // ─── Delete ──────────────────────────────────────────────────────────────
-    function openDeleteConfirm(id: number, message = 'Are you sure you want to delete this task?'): void {
+    function openDeleteConfirm(id: number, message = t('tasks.deleteQuestion')): void {
         deleteTargetId.value = id
         deleteDialogMessage.value = message
         showDeleteDialog.value = true
@@ -215,7 +216,7 @@ export function useTodos() {
             if (selectedTodo.value?.id === id) selectedTodo.value = null
         } catch (error) {
             console.error('خطا در حذف task:', error)
-            toast.error('حذف تسک ناموفق بود')
+            toast.error(t('tasks.deleteFailed'))
         } finally {
             closeDeleteDialog()
         }
@@ -263,7 +264,7 @@ export function useTodos() {
                 })
                 const newTodo = mapTodoFromApi(response.data)
                 todos.value.unshift(newTodo)
-                toast.success('تسک اضافه شد')
+                toast.success(t('tasks.added'))
             } else {
                 const response = await api.put('/tasks/updateTask', {
                     id: editingId.value,
@@ -282,11 +283,11 @@ export function useTodos() {
                         selectedTodo.value = { ...todo }
                     }
                 }
-                toast.success('تسک ویرایش شد')
+                toast.success(t('tasks.updated'))
             }
         } catch (error) {
             console.error('خطا در ذخیره task:', error)
-            toast.error('ذخیره تسک ناموفق بود')
+            toast.error(t('tasks.saveFailed'))
         } finally {
             isSubmittingDialog.value = false
             closeDialog()

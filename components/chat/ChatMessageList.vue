@@ -93,8 +93,8 @@
     <div v-else-if="!activeGroupId" class="flex h-full items-center justify-center">
       <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
         <Icon icon="mdi:users-group" class="text-3xl text-primary-700" />
-        <strong class="text-lg font-semibold text-primary-600">یک چت رو انتخاب کن</strong>
-        <p class="text-sm text-primary-400">اگر گروهی نداری، یکی بساز</p>
+        <strong class="text-lg font-semibold text-primary-600">{{ $t('chat.select') }}</strong>
+        <p class="text-sm text-primary-400">{{ $t('chat.noGroupHint') }}</p>
       </div>
     </div>
 
@@ -102,8 +102,8 @@
     <div v-else-if="!loadingMessages && messages.length === 0" class="flex h-full items-center justify-center">
       <div class="flex flex-col text-center items-center gap-2 rounded-2xl border border-primary-200/60 bg-white/80 sm:px-24 px-14 py-6 shadow-lg shadow-primary-200/20 backdrop-blur-xl">
         <Icon icon="ep:chat-round" class="text-4xl text-primary-700" />
-        <strong class="text-lg text-primary-600">هنوز پیامی وجود نداره</strong>
-        <p class="text-sm text-primary-400">اولین پیام رو بفرست!</p>
+        <strong class="text-lg text-primary-600">{{ $t('chat.noMessages') }}</strong>
+        <p class="text-sm text-primary-400">{{ $t('chat.firstMessage') }}</p>
       </div>
     </div>
 
@@ -119,7 +119,7 @@
         <template v-for="(msg, index) in group" :key="msg.id">
           <div v-if="msg.id === firstUnreadMessageId" class="flex items-center gap-3 my-4">
             <div class="flex-1 h-px bg-rose-200"></div>
-            <span class="text-xs font-medium text-rose-500 px-2 py-1 bg-rose-50 rounded-full">پیام‌های خوانده‌نشده</span>
+            <span class="text-xs font-medium text-rose-500 px-2 py-1 bg-rose-50 rounded-full">{{ $t('chat.unreadMessages') }}</span>
             <div class="flex-1 h-px bg-rose-200"></div>
           </div>
           <ChatMessageBubble

@@ -1,7 +1,7 @@
 <template>
   <AuthCard
-      title="ورود به حساب"
-      subtitle="خوش آمدی! اطلاعات خود را وارد کن"
+      :title="$t('auth.loginTitle')"
+      :subtitle="$t('auth.loginSubtitle')"
       icon="mdi:login-variant"
   >
     <!-- پیام موفقیت ثبت‌نام -->
@@ -11,7 +11,7 @@
           class="mb-4 rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center gap-2 text-sm text-emerald-700"
       >
         <Icon icon="mdi:check-circle-outline" class="text-lg shrink-0" />
-        ثبت‌نام با موفقیت انجام شد! حالا وارد شو
+        {{ $t('auth.registered') }}
       </div>
     </Transition>
 
@@ -20,8 +20,8 @@
       <!-- نام کاربری -->
       <AuthInput
           v-model="form.username"
-          label="نام کاربری"
-          placeholder="ایمیل یا نام کاربری"
+          :label="$t('auth.username')"
+          :placeholder="$t('auth.usernameOrEmail')"
           autocomplete="username"
           :error="errors.username"
           required
@@ -36,15 +36,15 @@
       <!-- رمز عبور -->
       <div>
         <div class="flex justify-between items-center mb-1.5">
-          <label class="text-[13px] font-semibold text-white/85">رمز عبور </label>
+          <label class="text-[13px] font-semibold text-white/85">{{ $t('auth.password') }}</label>
           <NuxtLink to="/auth/forgot-password" class="text-xs text-primary-300 hover:text-primary-200 transition-colors">
-            رمز عبور را فراموش کردی؟
+            {{ $t('auth.forgotPassword') }}
           </NuxtLink>
         </div>
         <AuthInput
             v-model="form.password"
             :type="showPassword ? 'text' : 'password'"
-            placeholder="رمز عبور خود را وارد کن"
+            :placeholder="$t('auth.enterPassword')"
             autocomplete="current-password"
             :error="errors.password"
             @blur="validateField('password')"
@@ -69,7 +69,7 @@
               v-model="form.remember"
               class="checkbox-custom h-4 w-4 rounded border border-slate-300 bg-white cursor-pointer focus:ring-2 focus:ring-primary-400"
           />
-          <span class="pt-1"> مرا به خاطر بسپار </span>
+          <span class="pt-1">{{ $t('auth.rememberMe') }}</span>
 
         </label>
       </div>
@@ -85,16 +85,16 @@
                flex items-center justify-center gap-2"
       >
         <Icon v-if="isLoading" icon="mdi:loading" class="animate-spin text-lg" />
-        <span>{{ isLoading ? 'در حال ورود...' : 'ورود' }}</span>
+        <span>{{ isLoading ? $t('auth.loggingIn') : $t('auth.login') }}</span>
       </button>
 
     </form>
 
     <template #footer>
       <p class="text-sm text-white/70">
-        حساب نداری؟
+        {{ $t('auth.accountPrompt') }}
         <NuxtLink to="/auth/signup" class="text-primary-300 font-semibold hover:text-primary-200 ms-1 transition-colors">
-          ثبت‌نام کن
+          {{ $t('auth.signupCta') }}
         </NuxtLink>
       </p>
     </template>
@@ -117,6 +117,7 @@ useHead(() => ({
 const router = useRouter()
 const route = useRoute()
 const { login } = useAuth()
+const { t } = useLocale()
 
 const isLoading = ref(false)
 const showPassword = ref(false)
@@ -132,8 +133,8 @@ function clearServerError() {
 
 function validateField(field: 'username' | 'password') {
   errors[field] = ''
-  if (field === 'username' && !form.username.trim()) errors.username = 'نام کاربری را وارد کن'
-  if (field === 'password' && !form.password) errors.password = 'رمز عبور را وارد کن'
+  if (field === 'username' && !form.username.trim()) errors.username = t('auth.usernameRequired')
+  if (field === 'password' && !form.password) errors.password = t('auth.passwordRequired')
 }
 
 async function handleLogin() {

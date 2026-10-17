@@ -14,16 +14,15 @@
                 class="pointer-events-none absolute inset-0 opacity-10"
                 style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 22px 22px;"
             ></div>
-            <h1 class="relative mt-2 text-2xl font-black text-white sm:text-3xl">درباره پروژه</h1>
+            <h1 class="relative mt-2 text-2xl font-black text-white sm:text-3xl">{{ $t('about.title') }}</h1>
           </div>
 
           <div class="space-y-4 p-6 md:p-8">
             <p class="text-base leading-8 text-slate-600">
-              این پروژه با هدف ساخت یک ابزار ساده، سریع و کاربردی برای کاربران ساخته شده.
-              تمرکز اصلی روی تجربه کاربری خوب و حل یک نیاز واقعیه.
+              {{ $t('about.description') }}
             </p>
             <p class="text-sm leading-7 text-slate-400">
-              هدف نهایی اینه که این پروژه به‌مرور تبدیل به یک ابزار کامل‌تر و حرفه‌ای‌تر بشه.
+              {{ $t('about.goal') }}
             </p>
           </div>
         </div>
@@ -31,7 +30,7 @@
         <!-- مهارت‌ها -->
         <div
             class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">
-          <h2 class="mt-2 text-lg font-bold text-slate-800">چی می‌سازم</h2>
+          <h2 class="mt-2 text-lg font-bold text-slate-800">{{ $t('about.skills') }}</h2>
 
           <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div
@@ -58,9 +57,9 @@
         <!-- کارت حمایت، نسخه موبایل -->
         <div
             class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl lg:hidden">
-          <h2 class="text-lg font-bold text-slate-800">حمایت از پروژه</h2>
+          <h2 class="text-lg font-bold text-slate-800">{{ $t('about.support') }}</h2>
           <p class="mt-3 text-sm leading-7 text-slate-600">
-            اگر این پروژه برات مفید بوده، می‌تونی با یه حمایت کوچیک کمک کنی که توسعه‌اش ادامه پیدا کنه.
+            {{ $t('about.supportDescription') }}
           </p>
 
           <a
@@ -69,14 +68,14 @@
               class="mt-4 inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-primary-500 to-primary-600 px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary-200 transition-all hover:from-primary-600 hover:to-primary-700 hover:-translate-y-0.5"
           >
             <Icon icon="mdi:coffee-outline" class="text-lg"></Icon>
-            حمایت مالی
+            {{ $t('about.supportFinancial') }}
           </a>
         </div>
 
         <!-- فوتر: لینک‌ها -->
         <div
             class="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-lg shadow-slate-200/50 backdrop-blur-xl md:p-8">
-          <h2 class="mt-2 text-lg font-bold text-slate-800">جایی که می‌تونی پیدام کنی</h2>
+          <h2 class="mt-2 text-lg font-bold text-slate-800">{{ $t('about.findMe') }}</h2>
 
           <div class="mt-5 flex flex-wrap gap-3">
             <a
@@ -108,7 +107,7 @@
             <!--                class="mt-2 flex w-full flex-col items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-5">-->
             <img
                 src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://www.coffeete.ir/salehrezaei"
-                alt="کد QR حمایت مالی"
+                :alt="$t('about.supportQr')"
                 class="h-48 w-48 m-0 rounded-lg"
             />
             <!--            </div>-->
@@ -119,7 +118,7 @@
             >
               <img
                   src="/images/coffee-rtl.png"
-                  alt="حمایت مالی"
+                  :alt="$t('about.supportAlt')"
                   class="w-50 h-30"
               />
             </a>
@@ -135,7 +134,7 @@
         class="fixed bottom-6 left-6 z-50 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-primary-500 to-primary-600 px-5 py-3 text-white shadow-lg shadow-primary-300/50 transition-transform hover:scale-105 lg:hidden"
     >
       <Icon icon="tabler:coffee" class="text-base"></Icon>
-      <span class="text-sm font-medium">حمایت</span>
+      <span class="text-sm font-medium">{{ $t('about.supportShort') }}</span>
     </a>
   </div>
 </template>
@@ -149,11 +148,12 @@ useHead(() => ({
 
 definePageMeta({ layout: 'dashboard' })
 
-const skills = [
-  { title: 'Frontend', tags: ['Vue', 'Nuxt', 'Tailwind'], icon: 'mdi:code-tags' },
-  { title: 'Backend', tags: ['Laravel', 'API Design'], icon: 'mdi:server-outline' },
-  { title: 'Other', tags: ['UI/UX', 'AI Tools'], icon: 'mdi:creation-outline' },
-]
+const { t } = useLocale()
+const skills = computed(() => [
+  { title: t('about.skill.frontend'), tags: ['Vue', 'Nuxt', 'Tailwind'], icon: 'mdi:code-tags' },
+  { title: t('about.skill.backend'), tags: ['Laravel', 'API Design'], icon: 'mdi:server-outline' },
+  { title: t('about.skill.other'), tags: ['UI/UX', 'AI Tools'], icon: 'mdi:creation-outline' },
+])
 
 const links = [
   { label: 'GitHub', href: 'https://github.com/salehre', icon: 'mdi:github' },
