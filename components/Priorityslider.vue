@@ -58,12 +58,13 @@ const options = computed<{ value: Priority; label: string; bgClass: string; text
 ])
 
 const modelIndex = computed(() => Math.max(0, options.value.findIndex((o) => o.value === props.modelValue)))
-const fraction = computed(() => modelIndex.value / (options.length - 1))
-const currentOption = computed(() => options.value[modelIndex.value] ?? options.value[0])
+const fraction = computed(() => modelIndex.value / (options.value.length - 1))
+const currentOption = computed(() => options.value[modelIndex.value] ?? options.value[0]!)
 
 function onInput(e: Event): void {
   const index = Number((e.target as HTMLInputElement).value)
-  emit('update:modelValue', options.value[index].value)
+  const option = options.value[index]
+  if (option) emit('update:modelValue', option.value)
 }
 </script>
 
