@@ -217,7 +217,7 @@
         :current-user-id="currentUser.id"
         :loading="loadingGroupTasks"
         :is-mobile="isMobile"
-        @close="showGroupTasksPanel = false; if (isMobile) mobilePane.value = 'main'"
+        @close="closeGroupTasks"
         @open-task="openTaskFromPanel"
     />
   </div>
@@ -377,6 +377,11 @@ async function openGroupTasks(): Promise<void> {
   if (isMobile.value) mobilePane.value = 'tasks'
   showGroupTasksPanel.value = true
   await fetchGroupTasks(activeGroupId.value)
+}
+
+function closeGroupTasks(): void {
+  showGroupTasksPanel.value = false
+  if (isMobile.value) mobilePane.value = 'main'
 }
 
 const viewedGroupTask = ref<Todo | null>(null)
