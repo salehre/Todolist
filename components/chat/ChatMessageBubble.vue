@@ -30,7 +30,7 @@
       <span v-if="!consecutive && !isMine" class="text-xs text-primary-500 font-medium mb-1 ml-1 block">{{ senderName }}</span>
 
       <div class="relative group/message">
-        <div :class="['px-3 py-1 my-px rounded-[20px] text-[16px] leading-relaxed', isMine ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200' : 'bg-white text-primary-800 shadow-sm border border-primary-100']">
+        <div @click="handleBubbleClick" :class="['px-3 py-1 my-px rounded-[20px] text-[16px] leading-relaxed', isMine ? 'bg-linear-to-br from-primary-500 to-primary-600 text-white shadow-md shadow-primary-200' : 'bg-white text-primary-800 shadow-sm border border-primary-100']">
 
           <div v-if="message.replyTo" class="text-xs px-3 py-2 rounded-[11px] mb-1.5 mt-2 border-primary-400 bg-primary-50 max-w-full">
             <span class="font-medium text-primary-500">{{ getMemberName(replyToMessage?.senderId ?? 0) }}</span>
@@ -47,7 +47,7 @@
                   @click="emit('preview-image', a.url)"
               />
             </div>
-            <div v-for="a in message.attachments.filter(a => a.type === 'voice')" :key="a.id" class="px-3 mt-1">
+            <div v-for="a in message.attachments.filter(a => a.type === 'voice')" :key="a.id" data-no-menu class="px-3 mt-1">
               <VoicePlayer :url="a.url" :duration="a.voiceDuration ?? 0" :variant="isMine ? 'sent' : 'received'" />
             </div>
             <div v-for="a in message.attachments.filter(a => a.type === 'file')" :key="a.id" class="mx-3 mt-1 flex items-center gap-2 p-2 bg-white/20 rounded-lg">
@@ -60,10 +60,10 @@
             </div>
           </div>
 
-          <div v-if="message.todoRef" :class="['flex items-center gap-2 px-3 py-2 rounded-xl mb-1.5 bg-primary-50 border border-primary-200 text-xs text-primary-700 cursor-pointer hover:bg-primary-100 transition-all', isMine ? 'rounded-tr-sm' : 'rounded-tl-sm']" @click="emit('view-todo', message.todoRef!)">
+          <div v-if="message.todoRef" data-no-menu :class="['flex items-center gap-2 px-3 py-2 rounded-xl mb-1.5 bg-primary-50 border border-primary-200 text-xs text-primary-700 cursor-pointer hover:bg-primary-100 transition-all', isMine ? 'rounded-tr-sm' : 'rounded-tl-sm']" @click="emit('view-todo', message.todoRef!)">
             <Icon icon="mingcute:task-2-line" class="text-primary-500 shrink-0" />
-            <span class="font-medium">{{ $t('chat.taskLabel') }} {{ message.todoRef.text }}</span>
-            <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[message.todoRef.priority]]">{{ $t(`tasks.priority.${message.todoRef.priority}Short`) }}</span>
+            <span class="font-medium">Task: {{ message.todoRef.text }}</span>
+            <span :class="['ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium', priorityColors[message.todoRef.priority]]">{{ message.todoRef.priority }}</span>
           </div>
 
           <div>
@@ -103,8 +103,9 @@
         </div>
 
         <button
+            v-if="!isMobile"
             @click="emit('open-menu', message, $event)"
-            :class="['absolute top-1/3 -translate-y-1/2 opacity-0 group-hover/message:opacity-100 transition-all duration-200 hover:scale-110 p-1.5 rounded-full', isMine ? '-left-6' : '-right-6']"
+            :class="['absolute top-1/3 -translate-y-1/2 opacity-0 group-hover/message:opacity-100 transition-all duration-200 hover:scale-110 p-1.5 rounded-full', isMine ? '-inset-s-6' : '-inset-e-6']"
         >
           <Icon icon="mage:dots" class="text-primary-500 text-lg" />
         </button>
@@ -127,6 +128,7 @@ const props = defineProps<{
   highlighted: boolean
   members: GroupMember[]
   allMessages: ApiMessage[]
+  isMobile?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -137,6 +139,13 @@ const emit = defineEmits<{
   'open-menu': [message: ApiMessage, event: MouseEvent]
 }>()
 
+// موبایل: با تاچ روی پیام منوی همون پیام باز می‌شه (به‌جز روی دکمه/لینک/عکس/منشن و ...)
+function handleBubbleClick(event: MouseEvent): void {
+  if (!props.isMobile || props.message.status === 'pending') return
+  if ((event.target as HTMLElement).closest('button, a, img, input, [data-no-menu]')) return
+  emit('open-menu', props.message, event)
+}
+
 const priorityColors: Record<Priority, string> = {
   high: 'bg-red-100 text-red-600',
   medium: 'bg-amber-100 text-amber-600',
@@ -145,8 +154,7 @@ const priorityColors: Record<Priority, string> = {
 
 const isMine = computed(() => props.message.senderId === props.currentUserId)
 const sender = computed(() => props.members.find(m => m.userId === props.message.senderId))
-const { locale, t } = useLocale()
-const senderName = computed(() => sender.value?.name ?? t('common.unknown'))
+const senderName = computed(() => sender.value?.name ?? 'Unknown')
 const replyToMessage = computed(() => props.allMessages.find(m => m.id === props.message.replyTo))
 
 const textParts = computed(() => {
@@ -168,11 +176,11 @@ const textParts = computed(() => {
 })
 
 function getMemberName(id: number): string {
-  return props.members.find(m => m.userId === id)?.name ?? t('common.unknown')
+  return props.members.find(m => m.userId === id)?.name ?? 'Unknown'
 }
 
 function formatTime(date: Date | string): string {
-  return new Date(date).toLocaleTimeString(locale.value === 'fa' ? 'fa-IR' : 'en-US', { hour: '2-digit', minute: '2-digit' })
+  return new Date(date).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
 }
 
 function getFileIcon(filename: string): string {

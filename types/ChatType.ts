@@ -1,4 +1,4 @@
-import type { Priority } from '~/types/todoType'
+import type { export export Priority } from '~/types/todoType'
 
 export interface MessageAttachment {
     id: number

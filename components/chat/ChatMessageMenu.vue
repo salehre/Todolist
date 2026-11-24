@@ -4,7 +4,7 @@
         v-if="message"
         ref="menuElRef"
         @click.stop
-        class="fixed z-[100] bg-white rounded-lg shadow-xl py-1 min-w-40 menu-pop"
+        class="fixed z-100 bg-white rounded-lg shadow-xl py-1 min-w-40 menu-pop"
         :style="{ top: style.top + 'px', left: style.left + 'px', transformOrigin: origin }"
     >
       <div class="flex gap-1 px-2 py-1.5 border-b max-w-40 overflow-x-auto scrollbar-thin border-primary-100">
@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
 import { Icon } from '@iconify/vue'
-import type { ApiMessage } from '~/types/chatType'
+import type { ApiMessage } from '~/types/ChatType'
 
 const props = defineProps<{
   message: ApiMessage | null
@@ -59,7 +59,7 @@ const emit = defineEmits<{
   react: [id: number, emoji: string]
 }>()
 
-const quickEmojis = ['👍', '❤️', '😂', '🔥', '👏', '😮', '😭', '😟']
+const quickEmojis = ['👍', '❤️','💘', '😂', '🔥', '👏', '😮', '😭' ]
 const menuElRef = ref<HTMLElement | null>(null)
 const style = ref({ top: -9999, left: -9999 })
 const origin = ref('top left')
