@@ -2,7 +2,7 @@
   <div
       ref="containerRef"
       @scroll="emit('scroll')"
-      class="flex-1 overflow-y-auto px-4 pt-4 pb-1.25 custom-scrollbar min-h-0 space-y-1"
+      class="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-4 pb-1.25 custom-scrollbar min-h-0 space-y-1"
       :style="{ opacity: ready ? 1 : 0 }"
   >
     <!-- SKELETON: initial page load -->
@@ -135,6 +135,7 @@
               @view-todo="emit('view-todo', $event)"
               @toggle-reaction="(id, emoji) => emit('toggle-reaction', id, emoji)"
               @open-menu="(msg, event) => emit('open-menu', msg, event)"
+              @reply="emit('reply', $event)"
           />
         </template>
       </template>
@@ -183,6 +184,7 @@ const emit = defineEmits<{
   'view-todo': [todoRef: NonNullable<ApiMessage['todoRef']>]
   'toggle-reaction': [id: number, emoji: string]
   'open-menu': [message: ApiMessage, event: MouseEvent]
+  'reply': [message: ApiMessage]
 }>()
 
 const { isMobile } = useResponsiveMode()

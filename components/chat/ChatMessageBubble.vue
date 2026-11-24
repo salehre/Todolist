@@ -16,7 +16,28 @@
         consecutive ? 'mt-0.5' : 'mt-3',
         highlighted ? 'bg-primary-100/50 rounded-xl -mx-2 px-2 py-1' : ''
       ]"
+      :style="rowStyle"
+      @touchstart.passive="onTouchStart"
+      @touchmove.passive="onTouchMove"
+      @touchend="onTouchEnd"
+      @touchcancel="onTouchCancel"
   >
+    <!-- آیکون ریپلای که موقع کشیدن پیام (موبایل) از پشتش پیدا می‌شه -->
+    <div
+        v-if="canSwipe"
+        aria-hidden="true"
+        class="absolute top-1/2 -z-10 pointer-events-none"
+        :style="iconWrapStyle"
+    >
+      <div
+          class="w-8 h-8 rounded-full flex items-center justify-center transition-[scale,background-color,color] duration-150"
+          :class="reached ? 'scale-125 bg-primary-500 text-white' : 'bg-primary-100 text-primary-600'"
+          :style="{ transform: `scale(${0.5 + 0.5 * swipeProgress})` }"
+      >
+        <Icon icon="solar:reply-linear" class="text-base" />
+      </div>
+    </div>
+
     <div class="shrink-0 w-8">
       <div v-if="!consecutive" @click="emit('open-profile', message.senderId)" class="cursor-pointer">
         <img v-if="sender?.avatarUrl" :src="sender.avatarUrl" class="w-8 h-8 rounded-full object-cover shadow-sm hover:opacity-80 transition" alt="member profile" />
@@ -115,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Icon } from '@iconify/vue'
 import VoicePlayer from '~/components/VoicePlayer.vue'
 import { colorFor } from '~/utils/avatarColor'
@@ -137,13 +158,115 @@ const emit = defineEmits<{
   'view-todo': [todoRef: NonNullable<ApiMessage['todoRef']>]
   'toggle-reaction': [id: number, emoji: string]
   'open-menu': [message: ApiMessage, event: MouseEvent]
+  'reply': [message: ApiMessage]
 }>()
 
 // موبایل: با تاچ روی پیام منوی همون پیام باز می‌شه (به‌جز روی دکمه/لینک/عکس/منشن و ...)
 function handleBubbleClick(event: MouseEvent): void {
   if (!props.isMobile || props.message.status === 'pending') return
+  if (swipedRecently) { swipedRecently = false; return }
   if ((event.target as HTMLElement).closest('button, a, img, input, [data-no-menu]')) return
   emit('open-menu', props.message, event)
+}
+
+// ─── کشیدن پیام برای ریپلای (موبایل) ─────────────────────────────────────
+// جهت کشیدن همون سمتیه که آیکون سه‌نقطه توی دسکتاپ هست (سمت خالیِ پیام)
+// و با rtl/ltr عوض می‌شه. اگه به THRESHOLD نرسه، موقع ول کردن ریپلای نمی‌شه.
+const SWIPE_THRESHOLD = 56   // px تا این حد بکشی ریپلای فعال می‌شه
+const SWIPE_MAX = 80         // px حداکثر جابه‌جایی پیام
+const SWIPE_INTENT = 8       // px تا تشخیص افقی/عمودی بودن حرکت
+
+const swipeX = ref(0)                       // جابه‌جایی فعلی (با علامت)
+const isDragging = ref(false)
+const reached = ref(false)                  // از threshold رد شده؟
+const swipeSide = ref<'left' | 'right'>('left') // آیکون کدوم طرف پیدا بشه
+
+let startX = 0
+let startY = 0
+let tracking = false
+let decided = false
+let dirSign = 1
+let swipedRecently = false
+
+const canSwipe = computed(() => !!props.isMobile && props.message.status !== 'pending' && !props.message.failed)
+const swipeProgress = computed(() => Math.min(Math.abs(swipeX.value) / SWIPE_THRESHOLD, 1))
+
+const rowStyle = computed(() => {
+  if (!canSwipe.value) return undefined
+  return {
+    transform: swipeX.value ? `translateX(${swipeX.value}px)` : undefined,
+    transition: isDragging.value ? 'none' : 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.5s',
+    touchAction: 'pan-y pinch-zoom',
+  }
+})
+
+const iconWrapStyle = computed(() => ({
+  [swipeSide.value]: '0px',
+  // آیکون سر جاش می‌مونه و پیام ازش دور می‌شه
+  transform: `translateY(-50%) translateX(${-swipeX.value}px)`,
+  opacity: swipeProgress.value,
+  transition: isDragging.value ? 'none' : 'opacity 0.2s',
+}))
+
+function onTouchStart(e: TouchEvent): void {
+  if (!canSwipe.value || e.touches.length !== 1) return
+  if ((e.target as HTMLElement).closest('[data-no-menu], input, textarea')) return
+  const t = e.touches[0]
+  startX = t.clientX
+  startY = t.clientY
+  tracking = true
+  decided = false
+  swipedRecently = false
+  reached.value = false
+  const rtl = getComputedStyle(e.currentTarget as HTMLElement).direction === 'rtl'
+  // +1 = به راست بکش، -1 = به چپ بکش
+  dirSign = (isMine.value ? -1 : 1) * (rtl ? -1 : 1)
+  swipeSide.value = dirSign > 0 ? 'left' : 'right'
+}
+
+function onTouchMove(e: TouchEvent): void {
+  if (!tracking) return
+  const t = e.touches[0]
+  const dx = t.clientX - startX
+  const dy = t.clientY - startY
+
+  if (!decided) {
+    if (Math.abs(dx) < SWIPE_INTENT && Math.abs(dy) < SWIPE_INTENT) return
+    decided = true
+    if (Math.abs(dy) > Math.abs(dx)) { tracking = false; return } // اسکرول عمودی
+    isDragging.value = true
+  }
+
+  const towards = dx * dirSign // فقط کشیدن به سمت ریپلای حساب می‌شه
+  if (towards <= 0) { swipeX.value = 0; reached.value = false; return }
+
+  // بعد از threshold کشیدن سنگین‌تر می‌شه
+  const eased = towards <= SWIPE_THRESHOLD ? towards : SWIPE_THRESHOLD + (towards - SWIPE_THRESHOLD) * 0.35
+  swipeX.value = Math.min(eased, SWIPE_MAX) * dirSign
+  swipedRecently = true
+
+  const nowReached = towards >= SWIPE_THRESHOLD
+  if (nowReached && !reached.value) navigator.vibrate?.(12)
+  reached.value = nowReached
+}
+
+function resetSwipe(): void {
+  tracking = false
+  decided = false
+  isDragging.value = false
+  swipeX.value = 0
+  reached.value = false
+}
+
+function onTouchEnd(): void {
+  if (!tracking && !isDragging.value) return
+  const shouldReply = reached.value
+  resetSwipe()
+  if (shouldReply) emit('reply', props.message)
+}
+
+function onTouchCancel(): void {
+  resetSwipe()
 }
 
 const priorityColors: Record<Priority, string> = {
