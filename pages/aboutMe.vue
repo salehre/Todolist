@@ -117,7 +117,7 @@
                 class="inline-flex"
             >
               <img
-                  src="/images/coffee-rtl.png"
+                  src="/images/coffee-rtl.webp"
                   :alt="$t('about.supportAlt')"
                   class="w-50 h-30"
               />

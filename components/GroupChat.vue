@@ -174,7 +174,7 @@
           @update-steps="updateGroupTaskSteps"
       />
 
-      <div v-if="showEditGroupTaskDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4" @click.self="closeEditGroupTaskDialog">
+      <div v-if="showEditGroupTaskDialog" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-80 p-4" @click.self="closeEditGroupTaskDialog">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
           <div class="flex justify-between items-center p-6 border-b border-primary-100 sticky top-0 bg-white z-10">
             <h3 class="text-xl font-bold text-primary-900"> Edit Task</h3>
@@ -186,8 +186,8 @@
               <input v-model="editGroupTaskForm.title" type="text" placeholder="Enter task title..." class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all" @keyup.enter="submitEditGroupTask" />
             </div>
             <div>
-            <label class="block text-sm font-medium text-primary-700 mb-2">Description</label>
-            <textarea v-model="editGroupTaskForm.description" rows="4" placeholder="Enter task description (optional)..." class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"></textarea>
+              <label class="block text-sm font-medium text-primary-700 mb-2">Description</label>
+              <textarea v-model="editGroupTaskForm.description" rows="4" placeholder="Enter task description (optional)..." class="w-full px-4 py-2 rounded-xl border border-primary-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none transition-all resize-none"></textarea>
             </div>
             <div>
               <PrioritySlider v-model="editGroupTaskForm.priority" />
@@ -280,6 +280,8 @@ const {
 } = useGroupChat()
 
 const { clearMessageNotice } = useNotifications()
+const route = useRoute()
+const router = useRouter()
 const { openConfirm } = useConfirmDialog()
 const { isMobile } = useResponsiveMode()
 
@@ -864,9 +866,22 @@ function handleScroll(): void {
 }
 
 // ── Lifecycle ───────────────────────────────────────────────────────────
-onMounted(() => {
-  fetchGroups()
+// کلیک روی نوتیفیکیشن پوش: /workPlan?group=ID همون گروه رو باز می‌کنه
+async function openGroupFromQuery(): Promise<void> {
+  const id = Number(route.query.group)
+  if (!id) return
+  if (apiGroups.value.some(g => g.id === id) && activeGroupId.value !== id) {
+    await selectGroup(id)
+  }
+  router.replace({ query: { ...route.query, group: undefined } })
+}
+watch(() => route.query.group, () => { if (route.query.group) openGroupFromQuery() })
+
+onMounted(async () => {
+  const groupsLoaded = fetchGroups()
   setChatContext(null, currentUser.value.id)
+  await groupsLoaded
+  await openGroupFromQuery()
 })
 onUnmounted(() => {
   footerResizeObserver?.disconnect()

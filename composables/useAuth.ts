@@ -149,6 +149,8 @@ export function useAuth() {
 
     // ─── Logout ───────────────────────────────────────────────────────────
     async function logout() {
+        // قبل از بسته شدن سشن، اشتراک نوتیف این دستگاه برای این کاربر پاک می‌شه
+        await usePushNotifications().removeForLogout().catch(() => {})
         await api.post('/auth/logout').catch(() => {})
         authState.user = null
         authState.isLoggedIn = false

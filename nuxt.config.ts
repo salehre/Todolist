@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   ssr: false,
   devtools: { enabled: false },
-  css: ["~/assets/main.css"], 
+  css: ["~/assets/main.css"],
   modules: ["@vite-pwa/nuxt"],
   vite: {
     plugins: [tailwindcss()],
@@ -25,6 +25,9 @@ export default defineNuxtConfig({
   },
 
   pwa: {
+    strategies: "injectManifest",
+    srcDir: "service-worker",
+    filename: "sw.ts",
     registerType: "autoUpdate",
     manifest: {
       name: "Todolist",
@@ -42,8 +45,8 @@ export default defineNuxtConfig({
         { src: "/icons/icon-512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
       ],
     },
-    workbox: {
-      globPatterns: ["**/*.{js,css,html,woff2,svg,ico}"],
+    injectManifest: {
+      globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2,ttf}"],
     },
     devOptions: {
       enabled: true,
